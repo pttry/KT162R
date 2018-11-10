@@ -11,7 +11,7 @@ data0 <-
 data <- data0
 
 # Remove redundant columns
-   data <- data %>% select(-Sukupuoli, -Ikä)
+   data <- data %>% select(-Sukupuoli, -Ikä, -Tiedot)
 
 # Change the type of Vuosi column
    data$Vuosi <- as.integer(as.character(data$Vuosi))

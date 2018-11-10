@@ -13,6 +13,9 @@ data <- data0
 # Remove redundant columns
    data <- data %>% select(Vuosi, values)
 
+# Change the type of vuosi
+   data$Vuosi <- as.integer(as.character(data$Vuosi))
+
 # Change names, name values might conflict when joining to other data sets.
    names(data) <- c("Vuosi", "vakiluku")
 

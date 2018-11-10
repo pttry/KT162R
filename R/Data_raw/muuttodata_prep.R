@@ -23,9 +23,9 @@ data0 <-
    tulokunnat <- sapply(sapply(data$Tulokunta, strsplit, " - "), '[', 2)
    lahtokunnat <- sapply(sapply(data$Lahtokunta, strsplit, " - "), '[', 2)
    names(tulokunnat) <- NULL
-   names(lähtökunnat) <- NULL
+   names(lahtokunnat) <- NULL
    data$Tulokunta <- tulokunnat
-   data$Lahtokunta <- lähtökunnat
+   data$Lahtokunta <- lahtokunnat
 
 # Change type of Vuosi to integer
    data$Vuosi <- as.integer(as.character(data$Vuosi))
@@ -35,45 +35,68 @@ data0 <-
    data <- data %>% mutate(maakuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Maakunta"))
    data <- data %>% mutate(seutukuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Seutukunta"))
 
+# Alternatively, process data in chunks
+   data1 <- data[1:500000,]
+   data2 <- data[500001:1000000,]
+   data3 <- data[1000001:1500000,]
+   data4 <- data[1500001:2000000,]
+   data5 <- data[2000001:dim(data)[1], ]
+
+   data1 <- data1 %>% mutate(maakuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Maakunta"))
+   data1 <- data1 %>% mutate(seutukuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Seutukunta"))
+
+   data2 <- data2 %>% mutate(maakuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Maakunta"))
+   data2 <- data2 %>% mutate(seutukuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Seutukunta"))
+
+   data3 <- data3 %>% mutate(maakuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Maakunta"))
+   data3 <- data3 %>% mutate(seutukuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Seutukunta"))
+
+   data4 <- data4 %>% mutate(maakuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Maakunta"))
+   data4 <- data4 %>% mutate(seutukuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Seutukunta"))
+
+   data5 <- data5 %>% mutate(maakuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Maakunta"))
+   data5 <- data5 %>% mutate(seutukuntien_valinen_muutto = is.erialue(Tulokunta, Lahtokunta, "Seutukunta"))
+
+   data <- rbind(data1, data2, data3, data4, data5)
+
+
 # Name data set
-   muutot <- data
+   muuttodata <- data
 
 # Save data
-   setwd(paste(getwd(), "/R/data_clean", sep = ""))
-   saveRDS(muutot, file = "muuttodata.rds")
+   saveRDS(muuttodata, file = "R/data_clean/muuttodata.rds")
 
 # Compute all yearly migration between maakunnat, seutukunnat and kunnat
    maakuntien_valiset_muutot_vuosittain <- data %>%
-     group_by(vuosi) %>%
-     summarize(maakuntien_valisia_muuttoja = sum(muutot * maakuntien_valinen_muutto))
+     group_by(Vuosi) %>%
+     summarize(maakuntien_valisia_muuttoja = sum(values * maakuntien_valinen_muutto))
    seutukuntien_valiset_muutot_vuosittain <- data %>%
-     group_by(vuosi) %>%
-     summarize(seutukuntien_valisia_muuttoja = sum(muutot * seutukuntien_valinen_muutto))
+     group_by(Vuosi) %>%
+     summarize(seutukuntien_valisia_muuttoja = sum(values * seutukuntien_valinen_muutto))
    kuntien_valiset_muutot_vuosittain <- data %>%
-     group_by(vuosi) %>%
-     summarize(kuntien_valisia_muuttoja = sum(muutot))
+     group_by(Vuosi) %>%
+     summarize(kuntien_valisia_muuttoja = sum(values))
 
 # Load kuntien sisäiset muutot
-    readRDS("R/data_clean/kuntien_sisaiset_muutot.rds")
-    kuntien_sisaiset_muutot_vuosittain <- kuntien_sisaiset_muutot
+    kuntien_sisaiset_muutot_vuosittain <- readRDS("R/data_clean/kuntien_sisaiset_muutot.rds")
     names(kuntien_sisaiset_muutot_vuosittain) <- c("Vuosi", "kuntien_sisaisia_muuttoja")
 
 # Load väkilukutiedot
-    readRDS("R/data_clean/vakiluku")
+    vakiluku <- readRDS("R/data_clean/vakiluku.rds")
 
 # Compute muuttoasteet
 
     maakuntien_valiset_muutot_vuosittain <- left_join(maakuntien_valiset_muutot_vuosittain,
-                                                      vakiluku, by = "vuosi") %>%
-      mutate(muuttoaste = maakuntien_valisia_muuttoja / vakiluku)
+                                                      vakiluku, by = "Vuosi") %>%
+                 mutate(muuttoaste = maakuntien_valisia_muuttoja / vakiluku)
     seutukuntien_valiset_muutot_vuosittain <- left_join(seutukuntien_valiset_muutot_vuosittain,
-                                                        vakiluku, by = "vuosi") %>%
+                                                        vakiluku, by = "Vuosi") %>%
       mutate(muuttoaste = seutukuntien_valisia_muuttoja / vakiluku)
     kuntien_valiset_muutot_vuosittain <- left_join(kuntien_valiset_muutot_vuosittain,
-                                                   vakiluku, by = "vuosi") %>%
+                                                   vakiluku, by = "Vuosi") %>%
       mutate(muuttoaste = kuntien_valisia_muuttoja / vakiluku)
     kuntien_sisaiset_muutot_vuosittain <- left_join(kuntien_sisaiset_muutot_vuosittain,
-                                                    vakiluku, by = "vuosi") %>%
+                                                    vakiluku, by = "Vuosi") %>%
       mutate(muuttoaste = kuntien_sisaisia_muuttoja / vakiluku)
 
     names(seutukuntien_valiset_muutot_vuosittain) <- c("vuosi", "muuttoja","vakiluku", "muuttoaste")
@@ -84,7 +107,7 @@ data0 <-
                     seutukuntien_valiset_muutot_vuosittain,
                     kuntien_valiset_muutot_vuosittain,
                     kuntien_sisaiset_muutot_vuosittain)
-    muutot$muuton_tyyppi <- as.factor(rep(1:4, each = 27))
+    muutot$muuton_tyyppi <- as.factor(rep(1:4, each = 28))
     levels(muutot$muuton_tyyppi) <- c("maakuntien valiset muutot",
                                       "seutukuntien valiset muutot",
                                       "kuntien valiset muutot",
@@ -94,5 +117,5 @@ data0 <-
     muuttoaste_data <- muutot
 
 # Save data
-    saveRDS(muuttoaste_data, file = "R/clean_data/muuttoaste_data.rds")
+    saveRDS(muuttoaste_data, file = "R/data_clean/muuttoaste_data.rds")
 
