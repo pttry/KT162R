@@ -61,3 +61,28 @@ tulopendelointi_data <-
 
 # Save data
 saveRDS(tulopendelointi_data, file = "R/data_clean/tulopendelointi_data.rds")
+
+# Combine the data
+
+lahtopendelointi_data <- readRDS("R/data_clean/lahtopendelointi_data.rds")
+tulopendelointi_data <- readRDS("R/data_clean/tulopendelointi_data.rds")
+
+lahtopendelointi_data <- lahtopendelointi_data %>% spread(Pendelöinti, values)
+names(lahtopendelointi_data) <- c("alue", "koulutusaste", "vuosi", "ika", "seutukunta", "maakunta", "kuntaryhma",
+                                  "asuinkunnassaan_tyossakayvat", "pendeloivat", "tyolliset_yhteensa")
+
+lahtopendelointi_data <- select(lahtopendelointi_data, - tyolliset_yhteensa) %>%
+                         rename(lahtopendelointi = pendeloivat)
+
+tulopendelointi_data <- tulopendelointi_data %>% spread(Pendelöinti, values)
+names(tulopendelointi_data) <- c("alue", "koulutusaste", "vuosi", "ika", "seutukunta", "maakunta", "kuntaryhma",
+                                 "tyolliset_yhteensa", "asuinkunnassaan_tyossakayvat", "pendeloivat")
+
+tulopendelointi_data <- select(tulopendelointi_data, - tyolliset_yhteensa) %>%
+  rename(tulopendelointi = pendeloivat)
+
+pendelointi_data <- left_join(tulopendelointi_data, lahtopendelointi_data)
+
+# Save data
+  saveRDS(pendelointi_data, file = "R/data_clean/pendelointi_data.rds")
+

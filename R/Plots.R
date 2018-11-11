@@ -49,3 +49,36 @@ set_gg(theme_ptt(), "ptt")
      theme(legend.text = element_text(size = 8))
 
 # Save plot
+
+
+###### Plot pendelelöijien absoluuttinen määrä koko maassa ################################
+
+   pendelointi_data <- readRDS("R/data_clean/pendelointi_data.rds")
+   # Data muokattu Tilastokeskuksen Datasta scriptissä "Pendelöintiaineistojen siistintä"
+   # kansiossa Kuvaajien R koodit/Datan siistintä
+
+   # Huom. Koko maan summia laskettaessa ei ole väliä summaileeko kohde- vai lähtöalueiden
+   # pendelöintejä
+
+   pendelointi_data %>% group_by(vuosi) %>%
+     summarize(commuters = sum(lahtopendelointi)) %>%
+     ggplot(aes(y = commuters, x = vuosi)) +
+     geom_line() +
+     #ggtitle("Pendelöijien määrä Suomessa 1987 - 2015") + #Kuntien välinen pendelöinti
+     ylab("Pendelöijien määrä") +
+     xlab(NULL) +
+     scale_y_continuous(limits = c(400000,800000), labels = deci_comma)
+
+##### Plot pendelöijien osuus työllisistä koko suomessa ##################################
+
+   pendelointi_data %>% group_by(vuosi) %>%
+     summarize(pendeloijat_yhteensa = sum(lahtopendelointi),
+               ei_pendeloijat_yhteensa = sum(asuinkunnassaan_tyossakayvat)) %>%
+     mutate(pendelointiosuus = pendeloijat_yhteensa /
+              (pendeloijat_yhteensa + ei_pendeloijat_yhteensa)) %>%
+     ggplot(aes(y = pendelointiosuus, x = vuosi)) +
+     geom_line() +
+     #ggtitle("Pendelöijien osuus työllisistä Suomessa 1987 - 2015") +
+     ylab("Pendelöijien osuus työllisistä") +
+     xlab(NULL) +
+     scale_y_continuous(limits = c(0.19,0.35), labels = percent_comma)
