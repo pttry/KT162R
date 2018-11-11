@@ -10,7 +10,7 @@ LazyData: true
 Imports:
   tidyr,
   dplyr,
-  ggplot,
+  ggplot2,
   ggptt,
   statfitools,
   pxweb
