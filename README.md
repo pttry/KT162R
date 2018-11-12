@@ -29,3 +29,13 @@
 
 ## Data
 
+* luokitukset.R
+    + aluetyyppiluokitus
+    
+    
+## Analyysi
+
+* Pendelointi
+* pendelointi_data_prep.R
+
+

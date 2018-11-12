@@ -1,0 +1,49 @@
+---
+title: "Pendelöinti"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(tidyverse)
+library(ggptt)
+
+set_ptt()
+
+```
+
+```{r data}
+
+data("dat_lahtopendelointi_tyyppi", "dat_tulopendelointi_tyyppi")
+
+```
+
+# Pendelöivien osuus kunnassa työssäkäyvistä
+
+```{r pend_atyyppi}
+
+dat_tulopendelointi_tyyppi %>% 
+  filter(koulutusaste == "Yhteensä",
+         ika == "Kaikki ikäluokat") %>% 
+  mutate(pendelointi = fct_recode(pendelointi, 
+                                  kaikki = "Alueella työssäkäyvät yhteensä",
+                                  asuinkunnassa = "Asuinkunnassaan työssäkäyvät",
+                                  pendeloivat = "Pendelöivät")) %>% 
+  spread(pendelointi, values) %>% 
+  mutate(values = pendeloivat / kaikki) %>% 
+  ggplot(aes(time, values, colour = aluetyyppi)) +
+  geom_line()
+  
+
+```
+

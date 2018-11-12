@@ -15,3 +15,7 @@ Imports:
   statfitools,
   pxweb,
   readxl
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
