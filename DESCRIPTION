@@ -13,4 +13,5 @@ Imports:
   ggplot2,
   ggptt,
   statfitools,
-  pxweb
+  pxweb,
+  readxl
