@@ -39,6 +39,50 @@
      ggplot(aes(x = Vuosi, y = nettomuutto, fill = kuntaryhma)) +
            geom_bar(stat = "identity", position = "stack")
 
+# Nettomuuttoasteet aluetyypeittäin, viiva
+   dat_muuttotiedot_kunnittain %>%
+     filter(Tiedot == "nettomuutto") %>%
+     group_by(aluetyyppi, Vuosi) %>%
+     summarize(nettomuutto = sum(values),
+               vakea = sum(vakiluku)) %>%
+     mutate(nettomuuttoaste = nettomuutto / vakea) %>%
+     ungroup() %>%
+     ggplot(aes(x = Vuosi, y = nettomuuttoaste, color = aluetyyppi)) +
+     geom_line()
+
+# Nettomuuttoasteet kuntaryhmittäin, viiva
+   dat_muuttotiedot_kunnittain %>%
+     filter(Tiedot == "nettomuutto") %>%
+     group_by(kuntaryhma, Vuosi) %>%
+     summarize(nettomuutto = sum(values),
+               vakea = sum(vakiluku)) %>%
+     mutate(nettomuuttoaste = nettomuutto / vakea) %>%
+     ungroup() %>%
+     ggplot(aes(x = Vuosi, y = nettomuuttoaste, color = kuntaryhma)) +
+     geom_line()
+
+   # Nettomuuttoasteet aluetyypeittäin, palkki
+   dat_muuttotiedot_kunnittain %>%
+     filter(Tiedot == "nettomuutto") %>%
+     group_by(aluetyyppi, Vuosi) %>%
+     summarize(nettomuutto = sum(values),
+               vakea = sum(vakiluku)) %>%
+     mutate(nettomuuttoaste = nettomuutto / vakea) %>%
+     ungroup() %>%
+     ggplot(aes(x = Vuosi, y = nettomuuttoaste, fill = aluetyyppi)) +
+     geom_bar(stat = "identity", position = "stack")
+
+   # Nettomuuttoasteet kuntaryhmittäin, palkki
+   dat_muuttotiedot_kunnittain %>%
+     filter(Tiedot == "nettomuutto") %>%
+     group_by(kuntaryhma, Vuosi) %>%
+     summarize(nettomuutto = sum(values),
+               vakea = sum(vakiluku)) %>%
+     mutate(nettomuuttoaste = nettomuutto / vakea) %>%
+     ungroup() %>%
+     ggplot(aes(x = Vuosi, y = nettomuuttoaste, fill = kuntaryhma)) +
+     geom_bar(stat = "identity", position = "stack")
+
 # Lähto- ja tulomuutot aluetyypeittäin
 
 # Muuta lähtömuuttojen arvot negatiivisiksi
