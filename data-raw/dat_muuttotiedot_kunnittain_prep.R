@@ -27,7 +27,7 @@ dat_muuttotiedot_kunnittain <-
 
 # Load aluetyypit and väkilukutiedot
    load("data/aluetyyppi.rda")
-   vakiluvut_data <- readRDS("data/vakiluvut_data.rds")
+   dat_kuntien_vakiluvut <- readRDS("data/dat_kuntien_vakiluvut.rds")
 
 # Add aluetyypit to the data
    dat_muuttotiedot_kunnittain <- dat_muuttotiedot_kunnittain %>%
@@ -37,7 +37,7 @@ dat_muuttotiedot_kunnittain <-
 # Add väkilukutiedot to the data
    dat_muuttotiedot_kunnittain <- dat_muuttotiedot_kunnittain %>%
      rename(Alue = kunta) %>%
-     left_join(vakiluvut_data, by = c("Alue", "Vuosi"))
+     left_join(dat_kuntien_vakiluvut, by = c("Alue", "Vuosi"))
 
 # Compute muuttoasteet
    dat_muuttotiedot_kunnittain <- dat_muuttotiedot_kunnittain %>%
