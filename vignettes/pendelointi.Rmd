@@ -12,13 +12,19 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.path = "fig_pendelointi/"
 )
 
 library(tidyverse)
 library(ggptt)
+library(RColorBrewer)
+library(glue)
 
 set_ptt()
+theme_update(plot.subtitle = element_text(colour = "grey50", size = 9))
+
+atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
 
 ```
 
@@ -32,6 +38,8 @@ data("dat_lahtopendelointi_tyyppi", "dat_tulopendelointi_tyyppi")
 
 ```{r pend_atyyppi}
 
+time_range <- range(dat_tulopendelointi$time)
+
 dat_tulopendelointi_tyyppi %>% 
   filter(koulutusaste == "Yhteensä",
          ika == "Kaikki ikäluokat") %>% 
@@ -40,10 +48,34 @@ dat_tulopendelointi_tyyppi %>%
                                   asuinkunnassa = "Asuinkunnassaan työssäkäyvät",
                                   pendeloivat = "Pendelöivät")) %>% 
   spread(pendelointi, values) %>% 
-  mutate(values = pendeloivat / kaikki) %>% 
+  mutate(values = 100 * pendeloivat / kaikki) %>% 
+  ggplot(aes(time, values, colour = aluetyyppi)) +
+  geom_line() +
+  scale_colour_manual(values = atyyppi_colour) +
+  the_title_blank(c("x", "l")) +
+  labs(subtitle = glue("Muissa kunnissa asuvien osuus kunnassa työssäkäyvistä keskimäärin alueilla",
+                       "vuosina {time_range[1]}-{time_range[2]}.", .sep = "\n"),
+       title = "Pendelöijien osuus työssäkäyvistä",
+       caption = "Lähde: PTT, Tilastokeskus",
+       y = "%")
+
+ggsave("pend_atyyppi.png")  
+
+```
+
+```{r pend_atyyppi_maara}
+
+dat_tulopendelointi_tyyppi %>% 
+  filter(koulutusaste == "Yhteensä",
+         ika == "Kaikki ikäluokat") %>% 
+  mutate(pendelointi = fct_recode(pendelointi, 
+                                  kaikki = "Alueella työssäkäyvät yhteensä",
+                                  asuinkunnassa = "Asuinkunnassaan työssäkäyvät",
+                                  pendeloivat = "Pendelöivät")) %>% 
+  spread(pendelointi, values) %>% 
+  mutate(values = pendeloivat) %>% 
   ggplot(aes(time, values, colour = aluetyyppi)) +
   geom_line()
   
 
 ```
-
