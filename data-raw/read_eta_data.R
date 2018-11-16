@@ -3,10 +3,12 @@
 
 # Työperäinen muutto
 
+library(tidyverse)
+
 tyo_muutto_atyyppi <- read.csv2("data-raw/muutto_atyyppi_ulos.csv") %>%
   mutate(aluetyyppi = factor(atyyppi,
                              c("pk", "yokaup", "tkakeskus", "kaup", "kaupms", "ydinms", "ms"),
-                             c("PK-seutu", "Muut yliopistokaupungit", "Muut TKA keskukset",
+                             c("PK-seutu", "Muut yliopistokaupungit", "Muut työssäkäyntialueen keskukset",
                                "Muut kaupungit", "Kaupunkien läh. maaseutu",
                                "Ydinmaaseutu", "Harvaan asuttu maaseutu"))) %>%
   mutate(tyo_muutto_netto = tyo_muutto_tulo - tyo_muutto_lahto,

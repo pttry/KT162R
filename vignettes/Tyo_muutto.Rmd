@@ -22,7 +22,9 @@ library(RColorBrewer)
 library(glue)
 
 set_ptt()
-theme_update(plot.subtitle = element_text(colour = "grey50", size = 9))
+theme_update(plot.subtitle = element_text(colour = "grey50", size = 9), 
+             plot.margin = margin(0.5, 0.5, 3, 0.5))
+
 
 atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
 
@@ -46,7 +48,8 @@ tyo_muutto_atyyppi %>%
   select(time, aluetyyppi, 'Työperäinen' = tyo_muutto_netto, '18-80-vuotiaat' = tmuutto_netto) %>% 
   mutate(aluetyyppi = fct_recode(aluetyyppi, 
                                  'Muu maaseutu' = "Ydinmaaseutu",
-                                 'Muu maaseutu' = "Harvaan asuttu maaseutu")) %>% 
+                                 'Muu maaseutu' = "Harvaan asuttu maaseutu"),
+         aluetyyppi = ggptt::line_wrap(aluetyyppi, 25)) %>% 
   group_by(time, aluetyyppi) %>% 
   summarise_all(sum) %>% 
   ungroup() %>% 
