@@ -52,7 +52,7 @@ dat_tulopendelointi_tyyppi <-
   ungroup() %>%
   mutate(aluetyyppi = as_factor(aluetyyppi))
 
-usethis::use_data(dat_lahtopendelointi, dat_lahtopendelointi, overwrite = TRUE)
+usethis::use_data(dat_lahtopendelointi, dat_tulopendelointi, overwrite = TRUE)
 usethis::use_data(dat_lahtopendelointi_tyyppi, dat_tulopendelointi_tyyppi, overwrite = TRUE)
 
 

@@ -31,9 +31,8 @@ atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] ,
 ```
 
 ```{r data}
+data("tyo_muutto_atyyppi", "tyo_muutto_ku")
 
-load("../data/tyo_muutto_atyyppi.rda")
-load("../data/tyo_muutto_ku.rda")
 
 ```
 
@@ -86,3 +85,6 @@ dat_tulopendelointi_tyyppi %>%
   
 
 ```
+
+
+

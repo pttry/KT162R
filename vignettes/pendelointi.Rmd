@@ -30,7 +30,7 @@ atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] ,
 
 ```{r data}
 
-data("dat_lahtopendelointi_tyyppi", "dat_tulopendelointi_tyyppi")
+data("dat_lahtopendelointi_tyyppi", "dat_tulopendelointi_tyyppi", "dat_tulopendelointi")
 
 ```
 
@@ -87,3 +87,41 @@ dat_tulopendelointi_tyyppi %>%
   
 
 ```
+
+```{r tyossakaynti_aste}
+
+dat_tyossakaynti_aste <- 
+  dat_tulopendelointi %>% 
+  filter(koulutusaste == "Yhteensä",
+         ika == "Kaikki ikäluokat",
+         pendelointi == "Alueella työssäkäyvät yhteensä") %>% 
+  select(- koulutusaste, - ika, - pendelointi) %>% 
+  rename(alue = tyopaikan_alue, tyossakayvat = values) %>% 
+  left_join(dat_kuntien_vakiluvut, by = c("alue", "time")) %>% 
+  mutate(tyossakaynti_aste = tyossakayvat/vaki_15_64)
+
+dat_tyossakaynti_aste %>% 
+  mutate(alue2 = fct_other(alue, keep = c("KOKO MAA", "Helsinki")),
+         alue = fct_relevel(alue, c("KOKO MAA", "Helsinki"), after = Inf)) %>% 
+  ggplot(aes(time, tyossakaynti_aste, group = alue, colour = alue2)) +
+  geom_line(alpha = 0.5)
+
+
+```
+```{r tyossakaynti_aste_tyyppi}
+
+dat_tyossakaynti_aste_tyyppi <- 
+  aluetyyppi %>% 
+  rename(alue = kunta) %>% 
+  left_join(dat_tyossakaynti_aste, by = "alue") %>% 
+  group_by(time, aluetyyppi) %>% 
+  summarise_if(is.numeric, sum) %>% 
+  ungroup() %>% 
+  mutate(tyossakaynti_aste = tyossakayvat/vaki_15_64)
+
+dat_tyossakaynti_aste_tyyppi %>% 
+  ggplot(aes(time, tyossakaynti_aste, colour = aluetyyppi)) +
+  geom_line()
+
+```
+
