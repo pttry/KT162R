@@ -213,3 +213,58 @@ dat_muuttotiedot_kunnittain_mod %>%
        subtitle = "Tulo- ja lähtömuutot vuosittain suhteessa väkilukuun")
 
 ggsave("vignettes/lahtotulomuuttoasteet_atyyppi.png")
+
+
+# Väestönmuutosvaikutukset maakunnittain, seutukunnittain ja kunnittain
+
+dat_muuttotiedot_kunnittain <- readRDS("data/dat_muuttotiedot_kunnittain.rds")
+
+nettomuutto_data <- filter(dat_muuttotiedot_kunnittain, Tiedot == "nettomuutto")
+
+# Väestömuutosvaikutukset
+
+kunnittaiset_vaestomuutosvaikutukset <- nettomuutto_data %>% filter(values > 0) %>%
+  group_by(Vuosi) %>%
+  summarize(vaestonmuutosvaikutus = sum(values))
+
+seutukunnittaiset_vaestomuutosvaikutukset <- nettomuutto_data %>%
+  group_by(seutukunta, Vuosi) %>%
+  summarize(nettomuutto = sum(values)) %>%
+  filter(nettomuutto > 0) %>%
+  ungroup() %>%
+  group_by(Vuosi) %>%
+  summarize(vaestonmuutosvaikutus = sum(nettomuutto))
+
+maakunnittaiset_vaestomuutosvaikutukset <- nettomuutto_data %>%
+  group_by(maakunta, Vuosi) %>%
+  summarize(nettomuutto = sum(values)) %>%
+  filter(nettomuutto > 0) %>%
+  ungroup() %>%
+  group_by(Vuosi) %>%
+  summarize(vaestonmuutosvaikutus = sum(nettomuutto))
+
+vaestomuutosvaikutukset <- rbind(kunnittaiset_vaestomuutosvaikutukset,
+                                 seutukunnittaiset_vaestomuutosvaikutukset,
+                                 maakunnittaiset_vaestomuutosvaikutukset)
+vaestomuutosvaikutukset$tyyppi <- rep(c("kunnittaiset",
+                                        "seutukunnittaiset",
+                                        "maakunnittaiset"), each = 28)
+
+setwd("C:/Users/juho.alasalmi/Pellervon Taloustutkimus PTT ry/KT162 Alueellinen liikkuvuus ja monipaikkaisuus - Osatavoite 2/Kuvaajien R koodit/Siistitty data")
+save(väestömuutosvaikutukset, file = "väestönmuutosvaikutukset.Rda")
+
+vaestomuutosvaikutukset %>% ggplot(aes(x = Vuosi, y = vaestonmuutosvaikutus, color = tyyppi)) +
+  geom_line() +
+  theme_ptt() +
+  theme(legend.position = "bottom", legend.justification = "left") +
+  theme(legend.title = element_blank()) +
+  scale_colour_manual(values = ggptt_palettes$ptt[1:3],
+                      labels = c("Kunnittaiset",
+                                 "Seutukunnittaiset",
+                                 "Maakunnittaiset")) +
+  ylab("Väestönsiirtymävaikutus") +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 6))
+
+
+ggsave("Vignettes/vaestonsiirtymavaikutukset_alueittain.png")
+
