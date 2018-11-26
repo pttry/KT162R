@@ -16,7 +16,8 @@ Imports:
   pxweb,
   readxl,
   readr,
-  usethis
+  usethis,
+  haven
 Suggests: 
     knitr,
     rmarkdown
