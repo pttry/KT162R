@@ -82,22 +82,22 @@ data0 <-
     names(kuntien_sisaiset_muutot_vuosittain) <- c("Vuosi", "kuntien_sisaisia_muuttoja")
 
 # Load väkilukutiedot
-    vakiluku <- readRDS("R/data_clean/vakiluku.rds")
+    data(dat_vakiluku)
 
 # Compute muuttoasteet
 
     maakuntien_valiset_muutot_vuosittain <- left_join(maakuntien_valiset_muutot_vuosittain,
-                                                      vakiluku, by = "Vuosi") %>%
-                 mutate(muuttoaste = maakuntien_valisia_muuttoja / vakiluku)
+                                                      dat_vakiluku, by = "Vuosi") %>%
+                 mutate(muuttoaste = maakuntien_valisia_muuttoja / dat_vakiluku)
     seutukuntien_valiset_muutot_vuosittain <- left_join(seutukuntien_valiset_muutot_vuosittain,
-                                                        vakiluku, by = "Vuosi") %>%
-      mutate(muuttoaste = seutukuntien_valisia_muuttoja / vakiluku)
+                                                        dat_vakiluku, by = "Vuosi") %>%
+      mutate(muuttoaste = seutukuntien_valisia_muuttoja / dat_vakiluku)
     kuntien_valiset_muutot_vuosittain <- left_join(kuntien_valiset_muutot_vuosittain,
-                                                   vakiluku, by = "Vuosi") %>%
-      mutate(muuttoaste = kuntien_valisia_muuttoja / vakiluku)
+                                                   dat_vakiluku, by = "Vuosi") %>%
+      mutate(muuttoaste = kuntien_valisia_muuttoja / dat_vakiluku)
     kuntien_sisaiset_muutot_vuosittain <- left_join(kuntien_sisaiset_muutot_vuosittain,
-                                                    vakiluku, by = "Vuosi") %>%
-      mutate(muuttoaste = kuntien_sisaisia_muuttoja / vakiluku)
+                                                    dat_vakiluku, by = "Vuosi") %>%
+      mutate(muuttoaste = kuntien_sisaisia_muuttoja / dat_vakiluku)
 
     names(seutukuntien_valiset_muutot_vuosittain) <- c("vuosi", "muuttoja","vakiluku", "muuttoaste")
     names(maakuntien_valiset_muutot_vuosittain) <- c("vuosi", "muuttoja","vakiluku", "muuttoaste")
@@ -114,8 +114,8 @@ data0 <-
                                       "kuntien sisaiset muutot")
 
 # Rename data
-    muuttoaste_data <- muutot
+    dat_kokonaismuutto <- muutot
 
 # Save data
-    saveRDS(muuttoaste_data, file = "R/data_clean/muuttoaste_data.rds")
+    usethis::use_data(dat_kokonaismuutto, overwrite = TRUE)
 
