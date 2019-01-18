@@ -143,8 +143,9 @@ names(tulopendelointi_data) <- c("alue", "koulutusaste", "vuosi", "ika", "seutuk
 tulopendelointi_data <- select(tulopendelointi_data, - tyolliset_yhteensa) %>%
   rename(tulopendelointi = pendeloivat)
 
-pendelointi_data <- left_join(tulopendelointi_data, lahtopendelointi_data)
+dat_pendelointi <- left_join(tulopendelointi_data, lahtopendelointi_data)
 
 # Save data
-  saveRDS(pendelointi_data, file = "R/data_clean/pendelointi_data.rds")
+  usethis::use_data(dat_pendelointi, overwrite = TRUE)
+
 
