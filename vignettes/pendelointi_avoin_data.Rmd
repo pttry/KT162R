@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(tidyr)
+library(tidyverse)
 library(ggplot2)
 library(ggptt)
 
@@ -25,11 +25,11 @@ set_gg(theme_ptt(), "ptt")
 
 Pendelöijien absoluuttinen määrä koko maassa. Huom. koko maan summia laskettaessa ei ole väliä summaileekko kohde- vai lähtöalueiden pendelöintejä. 
 
-```{r}
+```{r, echo = FALSE}
 
 data(dat_pendelointi)
 
-pendelointi_data %>% group_by(vuosi) %>%
+dat_pendelointi %>% group_by(vuosi) %>%
   summarize(commuters = sum(lahtopendelointi)) %>%
   ggplot(aes(y = commuters, x = vuosi)) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
@@ -42,9 +42,9 @@ pendelointi_data %>% group_by(vuosi) %>%
 
 Pendelöijien osuus työllisistä koko maassa
 
-```{r}
+```{r, echo = FALSE}
 
-pendelointi_data %>% group_by(vuosi) %>%
+dat_pendelointi %>% group_by(vuosi) %>%
   summarize(pendeloijat_yhteensa = sum(lahtopendelointi),
             ei_pendeloijat_yhteensa = sum(asuinkunnassaan_tyossakayvat)) %>%
   mutate(pendelointiosuus = pendeloijat_yhteensa /
@@ -57,3 +57,15 @@ pendelointi_data %>% group_by(vuosi) %>%
   xlab(NULL) +
   scale_y_continuous(limits = c(0.19,0.35), labels = percent_comma)
 ```
+
+Pendelöinti kunnittain
+
+```{r}
+pendelointi_kunnittain <- dat_pendelointi %>% 
+                          group_by(alue) %>%
+                          summarize(asuinkunnassaan_tyossakayvat = sum(asuinkunnassaan_tyossakayvat),
+                                    tulopendelointi = sum(tulopendelointi),
+                                    lahtopendelointi = sum(lahtopendelointi))
+                         
+```
+
