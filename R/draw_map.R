@@ -15,6 +15,6 @@ draw_map <- function(data, vuosi, aluejako, x) {
 
   output <- map %>%
              left_join(data, by = aluejako) %>%
-             ggplot(aes(fill = x)) + geom_sf()
+             ggplot(aes_string(fill = x)) + geom_sf()
   output
 }
