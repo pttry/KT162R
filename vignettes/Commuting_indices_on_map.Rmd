@@ -1,0 +1,56 @@
+---
+title: "Commuting_indices_on_map"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+source("R/draw_map.R")
+load("data/dat_pendelointi.rda")
+kuntakoodit <- readRDS("data/kuntakoodit2017.rds") %>% 
+               rename(kunta = Knro, alue = Kunta) 
+kuntakoodit$alue <- as.character(kuntakoodit$alue)
+```
+
+Huomioi, että pendelöintitiedot ovat julkaisuvuoden eli vuoden 2017 kuntajaolla, joten karttana tulee käyttää vuoden 2017 karttaa. 
+
+
+```{r}
+pendelointi_kunnittain <- dat_pendelointi %>%
+        filter(vuosi == 2016) %>%
+        group_by(alue) %>%
+        summarize(tulopendelointi = sum(tulopendelointi),
+                  lahtopendelointi = sum(lahtopendelointi),
+                  asuinkunnassaan_tyossakayvat = sum(asuinkunnassaan_tyossakayvat)) %>%
+        mutate(kunnassa_tyossakayvat = tulopendelointi + asuinkunnassaan_tyossakayvat)
+
+pendelointi_kunnittain$alue <- as.character(pendelointi_kunnittain$alue)
+
+pendelointi_kunnittain <- left_join(pendelointi_kunnittain, kuntakoodit, by = "alue")
+
+```
+
+Romani et al. 2003 use the measures "openness index" and "commuting balance". Compute these for municipalities an plot on map. Openness_index mittaa kuinka paljon kuntien rajojen yli ylipäätään tapahtuu pendelöintiä ja commuting_balance arvioi myös pendelöinnin suuntaa. 
+
+```{r}
+
+pendelointi_kunnittain <- pendelointi_kunnittain %>%
+              mutate(commuting_balance = (tulopendelointi - lahtopendelointi)/asuinkunnassaan_tyossakayvat,
+                     openness_index = (tulopendelointi + lahtopendelointi)/asuinkunnassaan_tyossakayvat,
+                     ln_commuting_balance = log(commuting_balance),
+                     ln_openness_index = log(openness_index))
+
+```
+
+commuting_balancelle pitäisi tehdä punaiset sävyt negatiivisille ja vihreän positiivisille ja mahdollisesti log-transformaatio. 
+
+
+```{r}
+
+draw_map(pendelointi_kunnittain, 2017, "kunta", "commuting_balance")
+draw_map(pendelointi_kunnittain, 2017, "kunta", "openness_index")
+```
+

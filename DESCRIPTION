@@ -16,7 +16,10 @@ Imports:
   pxweb,
   readxl,
   readr,
-  usethis
+  usethis,
+  sampleSelection,
+  maxLik,
+  MASS
 Suggests: 
     knitr,
     rmarkdown

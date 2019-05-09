@@ -20,7 +20,7 @@ data <- data0
    names(data) <- c("Vuosi", "vakiluku")
 
 # name data set
-   vakiluku <- data
+   dat_vakiluku <- data
 
 # Save data
-   saveRDS(vakiluku, file = "R/data_clean/vakiluku.rds")
+   usethis::use_data(dat_vakiluku, overwrite = TRUE)

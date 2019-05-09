@@ -49,4 +49,5 @@ dat_muuttotiedot_kunnittain <-
                                                   "tulomuuttoaste", "lahtomuuttoaste", "nettomuuttoaste"))
 
 # Save data
-saveRDS(dat_muuttotiedot_kunnittain, file = "data/dat_muuttotiedot_kunnittain.rds")
+   usethis::use_data(dat_muuttotiedot_kunnittain, overwrite = TRUE)
+
