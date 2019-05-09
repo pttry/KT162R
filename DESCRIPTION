@@ -14,7 +14,9 @@ Imports:
   ggptt,
   statfitools,
   pxweb,
-  readxl
+  readxl,
+  readr,
+  usethis
 Suggests: 
     knitr,
     rmarkdown
