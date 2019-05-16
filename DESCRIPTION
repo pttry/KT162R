@@ -19,7 +19,8 @@ Imports:
   usethis,
   sampleSelection,
   maxLik,
-  MASS
+  MASS,
+  here
 Suggests: 
     knitr,
     rmarkdown
