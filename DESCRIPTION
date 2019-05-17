@@ -20,7 +20,8 @@ Imports:
   sampleSelection,
   maxLik,
   MASS,
-  here
+  here,
+  eurostat
 Suggests: 
     knitr,
     rmarkdown

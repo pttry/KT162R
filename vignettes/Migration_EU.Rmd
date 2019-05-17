@@ -1,0 +1,62 @@
+---
+title: "International_migration"
+author: "Janne Huovari"
+date: "16 toukokuuta 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+devtools::load_all()
+
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(forcats)
+library(ggptt)
+
+set_ptt()
+```
+
+
+```{r data}
+
+met_dat <- eurostat::get_eurostat("met_gind3", time_format = "num")
+
+```
+
+```{r net_mig}
+
+# eurostat::ea_countries
+
+countries <- c("BE", "DE", "FR", "IE", "NL", "AT", "FI", "SE", "DK")
+
+net_met_mig <- met_dat %>% 
+  filter(indic_de %in% c("CNMIGRAT", "JAN")) %>%   # netmigration and population january
+  filter(!grepl("_NM", metroreg)) %>% 
+  mutate(country = substr(metroreg, 1, 2)) %>%   # countrycode
+  filter(country %in% countries) %>% 
+  spread(indic_de, values) 
+  
+
+net_met_mig %>% 
+  group_by(time) %>% 
+  summarise_if(is.numeric, sum) %>% 
+  mutate(metroreg = "Keskimäärin") %>% 
+  bind_rows(net_met_mig) %>% 
+  mutate(net_mig_share = 100 * CNMIGRAT / JAN) %>% 
+  mutate(high_reg = fct_other(metroreg, keep = c("FI001MC", "FI002M", "FI003M", "Keskimäärin"), 
+                              other_level = "muut"),
+         metroreg = fct_relevel(metroreg, c("FI001MC", "FI002M", "FI003M", "Keskimäärin"), 
+                                after = Inf)) %>% 
+  ggplot(aes(time, net_mig_share, group = metroreg, colour = high_reg, alpha = high_reg)) +
+  geom_line() +
+  scale_alpha_manual(values = c(1,1,1,1,0.2)) +
+  geom_h0() +
+  coord_cartesian(ylim = c(-1, 2.5))
+  
+  
+
+```
+
