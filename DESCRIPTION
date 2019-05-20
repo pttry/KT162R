@@ -21,7 +21,8 @@ Imports:
   maxLik,
   MASS,
   here,
-  eurostat
+  eurostat,
+  highcharter
 Suggests: 
     knitr,
     rmarkdown
