@@ -13,13 +13,15 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "fig_tyomuutto/"
+  fig.path = "fig_tyomuutto/",
+  fig.height=5, fig.width=6, dpi=300, out.width = "650px"
 )
 
-library(tidyverse)
-library(ggptt)
+devtools::load_all()
+
 library(RColorBrewer)
 library(glue)
+library(ggptt)
 
 set_ptt()
 theme_update(plot.subtitle = element_text(colour = "grey50", size = 9), 
@@ -31,15 +33,14 @@ atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] ,
 ```
 
 ```{r data}
-data("tyo_muutto_atyyppi", "tyo_muutto_ku")
 
+data("tyo_muutto_atyyppi", "tyo_muutto_ku", "dat_muutto_aikasarja_km")
 
 ```
 
 # Pendelöivien osuus kunnassa työssäkäyvistä
 
 ```{r pend_atyyppi}
-
 
 time_range <- range(tyo_muutto_atyyppi$time)
 
@@ -64,7 +65,7 @@ tyo_muutto_atyyppi %>%
        caption = "Lähde: PTT, Tilastokeskus",
        y = "henkeä")
 
-ggsave("tyo_muutto_atyyppi.png", height = 6, width = 12)  
+# ggsave("tyo_muutto_atyyppi.png", height = 6, width = 12)  
 
 ```
 
@@ -86,4 +87,60 @@ dat_tulopendelointi_tyyppi %>%
 ```
 
 
+# Muutto muodot
 
+```{r muutto_km}
+
+dat_muutto_aikasarja_km %>% 
+  filter(grepl("seutukuntien", tiedot)) %>% 
+  ggplot(aes(time, value, colour = tiedot)) +
+  geom_line()
+
+```
+
+```{r muutto_km2}
+
+pdat_sk_muutto <- dat_muutto_aikasarja_km %>% 
+  filter(tiedot %in% c("seutukuntien_valinen_muutto", 
+                       "seutukuntien_valinen_tyoikaisten_muutto",
+                       "seutukuntien_valinen_tyon_siirtyminen",
+                       "seutukuntien_valinen_tyota_siirtava_muutto",
+                       "seutukuntien_valinen_tyollisten_muutto",
+                       "seutukuntien_valinen_tyottomien_tyollistava_muutto",
+                       "seutukuntien_valinen_tyovoiman_ulkopuolelta_tyollistava_muutto")) %>% 
+  mutate(tiedot = gsub("seutukuntien_valinen_", "", tiedot),
+         tiedot = fct_reorder(tiedot, -value, mean)) %>% 
+  mutate(value = as.integer(value)) 
+
+pdat_sk_muutto %>% 
+  ggplot(aes(time, value/1000, colour = tiedot)) +
+  geom_line() +
+  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  labs(title = "Seutukuntien välinen muutto ja työpaikan siirtyminen",
+       y = "1000 henkeä", x = NULL,
+       caption = "Lähde: Tilastokeskus, PTT") +
+  theme(legend.text = element_text(size = 10))
+
+pdat_sk_muutto %>% 
+  filter(time == max(time)) %>% 
+  knitr::kable()
+
+```
+
+  
+```{r}
+dat_muutto_aikasarja_km %>% 
+  filter(tiedot %in% c("kuntien_valinen_muutto", 
+                       "kuntien_valinen_tyoikaisten_muutto",
+                       "kuntien_valinen_tyon_siirtyminen",
+                       "kuntien_valinen_tyota_siirtava_muutto",
+                       "kuntien_valinen_tyollisten_muutto",
+                       "kuntien_valinen_tyottomien_tyollistava_muutto")) %>% 
+  ggplot(aes(time, value, colour = tiedot)) +
+  geom_line()
+```
+  
+  
+  
+  
+  

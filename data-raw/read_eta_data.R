@@ -47,4 +47,11 @@ dat_sum_amma3 <- read.csv2("data-raw/dat_sum_amma3.csv") %>%
 
 use_data(dat_sum_amma3, overwrite = TRUE)
 
+# Koko maan muuttotietoja
 
+
+dat_muutto_aikasarja_km <- read.csv2("data-raw/muutto_aikasarja_km.csv") %>%
+  select(-X) %>%
+  rename(time = vuosi)
+
+use_data(dat_muutto_aikasarja_km, overwrite = TRUE)
