@@ -109,6 +109,11 @@ pdat_sk_muutto <- dat_muutto_aikasarja_km %>%
                        "seutukuntien_valinen_tyottomien_tyollistava_muutto",
                        "seutukuntien_valinen_tyovoiman_ulkopuolelta_tyollistava_muutto")) %>% 
   mutate(tiedot = gsub("seutukuntien_valinen_", "", tiedot),
+         tiedot = gsub("tyollistava", "työllistävä", tiedot),
+         tiedot = gsub("siirtava", "siirtävä", tiedot),
+         tiedot = gsub("tyoikaisten", "työikaisten", tiedot),
+         tiedot = gsub("tyo", "työ", tiedot),
+         tiedot = gsub("_", " ", tiedot),
          tiedot = fct_reorder(tiedot, -value, mean)) %>% 
   mutate(value = as.integer(value)) 
 
@@ -121,14 +126,21 @@ pdat_sk_muutto %>%
        caption = "Lähde: Tilastokeskus, PTT") +
   theme(legend.text = element_text(size = 10))
 
+
+
+```
+
+```{r muutto_km2_table}
+
 pdat_sk_muutto %>% 
   filter(time == max(time)) %>% 
   knitr::kable()
 
 ```
 
+
   
-```{r}
+```{r kuntien_valinen}
 dat_muutto_aikasarja_km %>% 
   filter(tiedot %in% c("kuntien_valinen_muutto", 
                        "kuntien_valinen_tyoikaisten_muutto",
@@ -140,7 +152,19 @@ dat_muutto_aikasarja_km %>%
   geom_line()
 ```
   
-  
+```{r maakuntien_valinen}
+
+dat_muutto_aikasarja_km %>% 
+  filter(tiedot %in% c("maakuntien_valinen_muutto", 
+                       "maakuntien_valinen_tyoikaisten_muutto",
+                       "maakuntien_valinen_tyon_siirtyminen",
+                       "maakuntien_valinen_tyota_siirtava_muutto",
+                       "maakuntien_valinen_tyollisten_muutto",
+                       "maakuntien_valinen_tyottomien_tyollistava_muutto")) %>% 
+  ggplot(aes(time, value, colour = tiedot)) +
+  geom_line()
+
+```  
   
   
   
