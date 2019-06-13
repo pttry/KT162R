@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "fig_tyomuutto/",
-  fig.height=5, fig.width=6, dpi=300, out.width = "650px"
+  fig.height=3, fig.width=5.3, dpi=300, out.width = "650px"
 )
 
 devtools::load_all()
@@ -23,7 +23,7 @@ library(RColorBrewer)
 library(glue)
 library(ggptt)
 
-set_ptt()
+set_ptt(10, base_family = "sans")
 theme_update(plot.subtitle = element_text(colour = "grey50", size = 9), 
              plot.margin = margin(0.5, 0.5, 3, 0.5))
 
