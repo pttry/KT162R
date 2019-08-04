@@ -113,3 +113,38 @@ for(julkaisuvuosi in julkaisuvuodet) {
   }
 
   rm(zip_data); rm(zip_data_temp); rm(filename)
+
+
+  # Just find all postal code areas possible with their coordinates
+
+  aineistokoodi <- "9_koko_"
+  julkaisuvuodet <- 2016:2019
+
+  zip_coord <- data.frame()
+
+  for(julkaisuvuosi in julkaisuvuodet) {
+
+    url <- paste("http://pxnet2.stat.fi/PXWeb/api/v1/fi/Postinumeroalueittainen_avoin_tieto/",
+                   as.character(julkaisuvuosi),
+                   "/paavo_",
+                   aineistokoodi,
+                   as.character(julkaisuvuosi),
+                   ".px", sep = "")
+
+      zip_data <-
+        get_pxweb_data(url = url,
+                       dims = list(Postinumeroalue = c('*'),
+                                   Tiedot = c('Euref_x', 'Euref_y')),
+                       clean = TRUE)
+
+      names(zip_data) <- c("alue", "tiedot", "value")
+      alue <- sapply(zip_data$alue, function(x) {substring(x,1,5)})
+      zip_data$alue <- alue
+      zip_data <- zip_data %>% spread(tiedot, value)
+      names(zip_data) <- c("alue", "x_zip", "y_zip")
+
+      zip_coord <- rbind(zip_coord, zip_data)
+  }
+
+  zip_coordinates <- zip_coord[!duplicated(zip_coord$alue),]
+  saveRDS(zip_coordinates, file = "data/zip_data/zip_coordinates.rds")

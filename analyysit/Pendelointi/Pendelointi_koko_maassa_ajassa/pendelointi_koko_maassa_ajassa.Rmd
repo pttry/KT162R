@@ -1,5 +1,5 @@
 ---
-title: "Vignette Title"
+title: "Pendelöinti koko maassa ajassa"
 author: "Vignette Author"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -23,7 +23,9 @@ devtools::load_all()
 set_gg(theme_ptt(), "ptt")
 ```
 
-Pendelöijien absoluuttinen määrä koko maassa. Huom. koko maan summia laskettaessa ei ole väliä summaileekko kohde- vai lähtöalueiden pendelöintejä. 
+Pendelöinti tässä tarkoittaa asuinkunnan ulkopuolella työskentelynä. Huomioi, että koko maan summia laskettaessa ei ole väliä summaileekko kohde- vai lähtöalueiden pendelöintejä. 
+
+## Pendelöijien absoluuttinen määrä koko maassa. 
 
 ```{r, echo = FALSE}
 
@@ -40,7 +42,7 @@ dat_pendelointi %>% group_by(vuosi) %>%
   scale_y_continuous(limits = c(400000,800000), labels = deci_comma)
 ```
 
-Pendelöijien osuus työllisistä koko maassa
+## Pendelöijien osuus työllisistä koko maassa
 
 ```{r, echo = FALSE}
 
@@ -57,15 +59,3 @@ dat_pendelointi %>% group_by(vuosi) %>%
   xlab(NULL) +
   scale_y_continuous(limits = c(0.19,0.35), labels = percent_comma)
 ```
-
-Pendelöinti kunnittain
-
-```{r}
-pendelointi_kunnittain <- dat_pendelointi %>% 
-                          group_by(alue) %>%
-                          summarize(asuinkunnassaan_tyossakayvat = sum(asuinkunnassaan_tyossakayvat),
-                                    tulopendelointi = sum(tulopendelointi),
-                                    lahtopendelointi = sum(lahtopendelointi))
-                         
-```
-
