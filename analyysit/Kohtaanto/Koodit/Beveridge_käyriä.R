@@ -1,10 +1,13 @@
 
 
+# Tarkasta vakanssiasteen määrittelyt!!!!!!!!
+
 library(pxweb)
 library(tidyverse)
 library(statfitools)
 library(ggplot2)
 library(ggptt)
+library(gridExtra)
 
 set_ptt()
 
@@ -41,7 +44,7 @@ set_ptt()
 
       data <- left_join(data, alueet, by = "Kunta")
 
-      atyypit <- readRDS("~/git_clones/KT162R/data/atyypit.rds") %>%
+      atyypit <- readRDS("data/atyypit.rds") %>%
                  rename(Knro = kunta18)
 
       data <- left_join(data, atyypit, by = "Knro")
@@ -53,7 +56,7 @@ data_kokomaa <- data %>% group_by(Kuukausi) %>%
                                    Tyovoima = sum(Tyovoima, na.rm = TRUE),
                                    Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
                          mutate(tyottomyysaste = Tyottomat / Tyovoima,
-                                vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima - Tyottomat)) %>%
+                                vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
                          mutate(kuukausi = paste(substring(Kuukausi, 6,7), "01", sep = "-"),
                                 vuosi = substring(Kuukausi, 1,4),
                                 time = as.Date(paste(vuosi, kuukausi, sep = "-"))) %>%
@@ -73,16 +76,16 @@ data_kokomaa %>% ggplot(aes(x = tyottomat_sa, y = avoimet_tyopaikat_sa, label = 
                              x = "Tyottomat",
                              caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/kokomaa_kuukausittain_absoluuttiset_sa.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kokomaa_kuukausittain_absoluuttiset_sa.png")
 
 data_kokomaa %>% ggplot(aes(x = tyottomat_trend, y = avoimet_tyopaikat_trend, label = time)) +
-  geom_point(size = 1) +
+  geom_point(size = 2) +
   geom_path(size = 1) +
   labs(y = "Avoimet työpaikat",
        x = "Tyottomat",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/kokomaa_kuukausittain_absoluuttiset_trend.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kokomaa_kuukausittain_absoluuttiset_trend.png")
 
 data_kokomaa %>% ggplot(aes(x = tyottomyysaste_sa, y = vakanssiaste_sa, label = time)) +
   geom_point(size = 1) +
@@ -91,7 +94,7 @@ data_kokomaa %>% ggplot(aes(x = tyottomyysaste_sa, y = vakanssiaste_sa, label = 
        x = "Tyottomyys",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/kokomaa_kuukausittain_asteet_sa.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kokomaa_kuukausittain_asteet_sa.png")
 
 
 data_kokomaa %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend, label = time)) +
@@ -101,7 +104,7 @@ data_kokomaa %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend, la
        x = "Tyottomyys",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/kokomaa_kuukausittain_asteet_trend.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kokomaa_kuukausittain_asteet_trend.png")
 
 
 # Beveridge-käyrät kuntaryhmittäin, kuukausittain, kausitasoitus ja trendaus
@@ -111,7 +114,7 @@ data_kuntaryhmat <- data %>% group_by(Kuukausi, Kuntaryhma) %>%
             Tyovoima = sum(Tyovoima, na.rm = TRUE),
             Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
   mutate(tyottomyysaste = Tyottomat / Tyovoima,
-         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima - Tyottomat)) %>%
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
   mutate(kuukausi = paste(substring(Kuukausi, 6,7), "01", sep = "-"),
          vuosi = substring(Kuukausi, 1,4),
          time = as.Date(paste(vuosi, kuukausi, sep = "-"))) %>%
@@ -133,7 +136,7 @@ data_kuntaryhmat %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend
        x = "Tyottomyys",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/kuntaryhmittain_asteet_trend.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kuntaryhmittain_asteet_trend.png")
 
 data_kuntaryhmat %>% ggplot(aes(x = tyottomyysaste_sa, y = vakanssiaste_sa)) +
   geom_point(size = 1) +
@@ -143,7 +146,7 @@ data_kuntaryhmat %>% ggplot(aes(x = tyottomyysaste_sa, y = vakanssiaste_sa)) +
        x = "Tyottomyys",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/kuntaryhmittain_asteet_sa.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kuntaryhmittain_asteet_sa.png")
 
 data_kuntaryhmat %>% ggplot(aes(x = tyottomat_trend, y = avoimet_tyopaikat_trend)) +
   geom_point(size = 1) +
@@ -153,7 +156,7 @@ data_kuntaryhmat %>% ggplot(aes(x = tyottomat_trend, y = avoimet_tyopaikat_trend
        x = "Tyottomyys",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/kuntaryhmittain_absoluuttiset_trend.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kuntaryhmittain_absoluuttiset_trend.png")
 
 data_kuntaryhmat %>% ggplot(aes(x = tyottomat_sa, y = avoimet_tyopaikat_sa)) +
   geom_point(size = 3) +
@@ -163,7 +166,7 @@ data_kuntaryhmat %>% ggplot(aes(x = tyottomat_sa, y = avoimet_tyopaikat_sa)) +
        x = "Tyottomyys",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/kuntaryhmittain_absoluuttiset_sa.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kuntaryhmittain_absoluuttiset_sa.png")
 
 # Beveridge-käyrät aluetyypeittäin, kuukausittain, kausitasoitus ja trendaus
 
@@ -172,7 +175,7 @@ data_atyypit <- data %>% group_by(Kuukausi, aluetyyppi) %>%
             Tyovoima = sum(Tyovoima, na.rm = TRUE),
             Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
   mutate(tyottomyysaste = Tyottomat / Tyovoima,
-         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima - Tyottomat)) %>%
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
   mutate(kuukausi = paste(substring(Kuukausi, 6,7), "01", sep = "-"),
          vuosi = substring(Kuukausi, 1,4),
          time = as.Date(paste(vuosi, kuukausi, sep = "-"))) %>%
@@ -194,7 +197,7 @@ data_atyypit %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend)) +
                              x = "Tyottomyys",
                              caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/aluetyypeittain_asteet_trend.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_asteet_trend.png")
 
 data_atyypit %>% ggplot(aes(x = tyottomyysaste_sa, y = vakanssiaste_sa)) +
   geom_point(size = 1) +
@@ -204,7 +207,7 @@ data_atyypit %>% ggplot(aes(x = tyottomyysaste_sa, y = vakanssiaste_sa)) +
        x = "Tyottomyys",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/aluetyypeittain_asteet_sa.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_asteet_sa.png")
 
 data_atyypit %>% ggplot(aes(x = tyottomat_sa, y = avoimet_tyopaikat_sa)) +
   geom_point(size = 1) +
@@ -216,7 +219,7 @@ data_atyypit %>% ggplot(aes(x = tyottomat_sa, y = avoimet_tyopaikat_sa)) +
        x = "Työttömät",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/aluetyypeittain_absoluuttiset_sa.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_absoluuttiset_sa.png")
 
 data_atyypit %>% ggplot(aes(x = tyottomat_trend, y = avoimet_tyopaikat_trend)) +
   geom_point(size = 1) +
@@ -228,27 +231,11 @@ data_atyypit %>% ggplot(aes(x = tyottomat_trend, y = avoimet_tyopaikat_trend)) +
        x = "Työttömät",
        caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
-ggsave("analyysit/Kohtaanto/Kuviot/aluetyypeittain_absoluuttiset_trend.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_absoluuttiset_trend.png")
 
 #####################################################################################################################
 
-beveridge_kokomaa <- data %>%
-  group_by(vuosi, Kunta) %>%
-  summarize(Tyottomat = mean(Tyottomat, na.rm = TRUE),
-            Tyovoima = mean(Tyovoima, na.rm = TRUE),
-            Avoimet_tyopaikat = mean(Avoimet_tyopaikat, na.rm = TRUE)) %>%
-  ungroup() %>%
-  group_by(vuosi) %>%
-  summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
-            Tyovoima = sum(Tyovoima, na.rm = TRUE),
-            Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
-  mutate(tyottomyysaste = Tyottomat / Tyovoima,
-         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima - Tyottomat))
-
-beveridge_kokomaa %>% ggplot(aes(y = vakanssiaste, x = tyottomyysaste, label = vuosi)) +
-  geom_point() +
-  geom_path() +
-  geom_text(position = position_jitter(width = 0.001, height = 0.001))
+# Pehkonen et al. 2018 replica
 
 suuret_seutukunnat <- c("Helsinki", "Tampere", "Turku", "Oulu", "Jyväskylä", "Kuopio", "Seinäjoki")
 
@@ -256,37 +243,130 @@ data <- data %>% mutate(stkluokka = ifelse(Seutukunta %in% suuret_seutukunnat,
                                                                              "suuret_seutukunnat",
                                                                              "muut_seutukunnat"))
 
-data %>%
-  group_by(Kunta, vuosi, stkluokka) %>%
-  summarize(Tyottomat = mean(Tyottomat, na.rm = TRUE),
-            Tyovoima = mean(Tyovoima, na.rm = TRUE),
-            Avoimet_tyopaikat = mean(Avoimet_tyopaikat, na.rm = TRUE)) %>%
-  group_by(stkluokka, vuosi) %>%
+data_stkluokat <- data %>% group_by(Kuukausi, stkluokka) %>%
   summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
             Tyovoima = sum(Tyovoima, na.rm = TRUE),
             Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
   mutate(tyottomyysaste = Tyottomat / Tyovoima,
-         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima - Tyottomat) )%>%
-  ggplot(aes(y = vakanssiaste, x = tyottomyysaste, label = vuosi, color = stkluokka)) +
-  geom_point() +
-  geom_path() +
-  geom_text(position = position_jitter(width = 0.001, height = 0.001))
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
+  mutate(kuukausi = paste(substring(Kuukausi, 6,7), "01", sep = "-"),
+         vuosi = substring(Kuukausi, 1,4),
+         time = as.Date(paste(vuosi, kuukausi, sep = "-"))) %>%
+  group_by(stkluokka) %>%
+  mutate(tyottomyysaste_sa = sa_series(tyottomyysaste, time),
+         tyottomyysaste_trend = trend_series(tyottomyysaste, time),
+         vakanssiaste_sa = sa_series(vakanssiaste, time),
+         vakanssiaste_trend = trend_series(vakanssiaste, time),
+         tyottomat_sa = sa_series(Tyottomat, time),
+         tyottomat_trend = trend_series(Tyottomat, time),
+         avoimet_tyopaikat_sa = sa_series(Avoimet_tyopaikat, time),
+         avoimet_tyopaikat_trend = trend_series(Avoimet_tyopaikat, time))
+
+data_stkluokat %>% ggplot(aes(x = tyottomyysaste_trend, y = avoimet_tyopaikat_trend,
+                              color = stkluokka, label = vuosi)) +
+  geom_point(size = 1) +
+  geom_path(size = 1) +
+ # geom_text() +
+  labs(y = "Vakanssiaste",
+       x = "Tyottomyys",
+       caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT")
 
 
-data %>%
-  group_by(Kunta, vuosi, Kuntaryhma) %>%
-  summarize(Tyottomat = mean(Tyottomat, na.rm = TRUE),
-            Tyovoima = mean(Tyovoima, na.rm = TRUE),
-            Avoimet_tyopaikat = mean(Avoimet_tyopaikat, na.rm = TRUE)) %>%
-  group_by(Kuntaryhma, vuosi) %>%
+data_stkluokat2 <- data %>% group_by(Kuukausi, stkluokka) %>%
   summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
             Tyovoima = sum(Tyovoima, na.rm = TRUE),
             Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
   mutate(tyottomyysaste = Tyottomat / Tyovoima,
-         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima - Tyottomat) )%>%
-  ggplot(aes(y = vakanssiaste, x = tyottomyysaste, label = vuosi, color = Kuntaryhma)) +
-  geom_point() +
-  geom_path() +
-  geom_text(position = position_jitter(width = 0.001, height = 0.001))
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
+  mutate(vuosi = substring(Kuukausi, 1,4)) %>%
+  group_by(vuosi, stkluokka) %>%
+  summarize(tyottomyysaste = mean(tyottomyysaste, na.rm = TRUE),
+            Tyovoima = mean(Tyovoima, na.rm = TRUE),
+            Tyottomat = mean(Tyottomat, na.rm = TRUE),
+            Avoimet_tyopaikat = mean(Avoimet_tyopaikat, na.rm = TRUE),
+            vakanssiaste = mean(vakanssiaste, na.rm = TRUE))%>%
+  filter(vuosi < 2019)
+
+
+data_stkluokat2 %>% ggplot(aes(x = tyottomyysaste, y = vakanssiaste,
+                               col = stkluokka, label = vuosi)) +
+  geom_point(size = 1) +
+  geom_path(size = 1) +
+  geom_text() +
+  labs(y = "Vakanssiaste",
+       x = "Tyottomyysaste",
+       caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT") +
+  scale_y_continuous(labels = percent_comma) +
+  scale_x_continuous(labels = percent_comma)
+
+############################################################################################################
+
+
+################### Neljä aluetyyppiä ######################################
+
+atyyppi4 <- c("kaupms" = "Kaupunkien läheinen maaseutu",
+             "tk_keskus" = "Kaupunki",
+             "ydinms" = "Ydinmaaseutu",
+             "ms" = "Harvaan asuttu maaseutu",
+             "pk" = "Kaupunki",
+             "kaup" = "Kaupunki",
+             "yo-kaup" = "Kaupunki")
+
+data2 <- mutate(data, aluetyyppi4 = plyr::revalue(as.factor(aluetyyppi), atyyppi4 ))
+
+data_atyypit <- data2 %>% group_by(Kuukausi, aluetyyppi4) %>%
+  summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
+            Tyovoima = sum(Tyovoima, na.rm = TRUE),
+            Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
+  mutate(vuosi = substring(Kuukausi, 1,4)) %>%
+  group_by(vuosi, aluetyyppi4) %>%
+  summarize(Tyottomat = mean(Tyottomat, na.rm = TRUE),
+            Tyovoima = mean(Tyovoima, na.rm = TRUE),
+            Avoimet_tyopaikat = mean(Avoimet_tyopaikat, na.rm = TRUE))%>%
+  filter(vuosi < 2019)
+
+
+data_atyypit %>% ggplot(aes(x = Tyottomat, y = Avoimet_tyopaikat, label = vuosi)) +
+  geom_point(size = 1) +
+  geom_path(size = 1) +
+ # geom_text() +
+  facet_wrap(~aluetyyppi4) +
+  labs(y = "Avoimet työpaikat",
+       x = "Tyottomat",
+       caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT") +
+  scale_y_continuous(labels = deci_comma) +
+  scale_x_continuous(labels = deci_comma)
+
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain4_absoluuttiset_kokomaa_kuukausika.png")
+
+data2 <- mutate(data, aluetyyppi4 = plyr::revalue(as.factor(aluetyyppi), atyyppi4 ))
+
+data_atyypit <- data2 %>% group_by(Kuukausi, aluetyyppi4) %>%
+  summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
+            Tyovoima = sum(Tyovoima, na.rm = TRUE),
+            Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
+  mutate(tyottomyysaste = Tyottomat / Tyovoima,
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
+  mutate(vuosi = substring(Kuukausi, 1,4)) %>%
+  group_by(vuosi, aluetyyppi4) %>%
+  summarize(tyottomyysaste = mean(tyottomyysaste, na.rm = TRUE),
+            Tyovoima = mean(Tyovoima, na.rm = TRUE),
+            vakanssiaste = mean(vakanssiaste, na.rm = TRUE))%>%
+  filter(vuosi < 2019)
+
+
+data_atyypit %>% ggplot(aes(x = tyottomyysaste, y = vakanssiaste, label = vuosi)) +
+  geom_point(size = 1) +
+  geom_path(size = 1) +
+   geom_text() +
+  facet_wrap(~aluetyyppi4) +
+  labs(y = "Vakanssiaste",
+       x = "Tyottomyysaste",
+       caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT") +
+  scale_y_continuous(labels = deci_comma) +
+  scale_x_continuous(labels = deci_comma)
+
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain4_asteet_kokomaa_kuukausika.png")
+
 
 

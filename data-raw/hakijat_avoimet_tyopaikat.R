@@ -1,5 +1,7 @@
 # Työttömät työnhakijat ja avoimet työpaikat alueittain
 
+ # NAille voisi perisaattessa impute jonkin pienen numeron
+
 library(pxweb)
 library(tidyverse)
 library(readxl)
@@ -90,7 +92,7 @@ url2$query <- list(service ="WFS",
 
 map <- sf::st_read(httr::build_url(url2))
 
-left_join(map, tyo_data, by = "kunta") %>%
+left_join(as.data.frame(map), tyo_data, by = "kunta") %>%
   ggplot(aes(fill = tyottomyysaste)) +
   geom_sf() +
   scale_fill_gradient(low = "white", high = "darkgreen") +
