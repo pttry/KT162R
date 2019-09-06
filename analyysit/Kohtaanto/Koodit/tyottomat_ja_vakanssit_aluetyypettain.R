@@ -1,5 +1,12 @@
 # Työttömät ja vakanssit aluetyypeittäin
 
+library(ggplot2)
+library(tidyverse)
+library(statfitools)
+library(ggptt)
+
+data <- readRDS("data/avoimet_tyopaikat_tyonhakijat.rds")
+
 df <- data %>% filter(Kuukausi == "2018M12") %>%
   group_by(aluetyyppi) %>%
   summarize(tyottomat = sum(Tyottomat, na.rm = TRUE),

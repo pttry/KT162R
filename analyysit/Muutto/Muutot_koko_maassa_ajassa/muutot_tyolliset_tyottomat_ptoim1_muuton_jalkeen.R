@@ -2,7 +2,7 @@
    library(tidyverse)
    library(ggplot2)
 
-data <- readRDS("C:/Users/juhoa/git_clones/KT162R/data/muuttoaikasarjat_kokomaa_tyolliset_tyottomat_ptoim1_muuton_jalkeen_ulos.rds")
+data <- readRDS("C:/Users/juhoa/git_clones/KT162R/data/paa-asiallinen_toiminta_ja_muutto/muuttoaikasarjat_kokomaa_tyolliset_tyottomat_ptoim1_muuton_jalkeen_ulos.rds")
 
 labels1 <- c("24 = eläkeläinen",
              "21 = 0-14 -vuotias",

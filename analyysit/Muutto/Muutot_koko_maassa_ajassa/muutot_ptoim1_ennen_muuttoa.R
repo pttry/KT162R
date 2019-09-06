@@ -6,7 +6,7 @@ library(ggptt)
 
 set_ptt()
 
-data <- readRDS("~/git_clones/KT162R/data/muuttoaikasarjat_kokomaa_ptoim1_ulos.rds")
+data <- readRDS("data/paa-asiallinen_toiminta_ja_muutto/muuttoaikasarjat_kokomaa_ptoim1_ulos.rds")
 
   labels1 <- c("24 = eläkeläinen",
               "21 = 0-14 -vuotias",

@@ -7,7 +7,11 @@ library(sf)
 
 atyypit <- readRDS("data/atyypit.rds") %>%
   rename(kunta = kunta18) %>%
-  mutate(aluetyyppit = as.factor(aluetyyppi))
+  mutate(aluetyyppi = as.factor(aluetyyppi))
+
+atyypit$aluetyyppi <- fct_relevel(atyypit$aluetyyppi, c("pk", "yo-kaup", "kaup", "tk_keskus", "kaupms", "ydinms", "ms"))
+aluetyyppi_labels = c("Pääkaupunkiseutu", "Yliopistokaupungit", "Kaupungit", "Muut työssäkäyntikeskukset",
+                      "Kaupunkien läheinen maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu")
 
 file <- paste("tilastointialueet:", "kunta", "4500k_", as.character(2018), sep = "")
 
@@ -25,12 +29,7 @@ left_join(map, atyypit, by = "kunta")  %>%
   geom_sf() +
   theme_light() +
   labs(fill = NULL) +
-  scale_fill_discrete(labels = c("Kaupunki",
-                                 "Kaupungin läheinen maaseutu",
-                                 "Harvaan asuttu maaseutu",
-                                 "Pääkaupunkiseutu",
-                                 "Työssäkäyntikeskus",
-                                 "Ydinmaaseutu",
-                                 "Yliopistokaupunki"))
+  scale_fill_manual(labels = aluetyyppi_labels,
+                    values =  c(brewer.pal(4, "Blues"), brewer.pal(3, "Greens")))
 
 ggsave("analyysit/Aluetyypit/aluetyyppikartta.png")

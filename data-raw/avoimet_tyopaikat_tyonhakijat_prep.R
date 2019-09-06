@@ -1,11 +1,6 @@
 library(pxweb)
 library(tidyverse)
 library(statfitools)
-library(ggplot2)
-library(ggptt)
-library(gridExtra)
-library(sf)
-
 
 # Hae data pxwebistä
 
@@ -43,98 +38,6 @@ data <- left_join(data, alueet, by = "Kunta")
 atyypit <- readRDS("data/atyypit.rds") %>%
   rename(Knro = kunta18)
 
-data <- left_join(data, atyypit, by = "Knro") %>%
-        rename(kunta = Knro)
+data <- left_join(data, atyypit, by = "Knro")
 
-# Hae kartta
-
-file <- paste("tilastointialueet:", "kunta", "4500k_", as.character(2018), sep = "")
-
-url2 <- httr::parse_url("https://geo.stat.fi/geoserver/tilastointialueet/wfs")
-url2$query <- list(service ="WFS",
-                   version ="2.0.0",
-                   request ="GetFeature",
-                   typename = file,
-                   outputFormat ="application/json")
-
-map <- sf::st_read(httr::build_url(url2))
-
-
-map_data <- filter(data, vuosi == 2018) %>%
-  group_by(kunta) %>%
-  summarize(Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE),
-            Tyovoima = sum(Tyovoima, na.rm = TRUE),
-            Tyottomat = sum(Tyottomat, na.rm = TRUE)) %>%
-  mutate(vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima + Tyottomat),
-         tyottomyysaste = Tyottomat / Tyovoima)
-
-vakanssiaste_map <- left_join(map, map_data, by = "kunta")  %>%
-  ggplot(aes(fill = vakanssiaste)) +
-  geom_sf() +
-  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
-  theme_light() +
-  theme(
-    legend.position = "top",
-    legend.justification = "left",
-    legend.text = element_blank()) +
-  labs(fill = "Vakanssiaste")
-
-tyottomyysaste_map <- left_join(map, map_data, by = "kunta")  %>%
-  ggplot(aes(fill = tyottomyysaste)) +
-  geom_sf() +
-  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
-  theme_light() +
-  theme(
-    legend.position = "top",
-    legend.justification = "left",
-    legend.text = element_blank()) +
-  labs(fill = "Tyottomyysaste")
-
-kartat <- grid.arrange(vakanssiaste_map,  tyottomyysaste_map, ncol = 2)
-
-ggsave("analyysit/Kohtaanto/Kuviot/Kartat/vakanssi_aste_tyottomyys_2018_kuukausika.png", plot = kartat)
-
-
-
-# Missä vakanssiaste laskenut
-
-vuodet <- c(2006,2016)
-
-df <- data %>% mutate(tyottomyysaste = Tyottomat / Tyovoima,
-                        vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
-                 filter(vuosi %in% vuodet) %>%
-                 group_by(kunta, vuosi) %>%
-                 summarize(vakanssiaste = mean(vakanssiaste, na.rm = TRUE),
-                           tyottomyysaste = mean(tyottomyysaste, na.rm = TRUE)) %>%
-                 summarize(dvakanssiaste = diff(vakanssiaste)) %>%
-                 mutate(vakanssiaste_noussut = dvakanssiaste > 0)
-
-left_join(map, df, by = "kunta")  %>%
-  ggplot(aes(fill = vakanssiaste_noussut)) +
-  geom_sf() +
-  labs(fill = NULL) +
-  scale_fill_manual(labels = c(paste("Vakanssiaste laskenut", paste(vuodet, collapse = "-")),
-                               paste("Vakanssiaste noussut", paste(vuodet, collapse = "-"))),
-                      values = c("red3", "forestgreen"))
-
-# Missä tyottomyysaste laskenut
-
-df <- data %>% mutate(tyottomyysaste = Tyottomat / Tyovoima,
-                      vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
-  filter(vuosi %in% vuodet) %>%
-  group_by(kunta, vuosi) %>%
-  summarize(vakanssiaste = mean(vakanssiaste, na.rm = TRUE),
-            tyottomyysaste = mean(tyottomyysaste, na.rm = TRUE)) %>%
-  summarize(dtyottomyysaste = diff(tyottomyysaste)) %>%
-  mutate(tyottomyysaste_noussut = dtyottomyysaste > 0)
-
-left_join(map, df, by = "kunta")  %>%
-  ggplot(aes(fill = tyottomyysaste_noussut)) +
-  geom_sf() +
-  labs(fill = NULL) +
-  scale_fill_manual(labels = c(paste("Tyottomyysaste laskenut", paste(vuodet, collapse = "-")),
-                               paste("Tyottomyysaste noussut", paste(vuodet, collapse = "-"))),
-                    values = c("forestgreen", "red3"))
-
-
-
+saveRDS(data, "data/avoimet_tyopaikat_tyonhakijat.rds")
