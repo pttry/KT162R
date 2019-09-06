@@ -18,4 +18,16 @@ table %>% mutate(liikkuva = tyollistynyt - tyollistynyt_kotikuntaan) %>%
           select(viim_tyott_kesto__t0_discrete, n, liikkuva_prop, tyollistynyt_kotikuntaan_prop) %>%
           gather(tiedot, value, -viim_tyott_kesto__t0_discrete,-n) %>%
           ggplot(aes(x = viim_tyott_kesto__t0_discrete, y = value, fill = tiedot)) +
-                 geom_col()
+                 geom_col() +
+                 labs(y = "Osuus työttömistä samalla työttömyyden kestolla",
+                      x = "Työttömyyden kesto, päiviä",
+                      fill = NULL) +
+                 theme(legend.position = "bottom",
+                       legend.justification = "left",
+                       legend.text = element_text(size = 12)) +
+                 scale_fill_manual(labels = c("Liikkuva", "Työllistynyt kotikuntaan"),
+                                   values = ggptt_palettes$vnk[1:2])
+
+ggsave("analyysit/Pendelointi_ja_muutto/tyottomyyden_kesto_ja_liikkuvuus.png",
+       height = 7,
+       width = 12)
