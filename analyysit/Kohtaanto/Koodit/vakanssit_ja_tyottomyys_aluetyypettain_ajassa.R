@@ -70,7 +70,7 @@ ggsave("analyysit/Kohtaanto/Kuviot/tyottomat_avoimet_tyopaikat_ajassa_aluetyypei
 
 # Työttömät ja avoimet työpaikat
 
-p1 <- df %>% ggplot(aes(x = time, y = tyottomat_trend, col = aluetyyppi)) +
+p3 <- df %>% ggplot(aes(x = time, y = tyottomat_trend, col = aluetyyppi)) +
   geom_line() +
   labs(y = "Työttömät, trenditasoitettu",
        x = NULL,
@@ -82,7 +82,7 @@ p1 <- df %>% ggplot(aes(x = time, y = tyottomat_trend, col = aluetyyppi)) +
         legend.text = element_text(size = 12)) +
   guides(col = guide_legend(nrow = 3))
 
-p2<- df %>% ggplot(aes(x = time, y = avoimet_tyopaikat_trend, col = aluetyyppi)) +
+p4<- df %>% ggplot(aes(x = time, y = avoimet_tyopaikat_trend, col = aluetyyppi)) +
   geom_line() +
   labs(y = "Avoimet työpaikat, trenditasoitettu",
        x = NULL,
@@ -94,9 +94,62 @@ p2<- df %>% ggplot(aes(x = time, y = avoimet_tyopaikat_trend, col = aluetyyppi))
         legend.text = element_text(size = 12)) +
   guides(col = guide_legend(nrow = 3))
 
-p <- ggarrange(p1, p2, ncol = 1, common.legend = TRUE, legend = "bottom")
+p <- ggarrange(p3, p4, ncol = 1, common.legend = TRUE, legend = "bottom")
 ggsave("analyysit/Kohtaanto/Kuviot/tyottomat_avoimet_tyopaikat_ajassa_aluetyypeittain.png",
        plot = p,
        width = 8,
        height = 7)
 
+
+p <- ggarrange(p1, p2, p3, p4, ncol = 1, common.legend = TRUE, legend = "bottom")
+ggsave("analyysit/Kohtaanto/Kuviot/tyomarkkinat_ajassa_aluetyypeittain.png",
+       plot = p,
+       width = 8,
+       height = 14)
+
+nimittajat <- df %>%  filter(grepl("2018", time)) %>%
+  group_by( time) %>%
+  summarize(avoimet_tyopaikat = sum(avoimet_tyopaikat, na.rm = TRUE),
+            tyottomat = sum(tyottomat, na.rm = TRUE),
+            tyovoima = sum(tyovoima)) %>%
+  summarize(avoimet_tyopaikat = mean(avoimet_tyopaikat),
+            tyottomat = mean(tyottomat),
+            tyovoima = mean(tyovoima))
+
+table <- df %>% filter(grepl("2018", time)) %>%
+       group_by(aluetyyppi, time) %>%
+       summarize(avoimet_tyopaikat = sum(avoimet_tyopaikat, na.rm = TRUE),
+                 tyottomat = sum(tyottomat, na.rm = TRUE),
+                 tyovoima = sum(tyovoima)) %>%
+       group_by(aluetyyppi) %>%
+       summarize(avoimet_tyopaikat_vka = round(mean(avoimet_tyopaikat), digits = 1),
+                 tyottomat_vka = round(mean(tyottomat), digits = 1),
+                 tyovoima_vka = round(mean(tyovoima), digits = 1)) %>%
+       mutate(avoimet_tyopaikat_vka_osuus = round(avoimet_tyopaikat_vka / nimittajat$avoimet_tyopaikat, digits = 2),
+              tyottomat_vka_osuus = round(tyottomat_vka / nimittajat$tyottomat, digits = 2),
+              tyovoima_vka_osuus = round(tyovoima_vka / nimittajat$tyovoima, digits = 2),
+              aluetyyppi = aluetyyppi_labels)
+
+table %>% select(aluetyyppi, avoimet_tyopaikat_vka, tyottomat_vka, tyovoima_vka) %>%
+  stargazer(summary = FALSE, type = "text",
+            out = "analyysit/Kohtaanto/Taulukot/tyottomat_vakanssit_aluetyypeittain.html")
+
+table %>% select(aluetyyppi, avoimet_tyopaikat_vka_osuus, tyottomat_vka_osuus, tyovoima_vka_osuus) %>%
+       stargazer(summary = FALSE, type = "text",
+                 out = "analyysit/Kohtaanto/Taulukot/tyottomat_vakanssit_aluetyypeittain_osuus.html")
+
+df %>% filter(grepl("2018", time)) %>%
+  group_by(aluetyyppi, time) %>%
+  summarize(avoimet_tyopaikat = sum(avoimet_tyopaikat, na.rm = TRUE),
+            tyottomat = sum(tyottomat, na.rm = TRUE),
+            tyovoima = sum(tyovoima)) %>%
+  group_by(aluetyyppi) %>%
+  summarize(avoimet_tyopaikat_vka = mean(avoimet_tyopaikat),
+            tyottomat_vka = mean(tyottomat),
+            tyovoima_vka = mean(tyovoima)) %>%
+  mutate(vakanssiaste_vka = round(avoimet_tyopaikat_vka / (avoimet_tyopaikat_vka + tyovoima_vka), digits = 2),
+         tyottomyysaste_vka = round(tyottomat_vka / tyovoima_vka, digits = 2)) %>%
+  select(aluetyyppi, vakanssiaste_vka, tyottomyysaste_vka) %>%
+  mutate(aluetyyppi = aluetyyppi_labels) %>%
+  stargazer(summary = FALSE, type = "text",
+            out = "analyysit/Kohtaanto/Taulukot/tyottomyysasteeet_vakanssiasteet_aluetyypeittain.html")

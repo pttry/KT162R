@@ -2,6 +2,8 @@
 
 # Onko työmarkkinoiden alueelliset erot kaventuneet?
 
+data <- readRDS("data/avoimet_tyopaikat_tyonhakijat.rds")
+
 # Currently using coefficient of variation
 
 data_kokomaa <- data %>%
@@ -17,8 +19,8 @@ vakanssiastevar_plot <- data_kokomaa %>% group_by(time) %>%
   gather(tiedot, value, -time) %>%
   filter(tiedot == "vakanssiaste_var") %>%
   ggplot(aes(x = time, y = value)) +
-  geom_line() +
-  geom_smooth(span = 0.3) +
+  geom_line(color = ggptt_palettes$vnk[2], alpha = 0.5) +
+  geom_smooth(span = 0.3, color = ggptt_palettes$vnk[1], se =FALSE) +
   labs(x = NULL,
        y = "Vakanssiasteiden variaatiokerroin") +
   scale_y_continuous(labels = percent_comma)
@@ -29,8 +31,8 @@ tyottomyysastevar_plot <- data_kokomaa %>% group_by(time) %>%
   gather(tiedot, value, -time) %>%
   filter(tiedot == "tyottomyys_var") %>%
   ggplot(aes(x = time, y = value)) +
-  geom_line() +
-  geom_smooth(span = 0.3) +
+  geom_line(color = ggptt_palettes$vnk[2], alpha = 0.5) +
+  geom_smooth(span = 0.3, color = ggptt_palettes$vnk[1], se =FALSE) +
   labs(x = NULL,
        y = "Tyottomyysasteiden variaatiokerroin") +
   scale_y_continuous(labels = percent_comma)
@@ -39,5 +41,5 @@ alueelliset_erot_ajassa_plot <- grid.arrange(vakanssiastevar_plot, tyottomyysast
 
 ggsave("analyysit/Kohtaanto/Kuviot/alueelliset_erot_ajassa.png", plot = alueelliset_erot_ajassa_plot,
        width = 8,
-       height = 5)
+       height = 6)
 
