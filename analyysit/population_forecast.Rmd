@@ -1,0 +1,228 @@
+---
+title: "Väestöennuste"
+author: "Janne Huovari"
+date: "30 9 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+devtools::load_all()
+
+library(ggptt)
+
+set_ptt()
+
+theme_update(
+  plot.subtitle = element_text(colour = "grey40"),
+  plot.caption = element_text(size = 7, face = "plain", colour = "grey40"),
+  text = element_text(face = "bold"),
+  plot.margin = margin(1, 1, 3, 1))
+
+data("aluetyyppi", "pop_fore_dat")
+
+aluetyyppi2 <- aluetyyppi %>% 
+  rename(alue = kunta_no) %>% 
+  add_row(alue = "SSS", kunta = "Koko maa", aluetyyppi = "Koko maa")
+
+pop_fore_data <-  pop_fore_dat %>% 
+  left_join(aluetyyppi2, by = "alue")
+
+## Check:
+# pop_fore_data %>% 
+#   filter(is.na(aluetyyppi)) %>% 
+#   distinct(alue)
+
+pop_fore_data_at <- pop_fore_data %>% 
+  group_by(aluetyyppi, time, ika) %>% 
+  summarise(vaesto_e19 = sum(vaesto_e19)) %>% 
+  ungroup()
+
+```
+
+```{r data}
+
+# Employment data
+dat_empl_at <- dat_lahtopendelointi_tyyppi %>% 
+  filter(koulutusaste == "Yhteensä",
+         pendelointi == "Yhteensä") %>% 
+  select(aluetyyppi, time, ika, tyoll = values)
+
+# population data with age
+pop_at_ika9 <- dat_at_vaki_ika9 %>% 
+  left_join(dat_empl_at, by = c("time", "aluetyyppi", "ika")) %>% 
+  group_by(aluetyyppi, time) %>% 
+  mutate(tyoll_osuus = 100 * tyoll / values) %>% 
+  ungroup()
+
+# Population summary series for past 
+pop_at <- dat_at_vaki_ika9 %>% 
+  left_join(dat_empl_at, by = c("time", "aluetyyppi", "ika")) %>% 
+  group_by(aluetyyppi, time) %>% 
+  summarise(vaesto = values[ika == "Yhteensä"],
+            tyoika = sum(values[ika %in% c("18 - 24",  "25 - 34",  "35 - 44",  "45 - 54",  "55 - 64")]),
+            tyoll_18_74 = sum(tyoll[ika %in% c("18 - 24",  "25 - 34",  "35 - 44",  "45 - 54",  "55 - 64", "65 - 74")]),
+            tyoll = sum(tyoll[ika %in% c("18 - 24",  "25 - 34",  "35 - 44",  "45 - 54",  "55 - 64")]),
+            vhuolto_suhde = 100 *(vaesto - tyoika) / tyoika,
+            tyoika_osuus = 100 * tyoika / vaesto,
+            tyoll_aste = 100 * tyoll / tyoika,
+            tyoll_osuus_18_74 = 100 * tyoll_18_74 / vaesto) %>% 
+  ungroup()
+
+# Age group emplyment rate
+
+tyoll_osuus_korotus <- 
+  tribble(
+    ~ika, ~tyoll_osuus_korotus,
+    "18 - 24",  2.3,
+    "25 - 34",  2.8,
+    "35 - 44",  4,
+    "45 - 54",  3,
+    "55 - 64",  4.5,
+    "65 - 74",  0
+  )
+
+last_emp <- max(dat_empl_at$time)
+tyoll_osuus_ika <- pop_at_ika9 %>% 
+  filter(time == last_emp,
+         ika %in% c("18 - 24",  "25 - 34",  "35 - 44",  "45 - 54",  "55 - 64", "65 - 74"),
+         aluetyyppi != "Koko maa") %>% 
+  select(aluetyyppi, ika, tyoll_osuus) %>% 
+  left_join(tyoll_osuus_korotus) %>% 
+  mutate(tyoll_osuus_korotettu = tyoll_osuus + tyoll_osuus_korotus)
+  
+
+# Population summary series for forecast
+pop_fore_ind_at0 <- pop_fore_data_at %>% 
+  filter(aluetyyppi != "Koko maa") %>%
+  mutate(ika = as_factor(ika),
+         ika = fct_recode(ika, "Yhteensä" = "999"),
+         ika = fct_relabel(ika, group_age9)) %>%
+  group_by(time, aluetyyppi, ika) %>%
+  summarise(values = sum(vaesto_e19)) %>%
+  ungroup() %>% 
+  # add constant employment share
+  left_join(tyoll_osuus_ika, by = c("aluetyyppi", "ika")) %>% 
+  mutate(tyoll = values * tyoll_osuus_korotettu / 100) %>% 
+  group_by(aluetyyppi, time) %>% 
+  summarise(vaesto = values[ika == "Yhteensä"],
+            tyoika = sum(values[ika %in% c("18 - 24",  "25 - 34",  "35 - 44",  "45 - 54",  "55 - 64")]),
+            tyoll_18_74 = sum(tyoll[ika %in% c("18 - 24",  "25 - 34",  "35 - 44",  "45 - 54",  "55 - 64", "65 - 74")]),
+            tyoll = sum(tyoll[ika %in% c("18 - 24",  "25 - 34",  "35 - 44",  "45 - 54",  "55 - 64")])) %>% 
+  ungroup() 
+  
+pop_fore_ind_km <- pop_fore_ind_at0 %>% 
+  group_by(time) %>% 
+  summarise_if(is.numeric, sum) %>% 
+  ungroup() %>% 
+  mutate(aluetyyppi = "Koko maa")
+  
+pop_fore_ind_at <- pop_fore_ind_km %>%   
+  bind_rows(pop_fore_ind_at0) %>% 
+  mutate(vhuolto_suhde = 100 *(vaesto - tyoika) / tyoika,
+         tyoika_osuus = 100 * tyoika / vaesto,
+         tyoll_aste = 100 * tyoll / tyoika,
+         tyoll_osuus_18_74 = 100 * tyoll_18_74 / vaesto) 
+ 
+
+
+  
+
+  
+
+```
+
+
+
+```{r vaesto}
+
+pop_fore_ind_at %>% 
+  filter(aluetyyppi != "Koko maa") %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, vaesto)) %>% 
+  ggplot(aes(time, vaesto / 1000, colour = aluetyyppi)) +
+  geom_line() +
+  geom_line(data = filter(pop_at, aluetyyppi != "Koko maa")) +
+  geom_h0() +
+  labs(title = "Väkiluku",
+       y = "1000 henkeä", x = NULL,
+       caption = "Lähde: Tilastokeskus, PTT")
+
+```
+
+```{r tyoika}
+
+pop_fore_ind_at %>% 
+  filter(aluetyyppi != "Koko maa") %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, tyoika)) %>% 
+  ggplot(aes(time, tyoika, colour = aluetyyppi)) +
+  geom_line() +
+  geom_line(data = filter(pop_at, aluetyyppi != "Koko maa")) +
+  labs(title = "Työikäiset",
+       y = NULL, x = NULL,
+       caption = "Lähde: Tilastokeskus, PTT")
+
+# ggsave("~/vaki.png", dpi = 320, height = 4, width = 7)
+
+```
+
+```{r v_huoltosuhd}
+
+pop_fore_ind_at %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, vhuolto_suhde)) %>% 
+  ggplot(aes(time, vhuolto_suhde, colour = aluetyyppi)) +
+  geom_line() + 
+  geom_line(data = filter(pop_at, aluetyyppi != "Koko maa")) +
+  scale_y_continuous(breaks = seq(50, 120, 10)) +
+  labs(title = "Väestöllinen huoltosuhde",
+       subtitle = "muiden kuin työikäisten suhde työikäisiin (18-64-vuotiaat)",
+       y = "%", x = NULL,
+       caption = "Lähde: Tilastokeskus, PTT")
+
+# ggsave("~/v_huoltosuhde.png", dpi = 320, height = 4, width = 7)
+
+```
+
+```{r tyoika_osuus}
+
+pop_fore_ind_at %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, tyoika_osuus)) %>% 
+  ggplot(aes(time, tyoika_osuus, colour = aluetyyppi)) +
+  geom_line() + 
+  geom_line(data = filter(pop_at)) +
+  scale_y_continuous(breaks = seq(40, 120, 5)) +
+  labs(title = "Työikäisten (18-64-vuotiaat osuus)",
+       y = "%", x = NULL,
+       caption = "Lähde: Tilastokeskus, PTT")
+
+# ggsave("~/v_huoltosuhde.png", dpi = 320, height = 4, width = 7)
+
+```
+
+
+```{r tyoll_aste_ika}
+
+pop_at_ika9 %>% 
+  ggplot(aes(time, tyoll_osuus, colour = aluetyyppi)) +
+  facet_wrap(~ ika) +
+  geom_line()
+
+```
+```{r tyoll_osuus}
+
+pop_fore_ind_at %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, tyoll_osuus_18_74)) %>% 
+  ggplot(aes(time, tyoll_osuus_18_74, colour = aluetyyppi)) +
+  geom_line() + 
+  geom_line(data = drop_na(pop_at, tyoll_osuus_18_74)) +
+  # scale_y_continuous(breaks = seq(40, 120, 5)) +
+  # geom_h0() +
+  labs(title = "Työlliset suhteessa väestöön ja ennuste nykyisillä työllisyysasteilla",
+       subtitle = glue::glue("Työllisten (18-74) ennuste laskettu ikäluokittaisista alueellista työllisyysasteista 
+       vuonna 2016 korotettuna koko maan ikäluokittaisella muutoksella vuoteen 2018"),
+       y = "%", x = NULL,
+       caption = "Lähde: Tilastokeskus, PTT")
+
+# ggsave("~/tyoll_osuus.png", dpi = 320, height = 4, width = 7)
+
+```

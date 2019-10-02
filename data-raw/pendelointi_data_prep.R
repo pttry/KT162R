@@ -6,19 +6,22 @@ library(pxweb)
 # Lähtö pendelöinti
 
 dat_lahtopendelointi <-
-  get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_013.px",
-                 dims = list(Alue = c('*'),
+  pxweb_get_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_115n.px",
+                 query = list(Alue = c('*'),
                              Pendelöinti = c('*'),
                              Koulutusaste = c('*'),
                              Ikä = c('*'),
-                             Vuosi = c('*')),
-                 clean = TRUE) %>%
+                             Vuosi = c('*'),
+                             Tiedot =c('*'))) %>%
   statfitools::clean_times() %>%
-  statfitools::clean_names(to_lower = TRUE)
+  statfitools::clean_names(to_lower = TRUE) %>%
+  rename(values = tyolliset)
+
 
 dat_lahtopendelointi_tyyppi <-
   dat_lahtopendelointi %>%
-  filter(alue != "KOKO MAA") %>%
+  mutate(alue = fct_recode(alue, Maarianhamina = "Maarianhamina - Mariehamn")) %>%
+  # filter(alue != "KOKO MAA") %>%
   left_join(rename(aluetyyppi, alue = "kunta"), by = "alue") %>%
   group_by(aluetyyppi, time, pendelointi, koulutusaste, ika) %>%
   summarise(values = sum(values)) %>%
@@ -31,12 +34,13 @@ dat_lahtopendelointi_tyyppi <-
 
 
 dat_tulopendelointi <-
-  get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_014.px",
+  get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_115p.px",
                  dims = list("Työpaikan alue" = c('*'),
                              Pendelöinti = c('*'),
                              Koulutusaste = c('*'),
                              Ikä = c('*'),
-                             Vuosi = c('*')),
+                             Vuosi = c('*'),
+                             Tiedot = c('*') ),
                  clean = TRUE) %>%
   statfitools::clean_times() %>%
   statfitools::clean_names(to_lower = TRUE)
@@ -44,8 +48,9 @@ dat_tulopendelointi <-
 
 dat_tulopendelointi_tyyppi <-
   dat_tulopendelointi %>%
-  filter(tyopaikan_alue != "KOKO MAA") %>%
   rename(alue = tyopaikan_alue) %>%
+  mutate(alue = fct_recode(alue, Maarianhamina = "Maarianhamina - Mariehamn")) %>%
+  filter(alue != "KOKO MAA") %>%
   left_join(rename(aluetyyppi, alue = "kunta"), by = "alue") %>%
   group_by(aluetyyppi, time, pendelointi, koulutusaste, ika) %>%
   summarise(values = sum(values)) %>%
