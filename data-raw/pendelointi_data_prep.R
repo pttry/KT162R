@@ -3,7 +3,7 @@
 library(tidyverse)
 library(pxweb)
 
-# Lähtö pendelöinti
+# Lähtöpendelöinti (työlliset)
 
 dat_lahtopendelointi <-
   pxweb_get_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_115n.px",
@@ -30,7 +30,7 @@ dat_lahtopendelointi_tyyppi <-
 
 
 
-# Tulopendelöinti
+# Tulopendelöinti (työpaikat)
 
 
 dat_tulopendelointi <-
