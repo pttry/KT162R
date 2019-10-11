@@ -46,4 +46,4 @@ dat_at_vaki_ika9 <- dat_kuntien_vaki_ika9 %>%
 
 
 # Save data
-use_data(dat_kuntien_vakiluvut, dat_at_vaki_ika9, overwrite = TRUE)
+usethis::use_data(dat_kuntien_vakiluvut, dat_at_vaki_ika9, overwrite = TRUE)

@@ -12,22 +12,31 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
 )
 
 library(tidyr)
 library(ggplot2)
 library(ggptt)
+library(RColorBrewer)
 
 devtools::load_all()
 set_gg(theme_ptt(), "ptt")
+
+set_ptt()
+theme_update(plot.subtitle = element_text(colour = "grey50", size = 9))
+
+atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
+
+data(dat_kokonaismuutto, dat_muuttotiedot_kunnittain)
 
 ```
 Muuttojen absoluuttinen määrä Suomessa 1990 - 2017
 
 ```{r}
 
-data(dat_kokonaismuutto)
 
 ggplot(dat_kokonaismuutto, aes(x = vuosi, y = muuttoja, col = muuton_tyyppi)) +
   geom_line() +
@@ -77,8 +86,9 @@ nettomuutto_data %>% group_by(seutukunta) %>%
   geom_bar(stat = "identity") +
   coord_flip() +
   xlab(NULL) +
-  ylab("Nettomuutto") +
-  scale_y_continuous(limits = c(-50000, 140000), labels = deci_comma)
+  ylab("Nettomuutto") 
+# +
+#   scale_y_continuous(limits = c(-50000, 140000), labels = deci_comma)
 ```
 
 Väestönmuutosvaikutukset maakunnittain, seutukunnittain ja kunnittain
@@ -110,12 +120,11 @@ maakunnittaiset_vaestomuutosvaikutukset <- nettomuutto_data %>%
   group_by(Vuosi) %>%
   summarize(vaestonmuutosvaikutus = sum(nettomuutto))
 
-vaestomuutosvaikutukset <- rbind(kunnittaiset_vaestomuutosvaikutukset,
-                                 seutukunnittaiset_vaestomuutosvaikutukset,
-                                 maakunnittaiset_vaestomuutosvaikutukset)
-vaestomuutosvaikutukset$tyyppi <- rep(c("kunnittaiset",
-                                        "seutukunnittaiset",
-                                        "maakunnittaiset"), each = 28)
+vaestomuutosvaikutukset <- bind_rows(kunnittaiset = kunnittaiset_vaestomuutosvaikutukset,
+                                 seutukunnittaiset = seutukunnittaiset_vaestomuutosvaikutukset,
+                                 maakunnittaiset = maakunnittaiset_vaestomuutosvaikutukset,
+                                 .id = "tyyppi")
+
 
 vaestomuutosvaikutukset %>% ggplot(aes(x = Vuosi, y = vaestonmuutosvaikutus, color = tyyppi)) +
   geom_line() +
@@ -132,16 +141,6 @@ vaestomuutosvaikutukset %>% ggplot(aes(x = Vuosi, y = vaestonmuutosvaikutus, col
 
 Väestonmuutosvaikutukset aluetyypeittäin
 
-```{r}
-# Load data
-dat_muuttotiedot_kunnittain <- readRDS("data/dat_muuttotiedot_kunnittain.rds")
-
-set_ptt()
-theme_update(plot.subtitle = element_text(colour = "grey50", size = 9))
-
-atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
-
-```
 
 Nettomuutot aluetyypeittäin, viiva
 ```{r}
@@ -369,7 +368,9 @@ dat_muuttotiedot_kunnittain_mod %>%
        caption = "Lähde: PTT, Tilastokeskus",
        title = "Tulo- ja lähtömuuttoasteet",
        subtitle = "Tulo- ja lähtömuutot vuosittain suhteessa väkilukuun")
-  ```
 
+```
 
+  
+  
 

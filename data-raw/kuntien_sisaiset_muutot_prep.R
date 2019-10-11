@@ -1,6 +1,6 @@
 # Kuntien sisäinen muutto
 
-data0 <-
+kuntien_sisaiset_muutot0 <-
   get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/muutl/statfin_muutl_pxt_11a3.px",
                  dims = list(Sukupuoli = c('SSS'),
                              Ikä = c('SSS'),
@@ -8,16 +8,10 @@ data0 <-
                              Tiedot = c('vm44')),
                  clean = TRUE)
 
-data <- data0
+kuntien_sisaiset_muutot <- kuntien_sisaiset_muutot0 %>%
+   select(-Sukupuoli, -Ikä, -Tiedot) %>%
+   mutate(Vuosi = as.integer(as.character(Vuosi)))
 
-# Remove redundant columns
-   data <- data %>% select(-Sukupuoli, -Ikä, -Tiedot)
-
-# Change the type of Vuosi column
-   data$Vuosi <- as.integer(as.character(data$Vuosi))
-
-# Name data set
-   kuntien_sisaiset_muutot <- data
 
 # Save data
-   saveRDS(kuntien_sisaiset_muutot, file = "R/data_clean/kuntien_sisaiset_muutot.rds")
+   saveRDS(kuntien_sisaiset_muutot, file = "data/kuntien_sisaiset_muutot.rds")
