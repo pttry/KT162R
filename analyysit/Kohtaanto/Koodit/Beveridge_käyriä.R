@@ -64,13 +64,16 @@ ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kokomaa_kuukausittain_asteet_sa.png
 
 
 data_kokomaa %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend, label = vuosi_label)) +
-  geom_point(size = 1, color = ggptt_palettes$vnk[2]) +
-  geom_path(size = 1, color = ggptt_palettes$vnk[1]) +
+  geom_point(size = 1, color = ggptt_palettes$ptt[2]) +
+  geom_path(size = 1, color = ggptt_palettes$ptt[1]) +
   geom_text(color = "black") +
   labs(y = "Vakanssiaste",
        x = "Tyottomyys")
 
 ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/kokomaa_kuukausittain_asteet_trend.png")
+
+
+ ggsave("C:/Users/juhoa/Google Drive/Projects/New job, migrate or commute/Presentation/Graphs/beveridge.pdf")
 
 
 # Beveridge-käyrät kuntaryhmittäin, kuukausittain, kausitasoitus ja trendaus
@@ -546,4 +549,5 @@ p <- grid.arrange(p2, p1, ncol = 1)
 
 ggsave("C:/Users/juhoa/Google Drive/Labor market search, report/beverigde_curves.png", plot = p)
 
-
+stargazer(aluetyypit, type = "text", summary = FALSE,
+          out = "aluetyypit.html")

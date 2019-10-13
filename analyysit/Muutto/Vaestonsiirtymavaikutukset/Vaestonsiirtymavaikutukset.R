@@ -3,69 +3,90 @@
 
 # Huom. jos kuvia tallentaa raporttia varten, tulee captionit ja otsikot poistaa.
 
-  library(ggplot)
+  library(ggplot2)
   library(tidyverse)
   library(statfitools)
   library(ggptt)
   library(gridExtra)
   library(RColorBrewer)
+  library(ggpubr)
 
   set_ptt()
   theme_update(plot.subtitle = element_text(colour = "grey50", size = 9))
 
-  atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
+  atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:5], brewer.pal(6, "Greens")[6], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[5:4])
+
 
 # Load data
 
   data(dat_muuttotiedot_kunnittain)
+
+  dat_muuttotiedot_kunnittain$aluetyyppi <- fct_relevel(dat_muuttotiedot_kunnittain$aluetyyppi,
+                                                        c("PK-seutu", "Muut yliopistokaupungit", "Muut työssäkäyntialueden keskukset", "Muut kaupungit",
+                                                          "Kaupunkien läh. maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu"))
+  aluetyyppi_labels = c("Pääkaupunkiseutu", "Yliopistokaupungit","Muut työssäkäyntikeskukset", "Kaupungit",
+                        "Kaupunkien läheinen maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu")
+
+  # HUOM!!! dat_muuttotiedot_kunnittain aineistossa on jotain pielessä, tulo- tai lähtömuutto näyttää sekoittuneen nettomuuttoon tai jotain.
+  # Korjataan tässä
+
+  dat_muuttotiedot_kunnittain <- dat_muuttotiedot_kunnittain  %>%
+                                 filter(Tiedot == "tulomuutto") %>%
+                                 mutate(Tiedot = "nettomuutto")
 
 # Nettomuutto #########################################################################
 
   # Absoluuttiset määrät
 
 # Nettomuutot aluetyypeittäin, viiva
-   dat_muuttotiedot_kunnittain %>%
+p1 <- dat_muuttotiedot_kunnittain %>%
      filter(Tiedot == "nettomuutto") %>%
      group_by(aluetyyppi, Vuosi) %>%
      summarize(nettomuutto = sum(values)) %>%
      ungroup() %>%
      ggplot(aes(x = Vuosi, y = nettomuutto, color = aluetyyppi)) +
+            geom_hline(yintercept = 0, color = "black", linetype = 2) +
             geom_line() +
-            geom_hline(yintercept = 0, color = "grey", size = 1) +
-            scale_colour_manual(values = atyyppi_colour) +
-            theme(legend.title = element_blank()) +
+            scale_colour_manual(values = atyyppi_colour,
+                                labels = aluetyyppi_labels) +
+            scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+            theme(legend.title = element_blank(),
+                  legend.position = "bottom",
+                  legend.justification = "left") +
             labs(x = NULL,
-                 y = "Nettomuuttoja",
-                 caption = "Lähde: PTT, Tilastokeskus",
-                 title = "Nettomuutot",
-                 subtitle = "Tulo- ja lähtömuuttojen erotus vuosittain")
+                 y = "Nettomuuttoja")
 
      ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/nettomuutto_atyyppi_viiva.png")
 
    # Muuttoasteet
 
 # Nettomuuttoasteet aluetyypeittäin, viiva
-   dat_muuttotiedot_kunnittain %>%
+p2 <-  dat_muuttotiedot_kunnittain %>%
      filter(Tiedot == "nettomuutto") %>%
      group_by(aluetyyppi, Vuosi) %>%
      summarize(nettomuutto = sum(values),
-               vakea = sum(vakiluku)) %>%
+               vakea = sum(vakiluku, na.rm = TRUE)) %>%
      mutate(nettomuuttoaste = nettomuutto / vakea) %>%
      ungroup() %>%
      ggplot(aes(x = Vuosi, y = nettomuuttoaste, color = aluetyyppi)) +
+            geom_hline(yintercept = 0, color = "black", linetype = 2) +
             geom_line()  +
-            scale_colour_manual(values = atyyppi_colour) +
-            geom_hline(yintercept = 0, color = "grey", size = 1) +
-            theme(legend.title = element_blank()) +
-            scale_y_continuous(labels = deci_comma) +
+            scale_colour_manual(values = atyyppi_colour,
+                                labels = aluetyyppi_labels) +
+            theme(legend.title = element_blank(),
+                  legend.position = "bottom",
+                  legend.justification = "left") +
+            scale_y_continuous(labels = percent_comma) +
+            scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
             labs(x = NULL,
-                 y = "Nettomuuttoaste",
-                 caption = "Lähde: PTT, Tilastokeskus",
-                 title = "Nettomuuttoasteet",
-                 subtitle = "Tulo- ja lähtömuuttojen erotus vuosittain suhteessa asukaslukuun")
+                 y = "Nettomuuttoaste")
 
    ggsave("vignettes/nettomuuttoaste_atyyppi_viiva.png")
 
+p <- ggarrange(p1, p2, ncol = 2, common.legend = TRUE, legend = "bottom")
+ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/aluetyypeittain_molemmat.png", plot = p,
+       height = 5,
+       width = 8)
 
 # Lähto- ja tulomuutot ###################################################################
 
@@ -130,7 +151,8 @@
   kunnittaiset_vaestomuutosvaikutukset <- dat_muuttotiedot_kunnittain %>%
         filter(values > 0, Tiedot == "nettomuutto") %>%
         group_by(Vuosi) %>%
-        summarize(vaestonmuutosvaikutus = sum(values))
+        summarize(vaestonmuutosvaikutus = sum(values)) %>%
+        mutate(tyyppi = "kunnittaiset")
 
  # seutukunnittaiset
 
@@ -141,7 +163,8 @@
     filter(nettomuutto > 0) %>%
     ungroup() %>%
     group_by(Vuosi) %>%
-    summarize(vaestonmuutosvaikutus = sum(nettomuutto))
+    summarize(vaestonmuutosvaikutus = sum(nettomuutto)) %>%
+    mutate(tyyppi = "seutukunnittaiset")
 
   # Maakunnittaiset
 
@@ -152,30 +175,31 @@
     filter(nettomuutto > 0) %>%
     ungroup() %>%
     group_by(Vuosi) %>%
-    summarize(vaestonmuutosvaikutus = sum(nettomuutto))
+    summarize(vaestonmuutosvaikutus = sum(nettomuutto)) %>%
+    mutate(tyyppi = "maakunnittaiset")
 
 vaestomuutosvaikutukset <- rbind(kunnittaiset_vaestomuutosvaikutukset,
                                  seutukunnittaiset_vaestomuutosvaikutukset,
                                  maakunnittaiset_vaestomuutosvaikutukset)
 
-vaestomuutosvaikutukset$tyyppi <- rep(c("kunnittaiset",
-                                        "seutukunnittaiset",
-                                        "maakunnittaiset"), each = 28)
-
 vaestomuutosvaikutukset %>% ggplot(aes(x = Vuosi, y = vaestonmuutosvaikutus, color = tyyppi)) +
   geom_line() +
+  geom_hline(yintercept = 0, color = "black", linetype = 2) +
   theme_ptt() +
   theme(legend.position = "bottom", legend.justification = "left") +
   theme(legend.title = element_blank()) +
-  scale_colour_manual(values = ggptt_palettes$ptt[1:3],
+  scale_colour_manual(values = brewer.pal(4, "Blues")[2:4],
                       labels = c("Kunnittaiset",
-                                 "Seutukunnittaiset",
-                                 "Maakunnittaiset")) +
-  ylab("Väestönsiirtymävaikutus") +
+                                 "Maakunnittaiset",
+                                 "Seutukunnittaiset")) +
+  labs(y = "Väestönsiirtymävaikutus",
+       x = NULL) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 6))
 
 
-ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/vaestonsiirtymavaikutukset_alueittain.png")
+ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/vaestonsiirtymavaikutukset_alueittain.png",
+       height = 3,
+       width = 7)
 
 
 ############################## Roskakori ##############################################

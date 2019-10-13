@@ -4,12 +4,15 @@
   library(ggplot2)
   library(ggptt)
   library(gridExtra)
+  library(RColorBrewer)
 
   set_gg(theme_ptt(), "ptt")
 
 # Hae data
 
   data(dat_pendelointi)
+
+  dat_pendelointi <- filter(dat_pendelointi, aluetyyppi != "Koko maa")
 
   # Pendelöijien absoluuttinen määrä koko maassa.
   # Huom. koko maan summia laskettaessa ei ole väliä summaileekko kohde- vai lähtöalueiden pendelöintejä.
@@ -52,3 +55,91 @@
          width = 300,
          height = 150,
          units = "mm")
+
+  ################# Aluetyyppien nettopendelöinti #######################################
+
+  library(ggplot2)
+  library(tidyverse)
+  library(statfitools)
+  library(ggptt)
+  library(gridExtra)
+  library(RColorBrewer)
+  library(ggpubr)
+
+  set_ptt()
+  theme_update(plot.subtitle = element_text(colour = "grey50", size = 9))
+
+  atyyppi_colour <- c(brewer.pal(6, "Blues")[3:6] , brewer.pal(6, "Greens")[4:6])
+
+
+
+  # Load data
+
+  data(dat_pendelointi)
+
+
+  data(aluetyyppi)
+  aluetyyppi <- rename(aluetyyppi, alue = kunta)
+  dat_pendelointi <- left_join(aluetyyppi, dat_pendelointi, by = "alue")
+  dat_pendelointi <- dat_pendelointi %>%
+                     group_by(aluetyyppi, vuosi) %>%
+                     summarize(tulopendelointi = sum(tulopendelointi, na.rm = TRUE),
+                               lahtopendelointi = sum(lahtopendelointi, na.rm = TRUE),
+                               asuinkunnassaan_tyossakayvat = sum(asuinkunnassaan_tyossakayvat)) %>%
+                     mutate(nettopendelointi = tulopendelointi - lahtopendelointi,
+                            nettopendelointiaste = (tulopendelointi- lahtopendelointi) /(asuinkunnassaan_tyossakayvat + lahtopendelointi)) %>%
+                     gather(Tiedot, values, -aluetyyppi, -vuosi)
+
+  dat_pendelointi <- filter(dat_pendelointi, aluetyyppi != "Koko maa")
+  dat_pendelointi$aluetyyppi <- gdata::drop.levels(dat_pendelointi$aluetyyppi)
+
+  dat_pendelointi$aluetyyppi <- fct_relevel(dat_pendelointi$aluetyyppi,
+                                                        c("PK-seutu", "Muut yliopistokaupungit", "Muut työssäkäyntialueden keskukset", "Muut kaupungit",
+                                                          "Kaupunkien läh. maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu"))
+  aluetyyppi_labels = c("Pääkaupunkiseutu", "Yliopistokaupungit","Muut työssäkäyntikeskukset", "Kaupungit",
+                        "Kaupunkien läheinen maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu")
+
+
+
+  # nettopendelointi #########################################################################
+
+  # Absoluuttiset määrät
+
+  p1 <- dat_pendelointi %>%
+    filter(Tiedot == "nettopendelointi") %>%
+    ggplot(aes(x = vuosi, y = values, color = aluetyyppi)) +
+    geom_line() +
+    geom_hline(yintercept = 0, color = "black", linetype = 2, size = 0.5) +
+    scale_colour_manual(values = atyyppi_colour,
+                        labels = aluetyyppi_labels) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+    theme(legend.title = element_blank(),
+          legend.position = "bottom",
+          legend.justification = "left") +
+    labs(x = NULL,
+         y = "Nettopendelointi")
+
+
+
+  # nettopendelointiasteet aluetyypeittäin, viiva
+  p2 <-  dat_pendelointi %>%
+    filter(Tiedot == "nettopendelointiaste") %>%
+    ggplot(aes(x = vuosi, y = values, color = aluetyyppi)) +
+    geom_line()  +
+    scale_colour_manual(values = atyyppi_colour,
+                       labels = aluetyyppi_labels) +
+    geom_hline(yintercept = 0, color = "black", linetype = 2, size = 0.5) +
+    theme(legend.title = element_blank(),
+          legend.position = "bottom",
+          legend.justification = "left") +
+    scale_y_continuous(labels = percent_comma) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+    labs(x = NULL,
+         y = "Nettopendelointiaste")
+
+
+  p <- ggarrange(p1, p2, ncol = 2, common.legend = TRUE, legend = "bottom")
+  ggsave("analyysit/Pendelointi/aluetyypeittain_molemmat.png", plot = p,
+         height = 5,
+         width = 8)
+

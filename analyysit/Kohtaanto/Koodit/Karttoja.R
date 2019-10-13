@@ -71,7 +71,7 @@ map_data <- filter(data, vuosi == 2018) %>%
 vakanssiaste_map <- left_join(map, map_data, by = "kunta")  %>%
   ggplot(aes(fill = vakanssiaste)) +
   geom_sf() +
-  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
+  scale_fill_gradient(low = "white", high = "darkgreen") +
   theme_light() +
   theme(
     legend.position = "top",
@@ -82,7 +82,7 @@ vakanssiaste_map <- left_join(map, map_data, by = "kunta")  %>%
 tyottomyysaste_map <- left_join(map, map_data, by = "kunta")  %>%
   ggplot(aes(fill = tyottomyysaste)) +
   geom_sf() +
-  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
+  scale_fill_gradient(low = "white", high = "darkgreen") +
   theme_light() +
   theme(
     legend.position = "top",
@@ -94,6 +94,8 @@ kartat <- grid.arrange(vakanssiaste_map,  tyottomyysaste_map, ncol = 2)
 
 ggsave("analyysit/Kohtaanto/Kuviot/Kartat/vakanssi_aste_tyottomyys_2018_kuukausika.png", plot = kartat)
 
+ggsave("C:/Users/juhoa/Google Drive/Projects/New job, migrate or commute/Presentation/Graphs/maps.pdf",
+       plot = kartat)
 
 
 # Missä vakanssiaste laskenut

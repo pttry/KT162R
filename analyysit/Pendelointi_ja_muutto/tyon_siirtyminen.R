@@ -34,13 +34,14 @@ df %>%
   theme(legend.text = element_text(size = 10),
         legend.position = "bottom",
         legend.justification = "left") +
-  scale_colour_discrete(labels = c("Muutto",
+  scale_colour_manual(labels = c("Muutto",
                                 "Työikäisten muutto",
                                 "Työllisten muutto",
                                 "Työn siirtyminen",
                                 "Työtä siirtävä muutto",
                                 "Työttömien muuttaessa työllistyminen",
-                                "Työvoiman ulkopuolelta muuttaessa työllistyminen"))
+                                "Työvoiman ulkopuolelta muuttaessa työllistyminen"),
+                        values = brewer.pal(7, "Blues"))
 
 ggsave("analyysit/Pendelointi_ja_muutto/tyon_siirtyminen.png",
        width = 9, height = 6)

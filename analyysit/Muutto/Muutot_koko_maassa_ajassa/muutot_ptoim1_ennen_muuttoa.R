@@ -19,12 +19,12 @@ data <- readRDS("data/paa-asiallinen_toiminta_ja_muutto/muuttoaikasarjat_kokomaa
 
   labels2 <- c("Eläkeläiset",
                "0-14 -vuotiaat",
-               "Muut työvoiman ulkopuolella olevat",
+               "Muut työvoiman ulkopuolella olevat" ,
                "Opiskelijat ja koululaiset",
                "Varus- ja siviilipalvelusmiehet",
                "Työlliset",
-               "Työttömät",
-               "Työttömyyseläkeläiset")
+               "Työttömät")
+
 
   # Kuntien väliset muutot
 
@@ -52,27 +52,43 @@ data <- readRDS("data/paa-asiallinen_toiminta_ja_muutto/muuttoaikasarjat_kokomaa
 
   # Seutukuntien väliset muutot
 
+  kaikki <- data %>% filter(tiedot %in% c("seutukuntien_valinen_tyottomien_muutto",
+                                            "seutukuntien_valinen_tyollisten_muutto",
+                                            "seutukuntien_valinen_opiskelijoiden_muutto",
+                                            "seutukuntien_valinen_lasten_muutto",
+                                            "seutukuntien_valinen_palvelusmiesten_muutto",
+                                            "seutukuntien_valinen_elakelaisten_muutto",
+                                            "seutukuntien_valinen_muutyovoimanulkopuolella_muutto"))
+
   data %>% filter(tiedot %in% c("seutukuntien_valinen_tyottomien_muutto",
                                 "seutukuntien_valinen_tyollisten_muutto",
                                 "seutukuntien_valinen_opiskelijoiden_muutto",
                                 "seutukuntien_valinen_lasten_muutto",
                                 "seutukuntien_valinen_palvelusmiesten_muutto",
                                 "seutukuntien_valinen_elakelaisten_muutto",
-                                "seutukuntien_valinen_tyottomyyselakelaisten_muutto",
                                 "seutukuntien_valinen_muutyovoimanulkopuolella_muutto")) %>%
-    ggplot(aes(x = vuosi, y = value, fill = tiedot)) +
-    geom_area() +
+
+   # spread(tiedot, value) %>%
+  #  mutate(seutukuntien_valinen_muujapalvelusmuutto =seutukuntien_valinen_muutyovoimanulkopuolella_muutto + seutukuntien_valinen_palvelusmiesten_muutto) %>%
+   # gather(tiedot, value, -vuosi) %>%
+  #  filter(tiedot != "seutukuntien_valinen_muutyovoimanulkopuolella_muutto") %>%
+   # filter(tiedot != "seutukuntien_valinen_palvelusmiesten_muutto") %>%
+    ggplot(aes(x = vuosi, y = value)) +
+    geom_area(aes(fill = tiedot)) +
     theme_light(14) +
     theme(legend.title = element_blank(),
           legend.position = "bottom",
-          legend.justification = "left") +
+         legend.justification = "left") +
     scale_fill_manual(labels = labels2,
-                      values = ggptt_palettes$ptt_new) +
+                      values = brewer.pal(8, "Blues")) +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
     scale_y_continuous(labels = deci_comma) +
-    labs(x = NULL, y = "Seutukuntien välisiä muuttoja", caption = "Lähde: Tilastokeskus, PTT")
+    labs(x = NULL, y = "Seutukuntien välisiä muuttoja") +
+    geom_line(aes(y = value, x= vuosi), data = kaikki, color = "black", linetype = 1, size = 0.5)
 
-  ggsave("analyysit/Muutto/Muutot_koko_maassa_ajassa/Kuvioita/seutukuntien_valiset_muutot_ptoim1.png")
+  ggsave("analyysit/Muutto/Muutot_koko_maassa_ajassa/Kuvioita/seutukuntien_valiset_muutot_ptoim1.png",
+         height = 5,
+         width = 8)
 
   # Maakuntien väliset muutot
 

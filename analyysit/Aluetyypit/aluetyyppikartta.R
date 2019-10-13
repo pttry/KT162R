@@ -13,6 +13,9 @@ atyypit$aluetyyppi <- fct_relevel(atyypit$aluetyyppi, c("pk", "yo-kaup", "kaup",
 aluetyyppi_labels = c("Pääkaupunkiseutu", "Yliopistokaupungit", "Kaupungit", "Muut työssäkäyntikeskukset",
                       "Kaupunkien läheinen maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu")
 
+aluetyyppi_labels_eng <- c("Capital region","University cities", "Towns", "Local centres in rural areas", "Rural areas close to urban areas",
+                           "Rural heartland areas", "Sparsely populated rural areas")
+
 file <- paste("tilastointialueet:", "kunta", "4500k_", as.character(2018), sep = "")
 
 url2 <- httr::parse_url("https://geo.stat.fi/geoserver/tilastointialueet/wfs")
@@ -33,3 +36,13 @@ left_join(map, atyypit, by = "kunta")  %>%
                     values =  c(brewer.pal(4, "Blues"), brewer.pal(3, "Greens")))
 
 ggsave("analyysit/Aluetyypit/aluetyyppikartta.png")
+
+left_join(map, atyypit, by = "kunta")  %>%
+  ggplot(aes(fill = aluetyyppi)) +
+  geom_sf() +
+  theme_light() +
+  labs(fill = NULL) +
+  scale_fill_manual(labels = aluetyyppi_labels_eng,
+                    values =  c(brewer.pal(4, "Blues"), brewer.pal(3, "Greens")))
+
+ggsave("C:/Users/juhoa/Google Drive/Projects/New job, migrate or commute/Text/municipality_types.pdf")
