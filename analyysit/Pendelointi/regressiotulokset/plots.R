@@ -40,10 +40,9 @@ levels(data$var) <- c("M", "N", "J", "O", "B", "U", "L", "T", "P", "H", "A", "I"
 data <- filter(data, var != "X")
 
 data$var <- gdata::drop.levels(data$var)
-data <- data %>%
-        mutate(var = as.character(var)) %>%
-        arrange(desc(var)) %>%
-        mutate(var = as.factor(var))
+
+data$var <- factor(data$var, levels(data$var)[length(levels(data$var)):1])
+
 data$var <- plyr::revalue(data$var, replace = toimialanames)
 
 data %>%
@@ -82,10 +81,7 @@ levels(data$toimiala) <- c("C", "X", "A", "B", "D", "E", "F", "G", "H", "I", "J"
 data <- filter(data, toimiala != "X")
 
 data$toimiala <- gdata::drop.levels(data$toimiala)
-data <- data %>%
-  mutate(toimiala = as.character(toimiala)) %>%
-  arrange(desc(toimiala)) %>%
-  mutate(toimiala = as.factor(toimiala))
+
 data$toimiala <- plyr::revalue(data$toimiala, replace = toimialanames)
 
 data %>%
@@ -257,10 +253,7 @@ data$var <- gdata::drop.levels(data$var)
 levels(data$var) <- c("N", "J", "B", "L", "P", "H", "A", "I", "S", "K", "F", "D", "R", "C", "Q", "G", "E")
 
 data$var <- gdata::drop.levels(data$var)
-data <- data %>%
-  mutate(var = as.character(var)) %>%
-  arrange(desc(var)) %>%
-  mutate(var = as.factor(var))
+
 data$var <- plyr::revalue(data$var, replace = toimialanames)
 
 data %>%
@@ -363,10 +356,7 @@ levels(data$toimiala) <-c("M", "N", "J", "B", "L", "P", "H", "A", "I", "S", "K",
 data <- filter(data, toimiala != "X")
 
 data$toimiala <- gdata::drop.levels(data$toimiala)
-data <- data %>%
-  mutate(toimiala = as.character(toimiala)) %>%
-  arrange(desc(toimiala)) %>%
-  mutate(toimiala = as.factor(toimiala))
+
 data$toimiala <- plyr::revalue(data$toimiala, replace = toimialanames)
 
 data %>%
