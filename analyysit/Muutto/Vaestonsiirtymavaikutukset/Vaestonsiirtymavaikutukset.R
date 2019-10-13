@@ -27,18 +27,71 @@
   aluetyyppi_labels = c("Pääkaupunkiseutu", "Yliopistokaupungit","Muut työssäkäyntikeskukset", "Kaupungit",
                         "Kaupunkien läheinen maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu")
 
-  # HUOM!!! dat_muuttotiedot_kunnittain aineistossa on jotain pielessä, tulo- tai lähtömuutto näyttää sekoittuneen nettomuuttoon tai jotain.
-  # Korjataan tässä
 
-  dat_muuttotiedot_kunnittain <- dat_muuttotiedot_kunnittain  %>%
-                                 filter(Tiedot == "tulomuutto") %>%
-                                 mutate(Tiedot = "nettomuutto")
 
-# Nettomuutto #########################################################################
+  # Väestönmuutosvaikutukset maakunnittain, seutukunnittain ja kunnittain #################################
+
+
+  # Kunnittaiset
+
+  kunnittaiset_vaestomuutosvaikutukset <- dat_muuttotiedot_kunnittain %>%
+    filter(values > 0, Tiedot == "nettomuutto") %>%
+    group_by(Vuosi) %>%
+    summarize(vaestonmuutosvaikutus = sum(values)) %>%
+    mutate(tyyppi = "kunnittaiset")
+
+  # seutukunnittaiset
+
+  seutukunnittaiset_vaestomuutosvaikutukset <- dat_muuttotiedot_kunnittain %>%
+    filter(Tiedot == "nettomuutto") %>%
+    group_by(seutukunta, Vuosi) %>%
+    summarize(nettomuutto = sum(values)) %>%
+    filter(nettomuutto > 0) %>%
+    ungroup() %>%
+    group_by(Vuosi) %>%
+    summarize(vaestonmuutosvaikutus = sum(nettomuutto)) %>%
+    mutate(tyyppi = "seutukunnittaiset")
+
+  # Maakunnittaiset
+
+  maakunnittaiset_vaestomuutosvaikutukset <- dat_muuttotiedot_kunnittain %>%
+    filter(Tiedot == "nettomuutto") %>%
+    group_by(maakunta, Vuosi) %>%
+    summarize(nettomuutto = sum(values)) %>%
+    filter(nettomuutto > 0) %>%
+    ungroup() %>%
+    group_by(Vuosi) %>%
+    summarize(vaestonmuutosvaikutus = sum(nettomuutto)) %>%
+    mutate(tyyppi = "maakunnittaiset")
+
+  vaestomuutosvaikutukset <- rbind(kunnittaiset_vaestomuutosvaikutukset,
+                                   seutukunnittaiset_vaestomuutosvaikutukset,
+                                   maakunnittaiset_vaestomuutosvaikutukset)
+
+  vaestomuutosvaikutukset %>% ggplot(aes(x = Vuosi, y = vaestonmuutosvaikutus, color = tyyppi)) +
+    geom_line() +
+    geom_hline(yintercept = 0, color = "black", linetype = 2) +
+    theme_ptt() +
+    theme(legend.position = "bottom", legend.justification = "left") +
+    theme(legend.title = element_blank()) +
+    scale_colour_manual(values = brewer.pal(4, "Blues")[2:4],
+                        labels = c("Kunnittaiset",
+                                   "Maakunnittaiset",
+                                   "Seutukunnittaiset")) +
+    labs(y = "Väestönsiirtymävaikutus",
+         x = NULL) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 6))
+
+
+  ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/vaestonsiirtymavaikutukset_alueittain.png",
+         height = 3,
+         width = 7)
+
+
+
+# Nettomuutto aluetyypeittäin ############################################
 
   # Absoluuttiset määrät
-
-# Nettomuutot aluetyypeittäin, viiva
 p1 <- dat_muuttotiedot_kunnittain %>%
      filter(Tiedot == "nettomuutto") %>%
      group_by(aluetyyppi, Vuosi) %>%
@@ -59,12 +112,10 @@ p1 <- dat_muuttotiedot_kunnittain %>%
      ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/nettomuutto_atyyppi_viiva.png")
 
    # Muuttoasteet
-
-# Nettomuuttoasteet aluetyypeittäin, viiva
 p2 <-  dat_muuttotiedot_kunnittain %>%
      filter(Tiedot == "nettomuutto") %>%
      group_by(aluetyyppi, Vuosi) %>%
-     summarize(nettomuutto = sum(values),
+     summarize(nettomuutto = sum(values, na.rm = TRUE),
                vakea = sum(vakiluku, na.rm = TRUE)) %>%
      mutate(nettomuuttoaste = nettomuutto / vakea) %>%
      ungroup() %>%
@@ -143,63 +194,6 @@ ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/aluetyypeittain_molemmat.png
    ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/lahtotulomuuttoasteet_atyyppi.png")
 
 
-# Väestönmuutosvaikutukset maakunnittain, seutukunnittain ja kunnittain #################################
-
-
- # Kunnittaiset
-
-  kunnittaiset_vaestomuutosvaikutukset <- dat_muuttotiedot_kunnittain %>%
-        filter(values > 0, Tiedot == "nettomuutto") %>%
-        group_by(Vuosi) %>%
-        summarize(vaestonmuutosvaikutus = sum(values)) %>%
-        mutate(tyyppi = "kunnittaiset")
-
- # seutukunnittaiset
-
-  seutukunnittaiset_vaestomuutosvaikutukset <- dat_muuttotiedot_kunnittain %>%
-    filter(Tiedot == "nettomuutto") %>%
-    group_by(seutukunta, Vuosi) %>%
-    summarize(nettomuutto = sum(values)) %>%
-    filter(nettomuutto > 0) %>%
-    ungroup() %>%
-    group_by(Vuosi) %>%
-    summarize(vaestonmuutosvaikutus = sum(nettomuutto)) %>%
-    mutate(tyyppi = "seutukunnittaiset")
-
-  # Maakunnittaiset
-
-  maakunnittaiset_vaestomuutosvaikutukset <- dat_muuttotiedot_kunnittain %>%
-    filter(Tiedot == "nettomuutto") %>%
-    group_by(maakunta, Vuosi) %>%
-    summarize(nettomuutto = sum(values)) %>%
-    filter(nettomuutto > 0) %>%
-    ungroup() %>%
-    group_by(Vuosi) %>%
-    summarize(vaestonmuutosvaikutus = sum(nettomuutto)) %>%
-    mutate(tyyppi = "maakunnittaiset")
-
-vaestomuutosvaikutukset <- rbind(kunnittaiset_vaestomuutosvaikutukset,
-                                 seutukunnittaiset_vaestomuutosvaikutukset,
-                                 maakunnittaiset_vaestomuutosvaikutukset)
-
-vaestomuutosvaikutukset %>% ggplot(aes(x = Vuosi, y = vaestonmuutosvaikutus, color = tyyppi)) +
-  geom_line() +
-  geom_hline(yintercept = 0, color = "black", linetype = 2) +
-  theme_ptt() +
-  theme(legend.position = "bottom", legend.justification = "left") +
-  theme(legend.title = element_blank()) +
-  scale_colour_manual(values = brewer.pal(4, "Blues")[2:4],
-                      labels = c("Kunnittaiset",
-                                 "Maakunnittaiset",
-                                 "Seutukunnittaiset")) +
-  labs(y = "Väestönsiirtymävaikutus",
-       x = NULL) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 6))
-
-
-ggsave("analyysit/Muutto/Vaestonsiirtymavaikutukset/vaestonsiirtymavaikutukset_alueittain.png",
-       height = 3,
-       width = 7)
 
 
 ############################## Roskakori ##############################################

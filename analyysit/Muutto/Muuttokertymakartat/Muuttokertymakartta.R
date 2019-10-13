@@ -62,3 +62,37 @@
      labs(caption = "Lähde: Työnvälitystilasto (TEM), Tilastokeskus, PTT")
 
 
+# Uusi versio
+
+
+data(dat_muuttotiedot_kunnittain)
+
+nettomuuttokertymat <- dat_muuttotiedot_kunnittain %>%
+                       filter(Tiedot == "nettomuutto") %>%
+                       group_by(kunta_no) %>%
+                       summarize(nettomuuttokertyma = sum(values)) %>%
+                       rename(kunta = kunta_no)
+
+# Hae kartta
+
+file <- paste("tilastointialueet:", "kunta", "4500k_", as.character(2018), sep = "")
+
+url2 <- httr::parse_url("https://geo.stat.fi/geoserver/tilastointialueet/wfs")
+url2$query <- list(service ="WFS",
+                   version ="2.0.0",
+                   request ="GetFeature",
+                   typename = file,
+                   outputFormat ="application/json")
+
+map <- sf::st_read(httr::build_url(url2))
+
+nettomuuttokertyma_map <- left_join(map, nettomuuttokertymat, by = "kunta")  %>%
+   ggplot(aes(fill = nettomuuttokertyma)) +
+   geom_sf() +
+   scale_fill_gradient(low = "red", high = "darkgreen") +
+   theme_light() +
+   theme(
+      legend.position = "top",
+      legend.justification = "left",
+      legend.text = element_blank()) +
+   labs(fill = "Nettomuuttokertymä")
