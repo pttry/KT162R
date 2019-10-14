@@ -120,9 +120,9 @@ maakunnittaiset_vaestomuutosvaikutukset <- nettomuutto_data %>%
   group_by(Vuosi) %>%
   summarize(vaestonmuutosvaikutus = sum(nettomuutto))
 
-vaestomuutosvaikutukset <- bind_rows(kunnittaiset = kunnittaiset_vaestomuutosvaikutukset,
-                                 seutukunnittaiset = seutukunnittaiset_vaestomuutosvaikutukset,
-                                 maakunnittaiset = maakunnittaiset_vaestomuutosvaikutukset,
+vaestomuutosvaikutukset <- bind_rows(Kunnittaiset = kunnittaiset_vaestomuutosvaikutukset,
+                                 Seutukunnittaiset = seutukunnittaiset_vaestomuutosvaikutukset,
+                                 Maakunnittaiset = maakunnittaiset_vaestomuutosvaikutukset,
                                  .id = "tyyppi")
 
 
@@ -131,10 +131,7 @@ vaestomuutosvaikutukset %>% ggplot(aes(x = Vuosi, y = vaestonmuutosvaikutus, col
   theme_ptt() +
   theme(legend.position = "bottom", legend.justification = "left") +
   theme(legend.title = element_blank()) +
-  scale_colour_manual(values = ggptt_palettes$ptt[1:3],
-                      labels = c("Kunnittaiset",
-                                 "Seutukunnittaiset",
-                                 "Maakunnittaiset")) +
+  scale_colour_manual(values = ggptt_palettes$ptt[1:3]) +
   ylab("Väestönsiirtymävaikutus") +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 6))
 ```
@@ -255,7 +252,7 @@ dat_muuttotiedot_kunnittain %>%
   summarize(nettomuutto = sum(values),
             vakea = sum(vakiluku)) %>%
   mutate(nettomuuttoaste = nettomuutto / vakea) %>%
-  ungroup() %>%
+  ungroup() %>% 
   ggplot(aes(x = Vuosi, y = nettomuuttoaste, color = kuntaryhma)) +
   geom_line() +
   scale_colour_manual(values = atyyppi_colour) +
