@@ -1,0 +1,113 @@
+---
+title: "Raportin kuviot"
+author: "Janne Huovari"
+date: "14 10 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, 
+  fig.height = 5.5,
+  fig.width = 6.5,
+  fig.path = "analyysit/Raportin_kuviot/")
+
+
+library(tidyverse)
+library(ggplot2)
+library(ggptt)
+library(gridExtra)
+library(RColorBrewer)
+library(ggpubr)
+library(here)
+
+set_ptt(15, "sans") 
+theme_update(
+  legend.text = element_text(size = 14),
+  plot.subtitle = element_text(colour = "grey40"),
+  plot.caption = element_text(size = 10, face = "plain", colour = "grey40"))
+
+
+data(dat_kokonaismuutto)
+  
+```
+
+
+# Muuttojen absoluuttinen määrä
+
+```{r muutot90_17}
+
+p1 <- dat_kokonaismuutto %>%
+  ggplot(aes(x = vuosi, y = muuttoja, col = muuton_tyyppi)) +
+  geom_line() +
+  theme(legend.title = element_blank()) +
+  ylab("Muuttoja") +
+  xlab(NULL) +
+  #ggtitle("Muuttojen määrä Suomessa 1990 - 2016") +
+  geom_hline(yintercept = 0,
+             color = "black",
+             linetype = 2) +
+  theme(legend.position = "bottom", legend.justification = "left") +
+  scale_y_continuous(labels = deci_comma,
+                     breaks = scales::pretty_breaks(n = 6)) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+  scale_color_manual(
+    labels = c(
+      "Maakuntien väliset muutot",
+      "Seutukuntien väliset muutot",
+      "Kuntien väliset muutot",
+      "Kuntien sisäiset muutot"
+    ),
+    values = brewer.pal(5, "Blues")[2:5]
+  ) +
+  guides(colour = guide_legend(nrow = 2))
+    
+ p1
+ 
+  # ggsave(here("analyysit/Raportin_kuviot/muutot90_17.png"), p1, width = 6.5, height = 5.5)
+  
+```
+
+# muuttojen suhteellinen määrä (muuttojen absoluuttinen määrä jaettuna väkiluvulla)
+
+```{r muuttoasteet90_17}
+
+ p2 <- dat_kokonaismuutto %>%
+   ggplot(aes(x = vuosi, y = muuttoaste, col = muuton_tyyppi)) +
+    geom_line() +
+    theme(legend.title = element_blank()) +
+    ylab("Muuttoaste") + # Muuttojen määrä suhteessa väkilukuun
+    xlab(NULL) +
+    #ggtitle("Muuttoasteet Suomessa 1990 - 2016") +
+    geom_hline(yintercept = 0, color = "black", linetype = 2) +
+    theme(legend.position = "bottom", legend.justification = "left") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+    scale_y_continuous(labels = percent_comma) +
+    scale_color_manual(labels = c("Maakuntien väliset muutot",
+                                    "Seutukuntien väliset muutot",
+                                    "Kuntien väliset muutot",
+                                    "Kuntien sisäiset muutot"),
+                       values = brewer.pal(5, "Blues")[2:5]) +
+  guides(colour = guide_legend(nrow = 2))
+
+ # ggsave("analyysit/Raportin_kuviot/muuttoasteet90_17.png", p2)
+
+ p2
+ 
+```
+
+# Kuvaajat rinnakkain
+ 
+```{r muutot_muuttoasteet90_17, fig.width=10}
+p3 <- ggarrange(p1 + guides(colour = guide_legend(nrow = 1)), 
+                p2 + guides(colour = guide_legend(nrow = 1)), 
+                ncol = 2, common.legend = TRUE, legend = "bottom") 
+
+# ggsave("analyysit/Raportin_kuviot/muutot_muuttoasteet90_17t.png", p3,
+#         width = 300,
+#         height = 150,
+#         units = "mm")
+
+p3 
+```
+
