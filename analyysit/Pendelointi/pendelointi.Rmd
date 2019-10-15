@@ -10,9 +10,8 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
+
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
   fig.path = "fig_pendelointi/"
 )
 
@@ -22,9 +21,7 @@ library(RColorBrewer)
 library(glue)
 
 devtools::load_all() 
-
-set_ptt(base_size = 18)
-theme_update(plot.subtitle = element_text(colour = "grey50", size = 12))
+set_proj()
 
 atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
 
@@ -33,9 +30,51 @@ atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] ,
 
 ```{r data}
 
-data("dat_lahtopendelointi_tyyppi", "dat_tulopendelointi_tyyppi", "dat_tulopendelointi")
+data("dat_lahtopendelointi_tyyppi", "dat_tulopendelointi_tyyppi", "dat_tulopendelointi", "dat_muutto_aikasarja_km")
 
 ```
+
+#
+
+```{r}
+
+# grep("valinen_muutto", unique(dat_muutto_aikasarja_km$tiedot), value = TRUE)
+
+liikkuvuus_tiedot <-
+  c(
+    "Kuntien_Pendelöinti" = "kuntien_valinen_pendelointi",
+    "Seutukuntien_Pendelöinti" = "seutukuntien_valinen_pendelointi",
+    "Maakuntien_Pendelöinti" = "maakuntien_valinen_pendelointi",
+    # "Aluetyyppien_Pendelöinti" = "aluetyyppien_valinen_pendelointi",
+    "Työmarkkina-alueiden_Pendelöinti" = "LMA_valinen_pendelointi",
+    "Kuntien_Muutto" = "kuntien_valinen_muutto",
+    "Seutukuntien_Muutto" = "seutukuntien_valinen_muutto",
+    "Maakuntien_Muutto" = "maakuntien_valinen_muutto",
+    # "Aluetyyppien_Muutto" = "aluetyyppien_valinen_muutto",
+    "Työmarkkina-alueiden_Muutto" = "LMA_valinen_muutto"
+  )
+
+
+
+dat_muutto_aikasarja_km %>% 
+  filter(tiedot %in% liikkuvuus_tiedot) %>% 
+  mutate(tiedot = fct_recode(tiedot, !!!liikkuvuus_tiedot)) %>%
+  separate(tiedot, c("alue", "vars"), "_") %>% 
+  mutate(alue = fct_reorder(alue, value, .desc = TRUE)) %>% 
+  ggplot(aes(time, value, colour = alue)) +
+  facet_wrap(~ vars, scales = "free") +
+  geom_line() +
+  geom_h0() +
+  scale_y_continuous(labels = scales::number) +
+  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  the_legend_bot() +
+  the_title_blank(c("x", "y", "l")) +
+  labs(title = "Muuttoja ja pendelöintejä alueiden välillä",
+       caption = "Lähde: Tilastokeskus, PTT")
+
+
+```
+
 
 # Pendelöivien osuus kunnassa työssäkäyvistä
 
