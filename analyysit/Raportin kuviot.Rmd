@@ -250,3 +250,150 @@ tyo_muutto_atyyppi %>%
 # ggsave("tyo_muutto_atyyppi.png", height = 6, width = 12)  
 
 ```
+
+
+# Liikkuvuustulemat ja liikkuvuusmuotovalinnat, työttömät
+## Liikkuvuustulemat
+```{r}
+
+marginal_effects_selection_personal <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_selection_personal_unemployed.rds")
+
+personal_labels = c("Sukupuoli (ref: mies)",
+                    "Ikä, vuosia",
+                    "Opiskelija, ptoim2, (ref: ei opiskelija)",
+                    "Syntynyt ulkomailla (ref: ei syntynyt ulkomailla",
+                    "Keskiasteen koulutus (ref: peruskoulu)",
+                    "Korkea-asteen koulutus (ref: peruskoulu)",
+                    "Tutkija-asteen koulutus (ref: peruskoulu)",
+                    "Puoliso töissä",
+                    "Pari, lapsia (ref: pari, ei lapsia)",
+                    "Asuu yksin (ref: pari, ei lapsia)",
+                    "Yksinhuoltaja (ref: pari, ei lapsia)",
+                    "Asuu vuokralla (ref: omistuasuja)",
+                    "Omistuoikeusasunto (ref: omistusasuja)",
+                    "Muu asumismuoto (ref: omistusasuja)",
+                    "Muuttokokemus",
+                    "Pendelöintikokemus")[16:1]
+
+marginal_effects_selection_personal %>%
+  ggplot(aes(y = coefficient, x = var, label = coefficient)) +
+  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
+  geom_segment(aes(y = 0,
+                   x = var,
+                   yend = coefficient,
+                   xend = var),
+               color = "#0ABBEC",
+               size = 3) +
+  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+             #   color = "red", size = 1.2, linetype = 2) +
+  geom_point(stat = "identity", color = "#006FB9", size = 10) +
+  geom_text(color = "white", size = 3) +
+  coord_flip() +
+  theme_light() +
+  theme(text = element_text(size = 10, family = "sans")) +
+  labs(x = NULL,
+       y = "Keskimääräinen marginaalivaikutus, %-yksikköä",
+       title = "Liikkuvuuden todennäköisyys, työttömät") +
+  scale_x_discrete(labels = personal_labels)
+
+#ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_selection_personal_unemployed.png",
+ #      width = 5, height = 6)
+
+```
+
+## Liikkuvuusmuotovalinnat
+
+```{r}
+
+marginal_effects_outcome_personal <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_personal_unemployed.rds")
+
+marginal_effects_outcome_personal %>%
+  ggplot(aes(y = coefficient, x = var, label = coefficient)) +
+  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
+  geom_segment(aes(y = 0,
+                   x = var,
+                   yend = coefficient,
+                   xend = var),
+               color = "#0ABBEC",
+               size = 3) +
+  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+  #   color = "red", size = 1.2, linetype = 2) +
+  geom_point(stat = "identity", color = "#006FB9", size = 10) +
+  geom_text(color = "white", size = 3) +
+  coord_flip() +
+  theme_light() +
+  theme(text = element_text(size = 10, family = "sans")) +
+  labs(x = NULL,
+       y = "Keskimääräinen marginaalivaikutus, %-yksikköä",
+       title = "Muuttamisen todennäköisyys pendelöinnin sijaan, työttömät") +
+  scale_x_discrete(labels = personal_labels)
+
+#ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_outcome_personal_unemployed.png",
+ #      width = 5, height = 6)
+
+
+```
+
+# Liikkuvuustulemat ja liikkuvuusmuotovalinnat, työlliset
+
+## Liikkuvuustulemat 
+
+```{r}
+
+marginal_effects_selection_personal <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_selection_personal_employed.rds")
+
+marginal_effects_selection_personal %>%
+  ggplot(aes(y = coefficient, x = var, label = coefficient)) +
+  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
+  geom_segment(aes(y = 0,
+                   x = var,
+                   yend = coefficient,
+                   xend = var),
+               color = "#0ABBEC",
+               size = 3) +
+  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+  #   color = "red", size = 1.2, linetype = 2) +
+  geom_point(stat = "identity", color = "#006FB9", size = 10) +
+  geom_text(color = "white", size = 3) +
+  coord_flip() +
+  theme_light() +
+  theme(text = element_text(size = 10, family = "sans")) +
+  labs(x = NULL,
+       y = "Keskimääräinen marginaalivaikutus, %-yksikköä",
+       title = "Liikkuvuuden todennäköisyys, työlliset") +
+  scale_x_discrete(labels = personal_labels)
+
+#ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_selection_personal_employed.png",
+ #      width = 5, height = 6)
+
+````
+
+# Liikkuvuusmuotovalinnat 
+
+```{r}
+
+marginal_effects_outcome_personal <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_personal_employed.rds")
+
+marginal_effects_outcome_personal %>%
+  ggplot(aes(y = coefficient, x = var, label = coefficient)) +
+  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
+  geom_segment(aes(y = 0,
+                   x = var,
+                   yend = coefficient,
+                   xend = var),
+               color = "#0ABBEC",
+               size = 3) +
+  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+  #   color = "red", size = 1.2, linetype = 2) +
+  geom_point(stat = "identity", color = "#006FB9", size = 10) +
+  geom_text(color = "white", size = 3) +
+  coord_flip() +
+  theme_light() +
+  theme(text = element_text(size = 10, family = "sans")) +
+  labs(x = NULL,
+       y = "Keskimääräinen marginaalivaikutus, %-yksikköä",
+       title = "Muuttamisen todennäköisyys pendelöinnin sijaan, työlliset") +
+  scale_x_discrete(labels = personal_labels)
+
+#ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_outcome_personal_employed.png",
+ #      width = 5, height = 6)
