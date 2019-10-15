@@ -73,11 +73,11 @@ tyo_muutto_atyyppi %>%
 
 dat_tulopendelointi_tyyppi %>% 
   filter(koulutusaste == "Yhteensä",
-         ika == "Kaikki ikäluokat") %>% 
+         ika == "Yhteensä") %>% 
   mutate(pendelointi = fct_recode(pendelointi, 
-                                  kaikki = "Alueella työssäkäyvät yhteensä",
+                                  kaikki = "Yhteensä",
                                   asuinkunnassa = "Asuinkunnassaan työssäkäyvät",
-                                  pendeloivat = "Pendelöivät")) %>% 
+                                  pendeloivat = "Alueelle pendelöivät")) %>% 
   spread(pendelointi, values) %>% 
   mutate(values = pendeloivat) %>% 
   ggplot(aes(time, values, colour = aluetyyppi)) +

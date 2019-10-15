@@ -15,14 +15,17 @@ library(gridExtra)
 library(RColorBrewer)
 library(ggpubr)
 library(here)
+library(glue)
 
 devtools::load_all()
 set_proj()
 knitr::opts_chunk$set(fig.path = "Raportin_kuviot/")
 
-data(dat_kokonaismuutto)
+data(dat_kokonaismuutto, dat_muutto_aikasarja_km, dat_muuttotiedot_kunnittain, tyo_muutto_atyyppi)
 
 muutto_ptoim1_dat <- readRDS(here("data/paa-asiallinen_toiminta_ja_muutto/muuttoaikasarjat_kokomaa_ptoim1_ulos.rds"))
+
+atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
   
 ```
 
@@ -158,3 +161,92 @@ muutto_ptoim1_pdat %>%
 
 ```
 
+# Työn siirtyminen seutukuntien välillä 
+
+```{r tyon_siirtyminen}
+
+tyon_siirtyminen_tiedot <- c(
+  "Muutto" = "seutukuntien_valinen_muutto",
+  "Työikäisten muutto" = "seutukuntien_valinen_tyoikaisten_muutto",
+  "Työpaikan siirtyminen" = "seutukuntien_valinen_tyon_siirtyminen",
+  "Työtä siirtävä muutto" = "seutukuntien_valinen_tyota_siirtava_muutto",
+  "Työllisten muutto" = "seutukuntien_valinen_tyollisten_muutto",
+  "Työllistävä muutto" = "seutukuntien_valinen_tyottomien_tyollistava_muutto",
+  "Työllistävä muutto" = "seutukuntien_valinen_tyovoiman_ulkopuolelta_tyollistava_muutto"
+)
+
+tyon_siirtyminen_pdat <- 
+  dat_muutto_aikasarja_km %>%
+  filter(tiedot %in% tyon_siirtyminen_tiedot) %>% 
+  mutate(tiedot = fct_recode(tiedot, !!!tyon_siirtyminen_tiedot),
+         tiedot = fct_reorder(tiedot, value, .desc = TRUE)) %>% 
+  group_by(tiedot, time) %>% 
+  summarise(value = sum(value)) %>% 
+  ungroup()
+
+
+tyon_siirtyminen_pdat %>%
+  ggplot(aes(time, value/1000, colour = tiedot)) +
+  geom_line() +
+  geom_h0() +
+  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  scale_colour_manual(values = rev(atyyppi_colour[2:7])) +
+  the_legend_bot() +
+  labs(y = "1000 henkeä", x = NULL, colour = NULL)
+
+```
+
+```{r nettomuuttoja}
+
+dat_muuttotiedot_kunnittain %>%
+  filter(Tiedot == "nettomuutto") %>%
+  mutate(aluetyyppi = fct_recode(aluetyyppi, "Muut keskukset" = "Muut työssäkäyntialueden keskukset")) %>% 
+  group_by(aluetyyppi, Vuosi) %>%
+  summarize(nettomuutto = sum(values)) %>%
+  ungroup() %>%
+  ggplot(aes(x = Vuosi, y = nettomuutto, color = aluetyyppi)) +
+  geom_line() +
+  geom_hline(yintercept = 0, color = "grey", size = 1) +
+  scale_colour_manual(values = atyyppi_colour) +
+  the_title_blank("l") +
+  # the_legend_bot() +
+  labs(x = NULL,
+       y = NULL,
+       caption = "Lähde: PTT, Tilastokeskus",
+       title = "Nettomuutot",
+       subtitle = "Tulo- ja lähtömuuttojen erotus vuosittain")
+
+```
+
+# Pendelöivien osuus kunnassa työssäkäyvistä
+
+```{r pend_atyyppi}
+
+time_range <- range(tyo_muutto_atyyppi$time)
+
+tyo_muutto_atyyppi %>% 
+  select(time, aluetyyppi, 'Työperäinen' = tyo_muutto_netto, '18-80-vuotiaat' = tmuutto_netto) %>% 
+  mutate(aluetyyppi = fct_recode(aluetyyppi, 
+                                 'Muu maaseutu' = "Ydinmaaseutu",
+                                 'Muu maaseutu' = "Harvaan asuttu maaseutu",
+                                 'Muut keskukset' = "Muut työssäkäyntialueen keskukset"),
+         aluetyyppi = ggptt::line_wrap(aluetyyppi, 25)) %>% 
+  group_by(time, aluetyyppi) %>% 
+  summarise_all(sum) %>% 
+  ungroup() %>% 
+  gather(vars, values, -time, -aluetyyppi) %>% 
+  ggplot(aes(time, values, colour = vars)) +
+  facet_wrap( ~ aluetyyppi) +
+  geom_line() +
+  geom_h0() +
+  # scale_colour_manual(values = atyyppi_colour) +
+  the_title_blank(c("x", "l")) +
+  the_legend_bot() +
+  labs(subtitle = glue("Samana vuonna asuin- ja työpaikan kuntaan vaihtaneiden ja 18-80-vuotiaiden nettomuutto vuosina {time_range[1]}-{time_range[2]}."),
+       title = "Työperäinen nettomuutto",
+       caption = "Lähde: PTT, Tilastokeskus",
+       y = "henkeä")
+
+# ggsave("tyo_muutto_atyyppi.png", height = 6, width = 12)  
+
+```
