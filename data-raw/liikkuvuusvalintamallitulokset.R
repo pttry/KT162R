@@ -53,6 +53,25 @@ marginal_effects_selection_personal$var <- factor(marginal_effects_selection_per
 saveRDS(marginal_effects_selection_personal,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_personal_unemployed.rds")
 
+# Labor demand
+
+marginal_effects_selection_demand <- marginal_effects_selection %>%
+  filter(var %in% c("si_index_diff_2",
+                    "intraregional_employment_incentive_diff"))
+marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+
+saveRDS(marginal_effects_selection_demand,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_demand_unemployed.rds")
+
+# Aluetyyppi
+
+marginal_effects_selection_aluetyyppi <- marginal_effects_selection %>%
+  filter(grepl("aluetyyppi" , var))
+marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+
+saveRDS(marginal_effects_selection_aluetyyppi,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyypi_unemployed.rds")
+
 ################## Outcome equation ###################################
 
 marginal_effects_outcome <- readRDS("data/oct15/marginal_effects_outcome_equation_unemployed.rds") %>%
@@ -101,6 +120,20 @@ marginal_effects_outcome_personal$var <- factor(marginal_effects_outcome_persona
 
 saveRDS(marginal_effects_outcome_personal,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_personal_unemployed.rds")
+
+# Region characteristics
+
+marginal_effects_outcome_alueet <- marginal_effects_outcome %>%
+  filter(var %in% c("etaisyys",
+                    "asuntohintaero",
+                    "tyomarkkinankokoero",
+                    "tyottomyysasteero",
+                    "saavutettavuusero",
+                    "vuokra_osuus_destin_t1"))
+marginal_effects_outcome_alueet$var <- gdata::drop.levels(marginal_effects_outcome_alueet$var)
+
+saveRDS(marginal_effects_outcome_alueet,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_regions_unemployed.rds")
 
 ############################### TYÖLLISET ###################################
 
@@ -152,6 +185,15 @@ marginal_effects_selection_personal$var <- factor(marginal_effects_selection_per
 saveRDS(marginal_effects_selection_personal,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_personal_employed.rds")
 
+# Aluetyyppi
+
+marginal_effects_selection_aluetyyppi <- marginal_effects_selection %>%
+  filter(grepl("aluetyyppi" , var))
+marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+
+saveRDS(marginal_effects_selection_aluetyyppi,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyypi_employed.rds")
+
 
 #################### Outcome equation ################################
 
@@ -201,3 +243,37 @@ marginal_effects_outcome_personal$var <- factor(marginal_effects_outcome_persona
 
 saveRDS(marginal_effects_outcome_personal,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_personal_employed.rds")
+
+# Region characteristics
+
+marginal_effects_outcome_alueet <- marginal_effects_outcome %>%
+  filter(var %in% c("etaisyys",
+                    "asuntohintaero",
+                    "tyomarkkinankokoero",
+                    "tyottomyysasteero",
+                    "saavutettavuusero",
+                    "vuokra_osuus_destin_t1"))
+marginal_effects_outcome_alueet$var <- gdata::drop.levels(marginal_effects_outcome_alueet$var)
+
+saveRDS(marginal_effects_outcome_alueet,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_regions_employed.rds")
+
+# Labor demand
+
+marginal_effects_selection_demand <- marginal_effects_selection %>%
+  filter(var %in% c("si_index_diff_2",
+                    "intraregional_employment_incentive_diff"))
+marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+
+saveRDS(marginal_effects_selection_demand,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_demand_employed.rds")
+
+# Aluetyyppi
+
+marginal_effects_selection_aluetyyppi <- marginal_effects_selection %>%
+  filter(grepl("aluetyyppi" , var))
+marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+
+saveRDS(marginal_effects_selection_aluetyyppi,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyypi_employed.rds")
+
