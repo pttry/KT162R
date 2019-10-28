@@ -175,7 +175,7 @@ alueet_labels = c("Asuntohintaero",
 
 marginal_effects_outcome_alueet %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +
-  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
+  geom_hline(yintercept = 0, linetype = 2, color = "black", size = 1) +
   geom_segment(aes(y = 0,
                    x = var,
                    yend = coefficient,
@@ -190,8 +190,8 @@ marginal_effects_outcome_alueet %>%
   theme_light() +
   theme(text = element_text(size = 10, family = "sans")) +
   labs(x = NULL,
-       y = "Keskimääräinen marginaalivaikutus, %") +
+       y = "Keskimääräinen marginaalivaikutus, %-yksikköä") +
   scale_x_discrete(labels = alueet_labels)
 
 ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_outcome_alueet_unemployed.png",
-       width = leveys, height = 4)
+       width = 6, height = 3)

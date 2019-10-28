@@ -8,6 +8,7 @@
   library(ggpubr)
 
   set_gg(theme_ptt(), "ptt")
+  set_proj()
 
 # Hae data
 

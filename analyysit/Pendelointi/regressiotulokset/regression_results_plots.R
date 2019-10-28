@@ -69,45 +69,6 @@ data %>%
 ggsave("analyysit/Pendelointi/regressiotulokset/conditional_toimiala_palkansaajat.png",
        width = 7, height = 6)
 
-############## Toimiala, nonconditional, palkansaajat ###############################################
-
-data <- readRDS("data/oct2/salaried_toimiala.rds") %>%
-        mutate(mean_tyomatka = round(mean_tyomatka, digits = 1),
-               median_tyomatka = round(median_tyomatka, digits = 1))
-
-levels(data$toimiala) <- c("C", "X", "A", "B", "D", "E", "F", "G", "H", "I", "J", "K",
-                           "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U")
-
-data <- filter(data, toimiala != "X")
-
-data$toimiala <- gdata::drop.levels(data$toimiala)
-
-data$toimiala <- plyr::revalue(data$toimiala, replace = toimialanames)
-
-data %>%
-  mutate(median_tyomatka = round(median_tyomatka, digits = 2),
-         mean_tyomatka = round(mean_tyomatka, digits = 2)) %>%
-  filter(!is.na(toimiala)) %>%
-  ggplot(aes(y = mean_tyomatka, x = toimiala)) +
-  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
-  geom_segment(aes(y = 0,
-                   x = toimiala,
-                   yend = mean_tyomatka,
-                   xend = toimiala),
-               color = "#0ABBEC",
-               size = 3) +
-  geom_point(aes(y = mean_tyomatka, x = toimiala), stat = "identity", color = "#006FB9", size = 10) +
-  geom_point(aes(y = median_tyomatka, x = toimiala), color = "blue", size = 10) +
-  geom_text(aes(y = mean_tyomatka, x = toimiala, label = mean_tyomatka), color = "white", size = 3) +
-  geom_text(aes(y = median_tyomatka, x = toimiala, label = median_tyomatka), color = "white", size = 3) +
-  coord_flip() +
-  theme_light() +
-  theme(axis.text.y = element_text(size = 10, family = "sans")) +
-  labs(x = NULL,
-       y = "Asuin- ja työpaikan välinen etäisyys, km")
-
-ggsave("analyysit/Pendelointi/regressiotulokset/unconditional_toimiala_palkansaajat.png",
-       width = 7, height = 7)
 
 # Ammatit, palkansaajat
 
@@ -151,38 +112,7 @@ ggsave("analyysit/Pendelointi/regressiotulokset/conditional_ammatti.png",
        width = 7,
        height = 4)
 
-############ Ammatit, unconditionals, palkansaajat ##############################
 
-
-data <- readRDS("data/oct2/salaried_ammatti.rds") %>%
-  mutate(mean_tyomatka = round(mean_tyomatka, digits = 1),
-         median_tyomatka = round(median_tyomatka, digits = 1)) %>%
-  filter(!is.na(ammattikoodi_k))
-
-data %>%
-  mutate(median_tyomatka = round(median_tyomatka, digits = 2),
-         mean_tyomatka = round(mean_tyomatka, digits = 2)) %>%
-  filter(!is.na(ammattikoodi_k)) %>%
-ggplot(aes(y = mean_tyomatka, x = ammattikoodi_k)) +
-  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
-  geom_segment(aes(y = 0,
-                   x = ammattikoodi_k,
-                   yend = mean_tyomatka,
-                   xend = ammattikoodi_k),
-               color = "#0ABBEC",
-               size = 3) +
-  geom_point(aes(y = mean_tyomatka, x = ammattikoodi_k), stat = "identity", color = "#006FB9", size = 10) +
-  geom_point(aes(y = median_tyomatka, x = ammattikoodi_k), color = "blue", size = 10) +
-  geom_text(aes(y = mean_tyomatka, x = ammattikoodi_k, label = mean_tyomatka), color = "white", size = 3) +
-  geom_text(aes(y = median_tyomatka, x = ammattikoodi_k, label = median_tyomatka), color = "white", size = 3) +
-  coord_flip() +
-  theme_light() +
-  theme(axis.text.y = element_text(size = 10, family = "sans")) +
-  labs(x = NULL,
-       y = "Asuin- ja työpaikan välinen etäisyys, km")
-
-ggsave("analyysit/Pendelointi/regressiotulokset/unconditional_ammatti_palkansaajat.png",
-       width = 7, height = 4)
 
 ################ Palkansaajat, henkilökohtaiset muuttujat ############################
 
@@ -423,41 +353,4 @@ ggsave("analyysit/Pendelointi/regressiotulokset/conditional_personal_yrittajat.p
        width = 7, height = 7)
 
 
-############## Toimiala, nonconditional, yrittajat ###############################################
 
-data <- readRDS("data/oct2/self_employed_toimiala.rds") %>%
-  mutate(mean_tyomatka = round(mean_tyomatka_suurempi_kuin_nolla, digits = 1),
-         median_tyomatka = round(median_tyomatka_suurempi_kuin_nolla, digits = 1))
-
-levels(data$toimiala) <-c("M", "N", "J", "B", "L", "P", "H", "A", "I", "S", "K", "F", "D", "R", "C", "Q", "G", "E")
-
-data <- filter(data, toimiala != "X")
-
-data$toimiala <- gdata::drop.levels(data$toimiala)
-
-data$toimiala <- plyr::revalue(data$toimiala, replace = toimialanames)
-
-data %>%
-  mutate(median_tyomatka = round(median_tyomatka, digits = 2),
-         mean_tyomatka = round(mean_tyomatka, digits = 2)) %>%
-  filter(!is.na(toimiala)) %>%
-  ggplot(aes(y = mean_tyomatka, x = toimiala)) +
-  geom_hline(yintercept = 0, linetype = 1, color = "black", size = 1) +
-  geom_segment(aes(y = 0,
-                   x = toimiala,
-                   yend = mean_tyomatka,
-                   xend = toimiala),
-               color = "#0ABBEC",
-               size = 3) +
-  geom_point(aes(y = mean_tyomatka, x = toimiala), stat = "identity", color = "#006FB9", size = 10) +
-  geom_point(aes(y = median_tyomatka, x = toimiala), color = "blue", size = 10) +
-  geom_text(aes(y = mean_tyomatka, x = toimiala, label = mean_tyomatka), color = "white", size = 3) +
-  geom_text(aes(y = median_tyomatka, x = toimiala, label = median_tyomatka), color = "white", size = 3) +
-  coord_flip() +
-  theme_light() +
-  theme(axis.text.y = element_text(size = 10, family = "sans")) +
-  labs(x = NULL,
-       y = "Asuin- ja työpaikan välinen etäisyys, km")
-
-ggsave("analyysit/Pendelointi/regressiotulokset/unconditional_toimiala_yrittajat.png",
-       width = 7, height = 7)
