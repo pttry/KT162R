@@ -70,7 +70,7 @@ marginal_effects_selection_aluetyyppi <- marginal_effects_selection %>%
 marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
 
 saveRDS(marginal_effects_selection_aluetyyppi,
-        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyypi_unemployed.rds")
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyyppi_unemployed.rds")
 
 ################## Outcome equation ###################################
 
@@ -135,6 +135,25 @@ marginal_effects_outcome_alueet$var <- gdata::drop.levels(marginal_effects_outco
 saveRDS(marginal_effects_outcome_alueet,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_regions_unemployed.rds")
 
+# Kohteen aluetyyppi
+
+marginal_effects_outcome_aluetyyppi_tp <- marginal_effects_outcome %>%
+                                          filter(grepl("aluetyyppi_tp", var))
+marginal_effects_outcome_aluetyyppi_tp$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi_tp$var)
+
+saveRDS(marginal_effects_outcome_aluetyyppi_tp,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_tp_unemployed.rds")
+
+# Lähteen aluetyyppi
+
+marginal_effects_outcome_aluetyyppi_ap <- marginal_effects_outcome %>%
+  filter(grepl("aluetyyppi_ap", var))
+marginal_effects_outcome_aluetyyppi_ap$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi_ap$var)
+
+saveRDS(marginal_effects_outcome_aluetyyppi_ap,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_ap_unemployed.rds")
+
+
 ############################### TYÖLLISET ###################################
 
 ################### Selection equation ########################
@@ -192,7 +211,7 @@ marginal_effects_selection_aluetyyppi <- marginal_effects_selection %>%
 marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
 
 saveRDS(marginal_effects_selection_aluetyyppi,
-        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyypi_employed.rds")
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyyppi_employed.rds")
 
 
 #################### Outcome equation ################################
@@ -268,12 +287,21 @@ marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_s
 saveRDS(marginal_effects_selection_demand,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_demand_employed.rds")
 
-# Aluetyyppi
+# Kohteen aluetyyppi
 
-marginal_effects_selection_aluetyyppi <- marginal_effects_selection %>%
-  filter(grepl("aluetyyppi" , var))
-marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+marginal_effects_outcome_aluetyyppi_tp <- marginal_effects_outcome %>%
+  filter(grepl("aluetyyppi_tp", var))
+marginal_effects_outcome_aluetyyppi_tp$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi_tp$var)
 
-saveRDS(marginal_effects_selection_aluetyyppi,
-        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyypi_employed.rds")
+saveRDS(marginal_effects_outcome_aluetyyppi_tp,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_tp_employed.rds")
+
+# Lähteen aluetyyppi
+
+marginal_effects_outcome_aluetyyppi_ap <- marginal_effects_outcome %>%
+  filter(grepl("aluetyyppi_ap", var))
+marginal_effects_outcome_aluetyyppi_ap$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi_ap$var)
+
+saveRDS(marginal_effects_outcome_aluetyyppi_ap,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_ap_employed.rds")
 

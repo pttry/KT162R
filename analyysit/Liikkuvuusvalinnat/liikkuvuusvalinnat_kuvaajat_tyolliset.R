@@ -195,3 +195,41 @@ marginal_effects_outcome_alueet %>%
 
 ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_outcome_alueet_employed.png",
        width = leveys, height = 4)
+
+############################# ALUETYYPPI ######################################
+
+source("R/set.R")
+set_proj()
+
+marginal_effects_outcome_aluetyyppi_tp <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_tp_employed.rds")
+marginal_effects_outcome_aluetyyppi_ap <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_ap_employed.rds")
+
+marginal_effects_outcome_aluetyyppi_tp$lahde_kohde <- "Työpaikan kunnan tyyppi"
+marginal_effects_outcome_aluetyyppi_ap$lahde_kohde <- "Asuinpaikan kunnan tyyppi"
+
+marginal_effects_outcome_aluetyyppi <- rbind(marginal_effects_outcome_aluetyyppi_tp,
+                                             marginal_effects_outcome_aluetyyppi_ap)
+marginal_effects_outcome_aluetyyppi$var <- rep(aluetyyppi_labels, 2)
+
+marginal_effects_outcome_aluetyyppi %>%
+  ggplot(aes(y = coefficient, x = var, label = coefficient)) +
+  geom_hline(yintercept = 0, linetype = 2, color = "black", size = 1) +
+  geom_segment(aes(y = 0,
+                   x = var,
+                   yend = coefficient,
+                   xend = var),
+               color = "#0ABBEC",
+               size = 3) +
+  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+  #   color = "red", size = 1.2, linetype = 2) +
+  geom_point(stat = "identity", color = "#006FB9", size = 10) +
+  geom_text(color = "white", size = 3) +
+  coord_flip() +
+  facet_wrap(~lahde_kohde) +
+  theme_light() +
+  labs(x = NULL,
+       y = "Kontrolloitu ero harvaan asuttuun maaseutuun, %-yksikköä") +
+  scale_x_discrete(labels = aluetyyppi_labels)
+
+ggsave("analyysit/Liikkuvuusvalinnat/Kuvaajat/marginal_effects_outcome_aluetyyppi_employed.png",
+       width = 10, height = 4)

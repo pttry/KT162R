@@ -114,11 +114,11 @@ levels(data1$toimiala) <- c("C", "X", "A", "B", "D", "E", "F", "G", "H", "I", "J
 data1 <- filter(data1, toimiala != "X")
 data1$toimiala <- gdata::drop.levels(data1$toimiala)
 data1$toimiala <- factor(data1$toimiala, levels(data1$toimiala)[length(levels(data1$toimiala)):1])
-data1$toimiala <- plyr::revalue(data$toimiala, replace = toimialanames)
+data1$toimiala <- plyr::revalue(data1$toimiala, replace = toimialanames)
 data1$amas <- "Palkansaajat"
 
 data2 <- readRDS("data/oct2/self_employed_toimiala.rds") %>%
-  select(toimiala, mean_tyomatka, median_tyomatka, n)
+  select(toimiala, mean_tyomatka, median_tyomatka, n) %>%
   mutate(mean_tyomatka = round(mean_tyomatka, digits = 1),
          median_tyomatka = round(median_tyomatka, digits = 1))
 
@@ -148,13 +148,15 @@ plot_toimiala <- data %>%
   geom_point(aes(y = median_tyomatka, x = toimiala), color = "blue", size = 10) +
   geom_text(aes(y = mean_tyomatka, x = toimiala, label = mean_tyomatka), color = "white", size = 3) +
   geom_text(aes(y = median_tyomatka, x = toimiala, label = median_tyomatka), color = "white", size = 3) +
-  facet_wrap( ~ amas) +
+  facet_wrap( ~ amas, nrow = 2) +
   coord_flip() +
-  theme(axis.text.y = element_text(size = 10, family = "sans")) +
+  theme(axis.text.y = element_text(size = 14, family = "sans"),
+        axis.title.x = element_text(size = 14, family = "sans")) +
   labs(x = NULL,
-       y = "Asuin- ja työpaikan välinen etäisyys, km")
+       y = "Työmatka, mediaani ja keskiarvo, km")
 
-ggsave("analyysit/Pendelointi/tyomatkat_toimialoittain.png", plot_toimiala)
+ggsave("analyysit/Pendelointi/tyomatkat_toimialoittain.png", plot_toimiala,
+       width = 10, height = 16)
 
 ################ Ammatit, unconditional, both ##################################
 data1 <- readRDS("data/oct2/salaried_ammatti.rds") %>%
@@ -188,15 +190,15 @@ plot_ammatti <- data %>%
   geom_point(aes(y = median_tyomatka, x = ammattikoodi_k), color = "blue", size = 10) +
   geom_text(aes(y = mean_tyomatka, x = ammattikoodi_k, label = mean_tyomatka), color = "white", size = 3) +
   geom_text(aes(y = median_tyomatka, x = ammattikoodi_k, label = median_tyomatka), color = "white", size = 3) +
-  facet_wrap( ~ amas) +
+  facet_wrap( ~ amas, nrow = 2) +
   coord_flip() +
-  theme(axis.text.y = element_text(size = 10, family = "sans")) +
+  theme(axis.text.y = element_text(size = 12, family = "sans"),
+        axis.title.x = element_text(size = 12, family = "sans")) +
   labs(x = NULL,
-       y = "Asuin- ja työpaikan välinen etäisyys, km")
+       y = "Työmatka, mediaani ja keskiarvo, km")
 
-ggarrange(plot_toimiala, plot_ammatti, ncol = 1,
-          widths = c(7,5),
-          heights = c(7,4))
+ggsave("analyysit/Pendelointi/tyomatkat_ammateittain.png", plot_ammatti,
+       width = 8, height = 8)
 
 ############ Ammatit, unconditionals, palkansaajat ##############################
 
