@@ -13,6 +13,8 @@ set_proj <- function(){
 
   ggplot2::theme_update(
     legend.text = ggplot2::element_text(size = 14),
+    legend.position = "bottom",
+    legend.justification = "left",
     plot.subtitle = ggplot2::element_text(colour = "grey40"),
     plot.caption = ggplot2::element_text(size = 10, face = "plain", colour = "grey40"))
 }
