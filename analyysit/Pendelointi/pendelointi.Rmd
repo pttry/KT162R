@@ -75,6 +75,32 @@ dat_muutto_aikasarja_km %>%
 
 ```
 
+```{r}
+
+dat_muutto_aikasarja_km %>% 
+  filter(tiedot %in% liikkuvuus_tiedot) %>% 
+  mutate(tiedot = fct_recode(tiedot, !!!liikkuvuus_tiedot)) %>%
+  separate(tiedot, c("alue", "vars"), "_") %>% 
+  left_join(
+    spread(
+      filter(dat_muutto_aikasarja_km, tiedot %in% c("asukkaat", "tyolliset")), 
+      tiedot, value), 
+    by = "time") %>% 
+  mutate(alue = fct_reorder(alue, value, .desc = TRUE),
+         osuus = 100 * if_else(vars == "Muutto", value / asukkaat, value / tyolliset)) %>% 
+    ggplot(aes(time, osuus, colour = alue)) +
+  facet_wrap(~ vars, scales = "free") +
+  geom_line() +
+  geom_h0() +
+  scale_y_continuous(labels = scales::number) +
+  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  the_legend_bot() +
+  the_title_blank(c("x", "y", "l")) +
+  labs(title = "Muuttoja ja pendelöintejä alueiden välillä",
+       caption = "Lähde: Tilastokeskus, PTT")
+
+```
+
 
 # Pendelöivien osuus kunnassa työssäkäyvistä
 
