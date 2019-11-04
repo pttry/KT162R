@@ -1,76 +1,142 @@
-library(tidyverse)
+
 library(ggptt)
 library(RColorBrewer)
-load("~/git_clones/KT162R/data/dat_muutto_aikasarja_km.rda")
+library(ggpubr)
+
+data <- readRDS("data/nov1/liikkuvuusaikasarja.rds")
 
 source("R/set.R")
-
 set_proj()
 
-data <- dat_muutto_aikasarja_km %>% filter(tiedot %in% c("tyollistymiset_tyovoiman_ulkopuolelta",
-                                                 "tyollistymiset_tyottomyydesta",
-                                                 "kuntien_valinen_tyottomien_tyollistava_muutto",
-                                                 "seutukuntien_valinen_tyottomien_tyollistava_muutto",
-                                                 "maakuntien_valinen_tyottomien_tyollistava_muutto",
-                                                 "kuntien_valinen_tyottomien_muutto_ei_tyollisyyteen",
-                                                 "seutukuntien_valinen_tyottomien_muutto_ei_tyollisyyteen",
-                                                 "maakuntien_valinen_tyottomien_muutto_ei_tyollisyyteen",
-                                                 "kuntien_valinen_tyovoiman_ulkopuolelta_tyollistava_muutto",
-                                                 "seutukuntien_valinen_tyovoiman_ulkopuolelta_tyollistava_muutto",
-                                                 "maakuntien_valinen_tyovoiman_ulkopuolelta_tyollistava_muutto",
-                                                 "kuntien_valinen_tyollisten_muutto",
-                                                 "seutukuntien_valinen_tyollisten_muutto",
-                                                 "maakuntien_valinen_tyollisten_muutto",
-                                                 "kuntien_valinen_yrittajien_muutto",
-                                                 "seutukuntien_valinen_yrittajien_muutto",
-                                                 "maakuntien_valinen_yrittajien_muutto",
-                                                 "kuntien_valinen_yrittajasta_yrittajaksi_muutto",
-                                                 "seutukuntien_valinen_yrittajasta_yrittajaksi_muutto",
-                                                 "maakuntien_valinen_yrittajasta_yrittajaksi_muutto",
-                                                 "kuntien_valinen_yrittajasta_palkansaajaksi_muutto",
-                                                 "seutukuntien_valinen_yrittajasta_palkansaajaksi_muutto",
-                                                 "maakuntien_valinen_yrittajasta_palkansaajaksi_muutto"))
+title_size = 10
+axis_title_size = 10
+axis_text_size = 10
+colors = RColorBrewer::brewer.pal(5, "Blues")[2:5]
 
-# Yrittajat kuntien välinen
+# Palkansaajat seutukuntien välinen
 
-data %>% filter(tiedot %in% c("kuntien_valinen_yrittajien_muutto",
-                              "kuntien_valinen_yrittajasta_yrittajaksi_muutto",
-                              "kuntien_valinen_yrittajasta_palkansaajaksi_muutto")) %>%
-         spread(tiedot, value) %>%
-         mutate(palkansaajaksi = kuntien_valinen_yrittajasta_palkansaajaksi_muutto,
-                yrittajaksi = kuntien_valinen_yrittajasta_yrittajaksi_muutto,
-                muuksi = kuntien_valinen_yrittajien_muutto -
-                                  kuntien_valinen_yrittajasta_palkansaajaksi_muutto -
-                                  kuntien_valinen_yrittajasta_yrittajaksi_muutto) %>%
-         select(time, palkansaajaksi, yrittajaksi, muuksi) %>%
-         gather(tiedot, value, -time) %>%
-         ggplot(aes(x = time, y = value, fill = tiedot)) +
-         geom_area() +
-         labs(y = "Muuttajia", x = NULL,
-              title = "Yrittäjät",
-              fill = NULL) +
-         scale_fill_manual(labels = c("Muuksi", "Palkansaajaksi", "Yrittäjäksi"),
-                           values = brewer.pal(4, "Blues")[2:4]) +
-         scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
-
-# Palkansaajat kuntien välinen
-
-data %>% filter(tiedot %in% c("kuntien_valinen_yrittajien_muutto",
-                              "kuntien_valinen_yrittajasta_yrittajaksi_muutto",
-                              "kuntien_valinen_yrittajasta_palkansaajaksi_muutto")) %>%
+p1 <- data %>% filter(tiedot %in% c("seutukuntien_valinen_palkansaajien_muutto",
+                              "seutukuntien_valinen_palkansaajien_yrittajiksi_muutto",
+                              "seutukuntien_valinen_palkansaajien_palkansaajiksi_muutto",
+                              "seutukuntien_valinen_palkansaajien_tyottomaksi_muutto")) %>%
   spread(tiedot, value) %>%
-  mutate(palkansaajaksi = kuntien_valinen_yrittajasta_palkansaajaksi_muutto,
-         yrittajaksi = kuntien_valinen_yrittajasta_yrittajaksi_muutto,
-         muuksi = kuntien_valinen_yrittajien_muutto -
-           kuntien_valinen_yrittajasta_palkansaajaksi_muutto -
-           kuntien_valinen_yrittajasta_yrittajaksi_muutto) %>%
-  select(time, palkansaajaksi, yrittajaksi, muuksi) %>%
-  gather(tiedot, value, -time) %>%
-  ggplot(aes(x = time, y = value, fill = tiedot)) +
+  mutate(seutukuntien_valinen_palkansaajien_tyovoiman_ulkopuolelle_muutto =
+                seutukuntien_valinen_palkansaajien_muutto -
+                seutukuntien_valinen_palkansaajien_yrittajiksi_muutto -
+                seutukuntien_valinen_palkansaajien_palkansaajiksi_muutto -
+                seutukuntien_valinen_palkansaajien_tyottomaksi_muutto) %>%
+  select(-seutukuntien_valinen_palkansaajien_muutto) %>%
+  gather(tiedot, value, -vuosi) %>%
+  ggplot(aes(x = vuosi, y = value, fill = tiedot)) +
+  geom_area() +
+  labs(y = "Muuttajia", x = NULL,
+       title = "Palkansaajat",
+       fill = NULL) +
+  scale_fill_manual(labels = c("Palkansaajaksi",
+                               "Tyottomaksi",
+                               "Työvoiman ulkopuolelle",
+                               "Yrittäjäksi"),
+                    values = colors) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +
+  theme(title = element_text(size = title_size),
+        axis.title = element_text(size = axis_title_size),
+        axis.text = element_text(size = axis_text_size))
+
+# Yrittajien seutukuntien valinen
+
+# Yrittäjien kokonaismuutto ilmeisesti laskettu väärin. Korjataan tässä laskemalla se työllisten
+# ja palkansaajien kokonaismuutosta.
+
+p2 <- data %>% filter(tiedot %in% c("seutukuntien_valinen_tyollisten_muutto",
+                                    "seutukuntien_valinen_palkansaajien_muutto",
+                              "seutukuntien_valinen_yrittajien_yrittajiksi_muutto",
+                              "seutukuntien_valinen_yrittajien_palkansaajiksi_muutto",
+                              "seutukuntien_valinen_yrittajien_tyottomaksi_muutto")) %>%
+  spread(tiedot, value) %>%
+  mutate(seutukuntien_valinen_yrittajien_muutto =
+            seutukuntien_valinen_tyollisten_muutto - seutukuntien_valinen_palkansaajien_muutto) %>%
+  mutate(seutukuntien_valinen_yrittajien_tyovoiman_ulkopuolelle_muutto =
+           seutukuntien_valinen_yrittajien_muutto -
+           seutukuntien_valinen_yrittajien_yrittajiksi_muutto -
+           seutukuntien_valinen_yrittajien_palkansaajiksi_muutto -
+           seutukuntien_valinen_yrittajien_tyottomaksi_muutto) %>%
+  select(-seutukuntien_valinen_yrittajien_muutto,
+         -seutukuntien_valinen_tyollisten_muutto,
+         -seutukuntien_valinen_palkansaajien_muutto) %>%
+  gather(tiedot, value, -vuosi) %>%
+  ggplot(aes(x = vuosi, y = value, fill = tiedot)) +
   geom_area() +
   labs(y = "Muuttajia", x = NULL,
        title = "Yrittäjät",
        fill = NULL) +
-  scale_fill_manual(labels = c("Muuksi", "Palkansaajaksi", "Yrittäjäksi"),
-                    values = brewer.pal(4, "Blues")[2:4]) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
+  scale_fill_manual(labels = c("Palkansaajaksi",
+                               "Tyottomaksi",
+                               "Työvoiman ulkopuolelle",
+                                "Yrittäjäksi"),
+                    values = colors) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +
+  theme(title = element_text(size = title_size),
+        axis.title = element_text(size = axis_title_size),
+        axis.text = element_text(size = axis_text_size))
+
+# Tyottomien seutukuntie valinen
+
+p3 <- data %>% filter(tiedot %in% c("seutukuntien_valinen_tyottomien_muutto",
+                                    "seutukuntien_valinen_tyottomien_yrittajiksi_muutto",
+                                    "seutukuntien_valinen_tyottomien_palkansaajiksi_muutto",
+                                    "seutukuntien_valinen_tyottomien_tyottomaksi_muutto")) %>%
+  spread(tiedot, value) %>%
+  mutate(seutukuntien_valinen_tyottomien_tyovoiman_ulkopuolelle_muutto =
+           seutukuntien_valinen_tyottomien_muutto -
+           seutukuntien_valinen_tyottomien_yrittajiksi_muutto -
+           seutukuntien_valinen_tyottomien_palkansaajiksi_muutto -
+           seutukuntien_valinen_tyottomien_tyottomaksi_muutto) %>%
+  select(-seutukuntien_valinen_tyottomien_muutto) %>%
+  gather(tiedot, value, -vuosi) %>%
+  ggplot(aes(x = vuosi, y = value, fill = tiedot)) +
+  geom_area() +
+  labs(y = "Muuttajia", x = NULL,
+       title = "Työttömät",
+       fill = NULL) +
+  scale_fill_manual(labels = c("Palkansaajaksi",
+                               "Tyottomaksi",
+                               "Työvoiman ulkopuolelle",
+                               "Yrittäjäksi"),
+                    values = colors) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +
+  theme(title = element_text(size = title_size),
+        axis.title = element_text(size = axis_title_size),
+        axis.text = element_text(size = axis_text_size))
+
+# Työvoiman ulkopuolelta seutukuntien valinen
+
+p4 <- data %>% filter(tiedot %in% c("seutukuntien_valinen_tyovoiman_ulkopuolelta_muutto",
+                                    "seutukuntien_valinen_tyovoiman_ulkopuolelta_yrittajiksi_muutto",
+                                    "seutukuntien_valinen_tyovoiman_ulkopuolelta_palkansaajaksi_muutto",
+                                    "seutukuntien_valinen_tyovoiman_ulkopuolelta_tyottomaksi_muutto")) %>%
+  spread(tiedot, value) %>%
+  mutate(seutukuntien_valinen_tyovoiman_ulkopuolelta_tyovoiman_ulkopuolelle_muutto =
+           seutukuntien_valinen_tyovoiman_ulkopuolelta_muutto -
+           seutukuntien_valinen_tyovoiman_ulkopuolelta_yrittajiksi_muutto -
+           seutukuntien_valinen_tyovoiman_ulkopuolelta_palkansaajaksi_muutto -
+           seutukuntien_valinen_tyovoiman_ulkopuolelta_tyottomaksi_muutto) %>%
+  select(-seutukuntien_valinen_tyovoiman_ulkopuolelta_muutto) %>%
+  gather(tiedot, value, -vuosi) %>%
+  ggplot(aes(x = vuosi, y = value, fill = tiedot)) +
+  geom_area() +
+  labs(y = "Muuttajia", x = NULL,
+       title = "Työvoiman ulkopuoliset",
+       fill = NULL) +
+  scale_fill_manual(labels = c("Palkansaajaksi",
+                               "Tyottomaksi",
+                               "Työvoiman ulkopuolelle",
+                               "Yrittäjäksi"),
+                    values = colors) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +
+  theme(title = element_text(size = title_size),
+        axis.title = element_text(size = axis_title_size),
+        axis.text = element_text(size = axis_text_size))
+
+p <- ggpubr::ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2, common.legend = TRUE, legend = "bottom")
+ggsave("analyysit/Muutto/tyomarkkinasiirtymat_ja_muuttaminen.png", plot = p,
+       width = 8, height = 8)

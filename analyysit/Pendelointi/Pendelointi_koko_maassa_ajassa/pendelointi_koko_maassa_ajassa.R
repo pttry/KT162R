@@ -7,6 +7,7 @@
   library(RColorBrewer)
 
   set_gg(theme_ptt(), "ptt")
+  set_proj()
 
 # Hae data
 
@@ -53,7 +54,7 @@
   p3 <- grid.arrange(p1, p2, nrow = 1)
   ggsave("analyysit/Pendelointi/Pendelointi_koko_maassa_ajassa/molemmat.png", p3,
          width = 300,
-         height = 150,
+         height = 100,
          units = "mm")
 
   ################# Aluetyyppien nettopendelöinti #######################################

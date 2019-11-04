@@ -3,7 +3,7 @@ library(tidyverse)
 source("R/coef_plot.R")
 
 toimialanames = c("A" = "Maa-, metsä-, ja kalatalous (A)",
-                  "B" = "Kaivostoiminta louhinta (B)",
+                  "B" = "Kaivostoiminta, louhinta (B)",
                   "C" = "Teollisuus (C)",
                   "D" = "Sähkö-, kaasu- ja lämpöhuolto, jäähdytys (D)",
                   "E" = "Vesi-, viemäri-, jätevesi- ja jätehuolto; puhtaanapito (E)",
@@ -353,4 +353,99 @@ ggsave("analyysit/Pendelointi/regressiotulokset/conditional_personal_yrittajat.p
        width = 7, height = 7)
 
 
+################ Henkilökohtaiset, both ###########################
 
+
+data_palkansaajat <- readRDS("data/oct2/coefficient_plot_data_salaried_ols_ln.rds") %>%
+  filter(!grepl("ammattikoodi_k", var)) %>%
+  filter(!grepl("toimiala", var)) %>%
+  filter(!grepl("kunta", var)) %>%
+  filter(!grepl("Intercept", var)) %>%
+  filter(!grepl("ika2", var)) %>%
+  filter(var != "kturaha_k") %>%
+  filter(var != "taajama_k21") %>%
+  mutate(coefficient = 100*round(coefficient, digits = 3),
+         se = 100*se)
+data_palkansaajat$amas <- "Palkansaajat"
+
+data_yrittajat <- readRDS("data/oct2/coefficient_plot_data_self_employed_tobit.rds") %>%
+  filter(!grepl("ammattikoodi_k", var)) %>%
+  filter(!grepl("toimiala", var)) %>%
+  filter(!grepl("aluetyyppi", var)) %>%
+  filter(!grepl("yr", var)) %>%
+  filter(!grepl("Intercept", var)) %>%
+  filter(!grepl("ika2", var)) %>%
+  filter(var != "taajama_k21") %>%
+  mutate(coefficient = round(coefficient, digits = 1),
+         se = 100*se)
+data_yrittajat$amas <- "Yrittäjät"
+
+data <- rbind(data_palkansaajat, data_yrittajat)
+
+data$var <- gdata::drop.levels(data$var)
+data$var <- factor(data$var,
+                   levels = c("auto_k0",
+                              "oty1Valtio",
+                              "oty1Kunta",
+                              "comm_expTRUE",
+                              "migr_expTRUE",
+                              "tyosuhteen_kesto",
+                              "hapeMuu hallintaperuste",
+                              "hapeAsumisoikeusasunnot",
+                              "hapeVuokralainen",
+                              "petyYksinhuoltaja",
+                              "petyYksin asuvat",
+                              "petyPari, lapsia",
+                              "spouse_workingTRUE",
+                              "ututku_asteTutkijakoulutusaste",
+                              "ututku_asteKorkea-aste",
+                              "ututku_asteToinen aste",
+                              "syntyp2Syntynyt ulkomailla",
+                              "opiskelijaOpiskelija",
+                              "ika",
+                              "sukupNainen"))
+
+personal_labels <- c("Nainen (referenssi: mies)",
+                     "Ikä, vuosia",
+                     "Opiskelija",
+                     "Syntynyt ulkomailla (referenssi: syntynyt Suomessa)",
+                     "Toinen aste (referenssi: perusaste)",
+                     "Korkea-aste (referenssi: perusaste)",
+                     "Tutkijakoulutusaste (referenssi: perusaste)",
+                     "Puoliso töissä",
+                     "Pari, lapsia (referenssi: pari, ei lapsia)",
+                     "Yksin asuvat (referenssi: pari, ei lapsia)",
+                     "Yksinhuoltaja (referenssi: pari, ei lapsia)",
+                     "Vuokralainen (referenssi: omistusasuja)",
+                     "Asumisoikeusasunto (referenssi: omistusasuja)",
+                     "Muu hallintaperuste (referenssi: omistusasuja)",
+                     "Työsuhteen kesto, päiviä",
+                     "Muuttamiskokemus",
+                     "Pendelöintikokemus",
+                     "Kunta (referenssi: yksityinen)",
+                     "Valtio (referenssi: yksityinen)",
+                     "Auto käytössä")[20:1]
+
+data %>%
+  ggplot(aes(y = coefficient, x = var, label = coefficient)) +
+  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
+  geom_segment(aes(y = 0,
+                   x = var,
+                   yend = coefficient,
+                   xend = var),
+               color = "#0ABBEC",
+               size = 3) +
+  geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+                color = "red", size = 1, linetype = 3) +
+ # geom_point(stat = "identity", color = "#006FB9", size = 10) +
+#  geom_text(color = "white", size = 3) +
+  coord_flip() +
+  facet_wrap(~amas, ncol = 2) +
+  theme_light() +
+  theme(text = element_text(size = 10, family = "sans")) +
+  labs(x = NULL,
+       y = "Kontrolloitu ero referenssikategorioihin tai marginaalivaikutus, %") +
+  scale_x_discrete(labels = personal_labels)
+
+ggsave("analyysit/Pendelointi/regressiotulokset/personal_both.png",
+       width = 8.5, height = 7)
