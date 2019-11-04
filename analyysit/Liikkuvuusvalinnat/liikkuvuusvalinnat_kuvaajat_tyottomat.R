@@ -92,8 +92,6 @@ ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_selection_demand_
 
 marginal_effects_selection_aluetyyppi <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyyppi_unemployed.rds")
 
-
-
 marginal_effects_selection_aluetyyppi %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +
   geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +

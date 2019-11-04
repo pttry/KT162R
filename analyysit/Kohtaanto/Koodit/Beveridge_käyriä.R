@@ -168,10 +168,15 @@ data_atyypit %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend, la
   geom_path(size = 1, color = ggptt_palettes$vnk[2]) +
   geom_text(color = "black") +
                         facet_wrap(~aluetyyppi, labeller = labeller(aluetyyppi = labels)) +
+  geom_hline(yintercept = 0, linetype = 2) +
+  geom_vline(xintercept = 0, linetype = 2) +
                         labs(y = "Vakanssiaste",
-                             x = "Tyottomyys") +
+                             x = "Työttömyys") +
   theme(strip.background = element_rect(fill = "white",
-                                        colour = "white")) +
+                                        colour = "white"),
+        strip.text = element_text(size = 12),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 13)) +
   scale_y_continuous(labels = percent_comma) +
   scale_x_continuous(labels = percent_comma)
 
@@ -183,7 +188,8 @@ labels = c(pk = "Pääkaupunkiseutu",
            ydinms = "Ydinmaaseutu",
            ms = "Harvaan asuttu maaseutu")
 
-ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_asteet_trend.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_asteet_trend.png",
+       width = 10, height = 10)
 
 data_atyypit %>% ggplot(aes(x = tyottomyysaste_sa, y = vakanssiaste_sa)) +
   geom_point(size = 1) +
@@ -210,17 +216,21 @@ ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_absoluuttiset_sa.pn
 data_atyypit %>% ggplot(aes(x = tyottomat_trend, y = avoimet_tyopaikat_trend, label = vuosi_label)) +
   geom_point(size = 1, color = ggptt_palettes$vnk[1]) +
   geom_path(size = 1, color = ggptt_palettes$vnk[2]) +
-  geom_hline(yintercept = 0) +
-  geom_vline(xintercept = 0) +
- # geom_text(color = "black") +
+  geom_hline(yintercept = 0, linetype = 2) +
+  geom_vline(xintercept = 0, linetype = 2) +
+  geom_text(color = "black") +
   facet_wrap(~aluetyyppi, labeller = labeller(aluetyyppi = labels)) +
   labs(y = "Avoimet työpaikat",
        x = "Työttömät") +
   theme(strip.background = element_rect(fill = "white",
-                                        colour = "white"))
+                                        colour = "white"),
+        strip.text = element_text(size = 12),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 13))
 
 
-ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_absoluuttiset_trend.png")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/aluetyypeittain_absoluuttiset_trend.png",
+       width = 10, height = 10)
 
 # Demeaned
 
@@ -321,7 +331,9 @@ p1 <- data_stkluokat %>%  ggplot(aes(x = tyottomat_trend, y = avoimet_tyopaikat_
        color = NULL) +
   theme(legend.position = "bottom",
         legend.justification = "left",
-        legend.text = element_text(size = 15)) +
+        legend.text = element_text(size = 15),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12)) +
   scale_color_manual(labels = c("Muut seutukunnat",
                                 "Suuret seutukunnat"),
                      values = brewer.pal(3, "Blues")[2:3])
@@ -336,12 +348,16 @@ p2 <- data_stkluokat %>%  ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_
        color = NULL) +
   theme(legend.position = "bottom",
         legend.justification = "left",
-        legend.text = element_text(size = 15)) +
+        legend.text = element_text(size = 15),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12)) +
   scale_color_manual(labels = c("Muut seutukunnat",
                                 "Suuret seutukunnat"),
-                     values = brewer.pal(3, "Blues")[2:3])
+                     values = brewer.pal(3, "Blues")[2:3]) +
+  scale_y_continuous(labels = percent_comma) +
+  scale_x_continuous(labels = percent_comma)
 
-ggarrange(p1, p2, ncol = 2, common.legend = TRUE, legend = "bottom") -> p
+p <- ggarrange(p1, p2, ncol = 2, common.legend = TRUE, legend = "bottom")
 ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/suuret_pienet_seutukunnat.png", plot = p,
        width = 12,
        height = 6)

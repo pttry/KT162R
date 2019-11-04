@@ -65,13 +65,14 @@ map_data <- filter(data, vuosi == 2018) %>%
   summarize(Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE),
             Tyovoima = sum(Tyovoima, na.rm = TRUE),
             Tyottomat = sum(Tyottomat, na.rm = TRUE)) %>%
-  mutate(vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima + Tyottomat),
-         tyottomyysaste = Tyottomat / Tyovoima)
+  mutate(vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima),
+         tyottomyysaste = Tyottomat / Tyovoima,
+         kireys = Avoimet_tyopaikat / Tyottomat)
 
 vakanssiaste_map <- left_join(map, map_data, by = "kunta")  %>%
   ggplot(aes(fill = vakanssiaste)) +
   geom_sf() +
-  scale_fill_gradient(low = "white", high = "darkgreen") +
+  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
   theme_light() +
   theme(
     legend.position = "top",
@@ -82,7 +83,7 @@ vakanssiaste_map <- left_join(map, map_data, by = "kunta")  %>%
 tyottomyysaste_map <- left_join(map, map_data, by = "kunta")  %>%
   ggplot(aes(fill = tyottomyysaste)) +
   geom_sf() +
-  scale_fill_gradient(low = "white", high = "darkgreen") +
+  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
   theme_light() +
   theme(
     legend.position = "top",
@@ -90,7 +91,19 @@ tyottomyysaste_map <- left_join(map, map_data, by = "kunta")  %>%
     legend.text = element_blank()) +
   labs(fill = "Tyottomyysaste")
 
-kartat <- grid.arrange(vakanssiaste_map,  tyottomyysaste_map, ncol = 2)
+kireys_map <- left_join(map, map_data, by = "kunta")  %>%
+  mutate(kireys2 = ifelse(kireys == 0, 0.01, kireys)) %>%
+  ggplot(aes(fill = log(kireys2))) +
+  geom_sf() +
+  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
+  theme_light() +
+  theme(
+    legend.position = "top",
+    legend.justification = "left",
+    legend.text = element_blank()) +
+  labs(fill = "Kireys")
+
+kartat <- grid.arrange(vakanssiaste_map,  tyottomyysaste_map, kireys_map, nrow = 1)
 
 ggsave("analyysit/Kohtaanto/Kuviot/Kartat/vakanssi_aste_tyottomyys_2018_kuukausika.png", plot = kartat)
 
