@@ -271,3 +271,48 @@ data %>%
 
 ggsave("analyysit/Pendelointi/regressiotulokset/unconditional_toimiala_yrittajat.png",
        width = 7, height = 7)
+
+####################### Yrityksen koko, unconditional #############################################
+
+data1 <- readRDS("data/oct2/self_employed_yr1_hl.rds")  %>%
+         filter(!is.na(yr1_hl)) %>%
+  mutate(mean_tyomatka = round(mean_tyomatka_suurempi_kuin_nolla, digits = 1),
+         median_tyomatka = round(median_tyomatka_suurempi_kuin_nolla, digits = 1)) %>%
+         rename(koko = yr1_hl)
+
+data1$koko <- factor(data1$koko, levels(data1$koko)[length(levels(data1$koko)):1])
+
+data2 <- readRDS("data/oct2/self_employed_yr1_lvl.rds")  %>%
+  filter(!is.na(yr1_lvl)) %>%
+  mutate(mean_tyomatka = round(mean_tyomatka_suurempi_kuin_nolla, digits = 1),
+         median_tyomatka = round(median_tyomatka_suurempi_kuin_nolla, digits = 1))%>%
+         rename(koko = yr1_lvl)
+
+data2$koko <- factor(data2$koko, levels(data2$koko)[length(levels(data2$koko)):1])
+
+data <- rbind(data1, data2)
+
+data %>%
+  mutate(median_tyomatka = round(median_tyomatka, digits = 2),
+         mean_tyomatka = round(mean_tyomatka, digits = 2)) %>%
+  filter(!is.na(koko)) %>%
+  ggplot(aes(y = mean_tyomatka, x = koko)) +
+  geom_hline(yintercept = 0, linetype = 1, color = "black", size = 1) +
+  geom_segment(aes(y = 0,
+                   x = koko,
+                   yend = mean_tyomatka,
+                   xend = koko),
+               color = "#0ABBEC",
+               size = 3) +
+  geom_point(aes(y = mean_tyomatka, x = koko), stat = "identity", color = "#006FB9", size = 10) +
+  geom_point(aes(y = median_tyomatka, x = koko), color = "blue", size = 10) +
+  geom_text(aes(y = mean_tyomatka, x = koko, label = mean_tyomatka), color = "white", size = 3) +
+  geom_text(aes(y = median_tyomatka, x = koko, label = median_tyomatka), color = "white", size = 3) +
+  coord_flip() +
+  theme_light() +
+  theme(axis.text.y = element_text(size = 10, family = "sans")) +
+  labs(x = NULL,
+       y = "Työmatka, mediaani ja keskiarvo, km")
+
+
+ggsave("analyysit/Pendelointi/yrityksen_koko_tyomatka.png", width = 6, height = 3)
