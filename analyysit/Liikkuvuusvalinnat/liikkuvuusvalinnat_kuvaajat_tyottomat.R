@@ -18,16 +18,16 @@ marginal_effects_selection_personal <- readRDS("data/liikkuvuusvalintamallitulok
 
 
 personal_labels = c("Sukupuoli (ref: mies)",
-                    "Ikä, vuosia",
+                    "Ikä, kymmeniä vuosia",
                     "Opiskelija, ptoim2, (ref: ei opiskelija)",
-                    "Syntynyt ulkomailla (ref: ei syntynyt ulkomailla",
+                    "Syntynyt ulkomailla (ref: ei syntynyt ulkomailla)",
                     "Keskiasteen koulutus (ref: peruskoulu)",
                     "Korkea-asteen koulutus (ref: peruskoulu)",
                     "Tutkija-asteen koulutus (ref: peruskoulu)",
                     "Puoliso töissä",
-                    "Pari, lapsia (ref: pari, ei lapsia)",
-                    "Asuu yksin (ref: pari, ei lapsia)",
-                    "Yksinhuoltaja (ref: pari, ei lapsia)",
+                    "Pari, ei lapsia (ref: asuu yksin)",
+                    "Pari, lapsia (ref: asuu yksin)",
+                    "Yksinhuoltaja (ref: asuu yksin)",
                     "Asuu vuokralla (ref: omistuasuja)",
                     "Asumisoikeusasunto (ref: omistusasuja)",
                     "Muu asumismuoto (ref: omistusasuja)",
@@ -122,22 +122,21 @@ ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_selection_aluetyy
 marginal_effects_outcome_personal <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_personal_unemployed.rds")
 
 personal_labels = c("Sukupuoli (ref: mies)",
-                    "Ikä, vuosia",
+                    "Ikä, kymmeniä vuosia",
                     "Opiskelija, ptoim2, (ref: ei opiskelija)",
-                    "Syntynyt ulkomailla (ref: ei syntynyt ulkomailla",
+                    "Syntynyt ulkomailla (ref: ei syntynyt ulkomailla)",
                     "Keskiasteen koulutus (ref: peruskoulu)",
                     "Korkea-asteen koulutus (ref: peruskoulu)",
                     "Tutkija-asteen koulutus (ref: peruskoulu)",
                     "Puoliso töissä",
-                    "Pari, lapsia (ref: pari, ei lapsia)",
-                    "Asuu yksin (ref: pari, ei lapsia)",
-                    "Yksinhuoltaja (ref: pari, ei lapsia)",
+                    "Pari, ei lapsia (ref: asuu yksin)",
+                    "Pari, lapsia (ref: asuu yksin)",
+                    "Yksinhuoltaja (ref: asuu yksin)",
                     "Asuu vuokralla (ref: omistuasuja)",
                     "Asumisoikeusasunto (ref: omistusasuja)",
                     "Muu asumismuoto (ref: omistusasuja)",
                     "Muuttokokemus",
                     "Pendelöintikokemus")[16:1]
-
 
 marginal_effects_outcome_personal %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +

@@ -29,3 +29,10 @@ data <- data %>%
 
 data %>% ggplot(aes(x = tyottomyysasteero, y = values)) +
          geom_point()
+
+Sys.sleep(5)
+5+2
+Sys.sleep(2)
+
+Sys.sleep(4)
+5+5

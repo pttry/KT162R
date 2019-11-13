@@ -24,7 +24,7 @@
   dat_muuttotiedot_kunnittain$aluetyyppi <- fct_relevel(dat_muuttotiedot_kunnittain$aluetyyppi,
                                                         c("PK-seutu", "Muut yliopistokaupungit", "Muut työssäkäyntialueden keskukset", "Muut kaupungit",
                                                           "Kaupunkien läh. maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu"))
-  aluetyyppi_labels = c("Pääkaupunkiseutu", "Yliopistokaupungit","Muut työssäkäyntikeskukset", "Kaupungit",
+  aluetyyppi_labels = c("Pääkaupunkiseutu", "Yliopistokaupungit","Muut työssäkäyntikeskukset", "Muut Kaupungit",
                         "Kaupunkien läheinen maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu")
 
 

@@ -6,8 +6,7 @@ library(tidyverse)
 ################### Selection equation ###########################
 
 
-marginal_effects_selection <- readRDS("data/oct15/marginal_effects_selection_equation_unemployed.rds") %>%
-  filter(var != "model")
+marginal_effects_selection <- readRDS("data/nov12/liikkuvuusmalli/unemployed/marginal_effects_selection_equation_unemployed.rds")
 names(marginal_effects_selection) <- c("coefficient", "var")
 marginal_effects_selection$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection$coefficient)), digits = 3)
 marginal_effects_selection$var <- as.factor(marginal_effects_selection$var)
@@ -15,11 +14,11 @@ marginal_effects_selection$var <- as.factor(marginal_effects_selection$var)
 # Personal characteristics
 
 marginal_effects_selection_personal <- marginal_effects_selection %>%
-  filter(var %in% c("ika_t1",
+  filter(var %in% c("ika_t1_decade",
                     "sukup_t1Female",
+                    "pety_t0Couple without children",
                     "pety_t0Couple with children",
                     "pety_t0Single parent",
-                    "pety_t0Living alone",
                     "syntyp2Born abroad",
                     "opiskelija_t1Student",
                     "ututku_aste_t1Secondary education",
@@ -39,15 +38,15 @@ marginal_effects_selection_personal$var <- factor(marginal_effects_selection_per
                                                              "hape_t0Right of occupancy dwelling",
                                                              "hape_t0Rents the dwelling",
                                                              "pety_t0Single parent",
-                                                             "pety_t0Living alone",
                                                              "pety_t0Couple with children",
+                                                             "pety_t0Couple without children",
                                                              "spouse_working_t1TRUE",
                                                              "ututku_aste_t1Doctoral or equivalent level",
                                                              "ututku_aste_t1Tertiary education",
                                                              "ututku_aste_t1Secondary education",
                                                              "syntyp2Born abroad",
                                                              "opiskelija_t1Student",
-                                                             "ika_t1",
+                                                             "ika_t1_decade",
                                                              "sukup_t1Female"))
 
 saveRDS(marginal_effects_selection_personal,
@@ -56,25 +55,28 @@ saveRDS(marginal_effects_selection_personal,
 # Labor demand
 
 marginal_effects_selection_demand <- marginal_effects_selection %>%
-  filter(var %in% c("si_index_diff_2",
-                    "intraregional_employment_incentive_diff"))
-marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+  filter(var %in% c("intra_si_index_2",
+                    "inter_si_index_2",
+                    "intra_E_ind",
+                    "inter_E_ind"))
 
 saveRDS(marginal_effects_selection_demand,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_demand_unemployed.rds")
 
 # Aluetyyppi
 
-marginal_effects_selection_aluetyyppi <- marginal_effects_selection %>%
-  filter(grepl("aluetyyppi" , var))
-marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+marginal_effects_selection_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/unemployed/marginal_effects_selection_equation_at_unemployed.rds")
+namesmarginal_effects_selection_aluetyyppi <- c("coefficient", "var")
+marginal_effects_selection_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_selection_aluetyyppi$var <- as.factor(marginal_effects_selection_aluetyyppi$var)
+marginal_effects_selection_aluetyyppi$var <- gdata::drop.levels(marginal_effects_selection_aluetyyppi$var)
 
 saveRDS(marginal_effects_selection_aluetyyppi,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyyppi_unemployed.rds")
 
 ################## Outcome equation ###################################
 
-marginal_effects_outcome <- readRDS("data/oct15/marginal_effects_outcome_equation_unemployed.rds") %>%
+marginal_effects_outcome <- readRDS("data/nov12/liikkuvuusmalli/unemployed/marginal_effects_outcome_equation_unemployed.rds") %>%
   filter(var != "model")
 names(marginal_effects_outcome) <- c("coefficient", "var")
 marginal_effects_outcome$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome$coefficient)), digits = 3)
@@ -83,11 +85,11 @@ marginal_effects_outcome$var <- as.factor(marginal_effects_outcome$var)
 # Personal characteristics
 
 marginal_effects_outcome_personal <- marginal_effects_outcome %>%
-  filter(var %in% c("ika_t1",
+  filter(var %in% c("ika_t1_decade",
                     "sukup_t1Female",
+                    "pety_t0Couple without children",
                     "pety_t0Couple with children",
                     "pety_t0Single parent",
-                    "pety_t0Living alone",
                     "syntyp2Born abroad",
                     "opiskelija_t1Student",
                     "ututku_aste_t1Secondary education",
@@ -107,16 +109,18 @@ marginal_effects_outcome_personal$var <- factor(marginal_effects_outcome_persona
                                                            "hape_t0Right of occupancy dwelling",
                                                            "hape_t0Rents the dwelling",
                                                            "pety_t0Single parent",
-                                                           "pety_t0Living alone",
                                                            "pety_t0Couple with children",
+                                                           "pety_t0Couple without children",
                                                            "spouse_working_t1TRUE",
                                                            "ututku_aste_t1Doctoral or equivalent level",
                                                            "ututku_aste_t1Tertiary education",
                                                            "ututku_aste_t1Secondary education",
                                                            "syntyp2Born abroad",
                                                            "opiskelija_t1Student",
-                                                           "ika_t1",
+                                                           "ika_t1_decade",
                                                            "sukup_t1Female"))
+
+
 
 saveRDS(marginal_effects_outcome_personal,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_personal_unemployed.rds")
@@ -135,42 +139,39 @@ marginal_effects_outcome_alueet$var <- gdata::drop.levels(marginal_effects_outco
 saveRDS(marginal_effects_outcome_alueet,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_regions_unemployed.rds")
 
-# Kohteen aluetyyppi
+# aluetyyppi
 
-marginal_effects_outcome_aluetyyppi_tp <- marginal_effects_outcome %>%
-                                          filter(grepl("aluetyyppi_tp", var))
-marginal_effects_outcome_aluetyyppi_tp$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi_tp$var)
+marginal_effects_outcome_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/unemployed/marginal_effects_outcome_equation_at_unemployed.rds")
+namesmarginal_effects_outcome_aluetyyppi <- c("coefficient", "var")
+marginal_effects_outcome_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_outcome_aluetyyppi$var <- as.factor(marginal_effects_outcome_aluetyyppi$var)
+marginal_effects_outcome_aluetyyppi$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi$var)
 
-saveRDS(marginal_effects_outcome_aluetyyppi_tp,
-        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_tp_unemployed.rds")
+saveRDS(marginal_effects_outcome_aluetyyppi,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_unemployed.rds")
 
-# Lähteen aluetyyppi
 
-marginal_effects_outcome_aluetyyppi_ap <- marginal_effects_outcome %>%
-  filter(grepl("aluetyyppi_ap", var))
-marginal_effects_outcome_aluetyyppi_ap$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi_ap$var)
 
-saveRDS(marginal_effects_outcome_aluetyyppi_ap,
-        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_ap_unemployed.rds")
 
 
 ############################### TYÖLLISET ###################################
 
-################### Selection equation ########################
+################### Selection equation ###########################
 
-marginal_effects_selection <- readRDS("data/oct15/marginal_effects_selection_equation_employed.rds") %>%
-  filter(var != "model")
+
+marginal_effects_selection <- readRDS("data/nov12/liikkuvuusmalli/employed/marginal_effects_selection_equation_employed.rds")
 names(marginal_effects_selection) <- c("coefficient", "var")
 marginal_effects_selection$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection$coefficient)), digits = 3)
 marginal_effects_selection$var <- as.factor(marginal_effects_selection$var)
 
+# Personal characteristics
 
 marginal_effects_selection_personal <- marginal_effects_selection %>%
-  filter(var %in% c("ika_t1",
+  filter(var %in% c("ika_decade_t1",
                     "sukup_t1Female",
+                    "pety_t0Couple without children",
                     "pety_t0Couple with children",
                     "pety_t0Single parent",
-                    "pety_t0Living alone",
                     "syntyp2Born abroad",
                     "opiskelija_t1Student",
                     "ututku_aste_t1Secondary education",
@@ -190,33 +191,46 @@ marginal_effects_selection_personal$var <- factor(marginal_effects_selection_per
                                                              "hape_t0Right of occupancy dwelling",
                                                              "hape_t0Rents the dwelling",
                                                              "pety_t0Single parent",
-                                                             "pety_t0Living alone",
                                                              "pety_t0Couple with children",
+                                                             "pety_t0Couple without children",
                                                              "spouse_working_t1TRUE",
                                                              "ututku_aste_t1Doctoral or equivalent level",
                                                              "ututku_aste_t1Tertiary education",
                                                              "ututku_aste_t1Secondary education",
                                                              "syntyp2Born abroad",
                                                              "opiskelija_t1Student",
-                                                             "ika_t1",
+                                                             "ika_decade_t1",
                                                              "sukup_t1Female"))
+
 
 saveRDS(marginal_effects_selection_personal,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_personal_employed.rds")
 
+# Labor demand
+
+marginal_effects_selection_demand <- marginal_effects_selection %>%
+  filter(var %in% c("intra_si_index_2",
+                    "inter_si_index_2",
+                    "intra_E_ind",
+                    "inter_E_ind"))
+
+saveRDS(marginal_effects_selection_demand,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_demand_employed.rds")
+
 # Aluetyyppi
 
-marginal_effects_selection_aluetyyppi <- marginal_effects_selection %>%
-  filter(grepl("aluetyyppi" , var))
-marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+marginal_effects_selection_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/employed/marginal_effects_selection_equation_at_employed.rds")
+namesmarginal_effects_selection_aluetyyppi <- c("coefficient", "var")
+marginal_effects_selection_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_selection_aluetyyppi$var <- as.factor(marginal_effects_selection_aluetyyppi$var)
+marginal_effects_selection_aluetyyppi$var <- gdata::drop.levels(marginal_effects_selection_aluetyyppi$var)
 
 saveRDS(marginal_effects_selection_aluetyyppi,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyyppi_employed.rds")
 
+################## Outcome equation ###################################
 
-#################### Outcome equation ################################
-
-marginal_effects_outcome <- readRDS("data/oct15/marginal_effects_outcome_equation_employed.rds") %>%
+marginal_effects_outcome <- readRDS("data/nov12/liikkuvuusmalli/employed/marginal_effects_outcome_equation_employed.rds") %>%
   filter(var != "model")
 names(marginal_effects_outcome) <- c("coefficient", "var")
 marginal_effects_outcome$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome$coefficient)), digits = 3)
@@ -225,11 +239,11 @@ marginal_effects_outcome$var <- as.factor(marginal_effects_outcome$var)
 # Personal characteristics
 
 marginal_effects_outcome_personal <- marginal_effects_outcome %>%
-  filter(var %in% c("ika_t1",
+  filter(var %in% c("ika_decade_t1",
                     "sukup_t1Female",
+                    "pety_t0Couple without children",
                     "pety_t0Couple with children",
                     "pety_t0Single parent",
-                    "pety_t0Living alone",
                     "syntyp2Born abroad",
                     "opiskelija_t1Student",
                     "ututku_aste_t1Secondary education",
@@ -249,15 +263,15 @@ marginal_effects_outcome_personal$var <- factor(marginal_effects_outcome_persona
                                                            "hape_t0Right of occupancy dwelling",
                                                            "hape_t0Rents the dwelling",
                                                            "pety_t0Single parent",
-                                                           "pety_t0Living alone",
                                                            "pety_t0Couple with children",
+                                                           "pety_t0Couple without children",
                                                            "spouse_working_t1TRUE",
                                                            "ututku_aste_t1Doctoral or equivalent level",
                                                            "ututku_aste_t1Tertiary education",
                                                            "ututku_aste_t1Secondary education",
                                                            "syntyp2Born abroad",
                                                            "opiskelija_t1Student",
-                                                           "ika_t1",
+                                                           "ika_decade_t1",
                                                            "sukup_t1Female"))
 
 saveRDS(marginal_effects_outcome_personal,
@@ -277,31 +291,15 @@ marginal_effects_outcome_alueet$var <- gdata::drop.levels(marginal_effects_outco
 saveRDS(marginal_effects_outcome_alueet,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_regions_employed.rds")
 
-# Labor demand
+# aluetyyppi
 
-marginal_effects_selection_demand <- marginal_effects_selection %>%
-  filter(var %in% c("si_index_diff_2",
-                    "intraregional_employment_incentive_diff"))
-marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
+marginal_effects_outcome_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/employed/marginal_effects_outcome_equation_at_employed.rds")
+namesmarginal_effects_outcome_aluetyyppi <- c("coefficient", "var")
+marginal_effects_outcome_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_outcome_aluetyyppi$var <- as.factor(marginal_effects_outcome_aluetyyppi$var)
+marginal_effects_outcome_aluetyyppi$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi$var)
 
-saveRDS(marginal_effects_selection_demand,
-        "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_demand_employed.rds")
+saveRDS(marginal_effects_outcome_aluetyyppi,
+        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_employed.rds")
 
-# Kohteen aluetyyppi
-
-marginal_effects_outcome_aluetyyppi_tp <- marginal_effects_outcome %>%
-  filter(grepl("aluetyyppi_tp", var))
-marginal_effects_outcome_aluetyyppi_tp$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi_tp$var)
-
-saveRDS(marginal_effects_outcome_aluetyyppi_tp,
-        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_tp_employed.rds")
-
-# Lähteen aluetyyppi
-
-marginal_effects_outcome_aluetyyppi_ap <- marginal_effects_outcome %>%
-  filter(grepl("aluetyyppi_ap", var))
-marginal_effects_outcome_aluetyyppi_ap$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi_ap$var)
-
-saveRDS(marginal_effects_outcome_aluetyyppi_ap,
-        "data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_aluetyyppi_ap_employed.rds")
 

@@ -1,5 +1,11 @@
 data(dat_muuttotiedot_kunnittain)
 
+library(ggptt)
+library(statfitools)
+library(tidyverse)
+library(pxweb)
+library(gridExtra)
+
 map_data <- dat_muuttotiedot_kunnittain %>%
             spread(Tiedot, values) %>%
             filter(Vuosi == 2018) %>%
@@ -27,8 +33,7 @@ muuttotapahtuma_map <- left_join(map, map_data, by = "kunta")  %>%
   theme_light() +
   theme(
     legend.position = "top",
-    legend.justification = "left",
-    legend.text = element_blank()) +
+    legend.justification = "left") +
   labs(fill = "Muuttotapahtuma-aste")
 
 ggsave("analyysit/Muutto/muuttovilkkauskartat/muuttovilkkauskartta.png")
@@ -36,33 +41,34 @@ ggsave("analyysit/Muutto/muuttovilkkauskartat/muuttovilkkauskartta.png")
 
 
 # Download data
-px_data <-
-  pxweb_get(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/vaerak/statfin_vaerak_pxt_11ra.px",
-            query = "[path to jsonfile]")
+# px_data <-
+#   pxweb_get(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/vaerak/statfin_vaerak_pxt_11ra.px",
+#             query = "[path to jsonfile]")
+#
+# # Convert to data.frame
+# px_data <- as.data.frame(px_data, column.name.type = "text", variable.value.type = "text")
+#
+# data <- data$data
+#
+# saveRDS(data, "data/asuinalueellaansyntyneidenosuus2018.rds")
+# data <- data %>% rename(Kunta = Alue)
+# alueet <- sf_get_reg_keytable() %>% select(Knro, Kunta, Mkkoodi, Maakunta, Seutukuntakoodi, Seutukunta, Kuntaryhma)
+#
+# data <- left_join(data, alueet, by = "Kunta")
+#
+# atyypit <- readRDS("data/atyypit.rds") %>%
+#   rename(Knro = kunta18)
+#
+# data <- left_join(data, atyypit, by = "Knro") %>%
+#   rename(kunta = Knro)
+#
+# data <- clean_names(data) %>%
+#   filter(Vuosi == 2018) %>%
+#   select(kunta, Asuinalueellaan_syntyneiden_osuus)
 
-# Convert to data.frame
-px_data <- as.data.frame(px_data, column.name.type = "text", variable.value.type = "text")
+data <- readRDS("data/asuinalueellaansyntyneidenosuus2018.rds")
 
 
-# Cite the data as
-pxweb_cite(px_data)
-
-data <- data$data
-
-data <- data %>% rename(Kunta = Alue)
-alueet <- sf_get_reg_keytable() %>% select(Knro, Kunta, Mkkoodi, Maakunta, Seutukuntakoodi, Seutukunta, Kuntaryhma)
-
-data <- left_join(data, alueet, by = "Kunta")
-
-atyypit <- readRDS("data/atyypit.rds") %>%
-  rename(Knro = kunta18)
-
-data <- left_join(data, atyypit, by = "Knro") %>%
-  rename(kunta = Knro)
-
-data <- clean_names(data) %>%
-        filter(Vuosi == 2018) %>%
-        select(kunta, Asuinalueellaan_syntyneiden_osuus)
 
 
 asuinalueellasyntyneet_map <- left_join(map, data, by = "kunta")  %>%
@@ -72,8 +78,7 @@ asuinalueellasyntyneet_map <- left_join(map, data, by = "kunta")  %>%
   theme_light() +
   theme(
     legend.position = "top",
-    legend.justification = "left",
-    legend.text = element_blank()) +
+    legend.justification = "left") +
   labs(fill = "Asuinalueellaan syntyneiden osuus")
 
 ggsave("analyysit/Muutto/muuttovilkkauskartat/asuinalueellasyntyneet_map.png")

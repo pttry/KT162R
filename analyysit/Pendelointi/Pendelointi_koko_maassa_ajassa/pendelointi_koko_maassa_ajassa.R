@@ -57,6 +57,45 @@
          height = 100,
          units = "mm")
 
+
+  ################## Pendelöinti kuntien, seutukuntien ja maakuntien välillä ##################
+
+  load("~/git_clones/KT162R/data/dat_muutto_aikasarja_km.rda")
+
+  dat_pendelointi <- dat_muutto_aikasarja_km %>%
+                     filter(tiedot %in% c("kuntien_valinen_pendelointi",
+                                          "seutukuntien_valinen_pendelointi",
+                                          "maakuntien_valinen_pendelointi",
+                                          "tyolliset"))
+
+  p1 <- dat_pendelointi %>%
+        filter(tiedot != "tyolliset") %>%
+    group_by(tiedot) %>%
+    ggplot(aes(y = value, x = time, col = tiedot)) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+    geom_line() +
+    #ggtitle("Pendelöijien määrä Suomessa 1987 - 2015") + #Kuntien välinen pendelöinti
+    ylab("Pendelöijien määrä") +
+    xlab(NULL) +
+    scale_y_continuous( labels = deci_comma)
+
+  ggsave("analyysit/Pendelointi/Pendelointi_koko_maassa_ajassa/absoluuttinen_maara.png", p1)
+
+  p2 <- dat_pendelointi %>%
+    summarize(pendeloijat_yhteensa = sum(lahtopendelointi),
+              ei_pendeloijat_yhteensa = sum(asuinkunnassaan_tyossakayvat)) %>%
+    mutate(pendelointiosuus = pendeloijat_yhteensa /
+             (pendeloijat_yhteensa + ei_pendeloijat_yhteensa)) %>%
+    ggplot(aes(y = pendelointiosuus, x = vuosi)) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+    geom_line() +
+    #ggtitle("Pendelöijien osuus työllisistä Suomessa 1987 - 2015") +
+    ylab("Pendelöijien osuus työllisistä") +
+    xlab(NULL) +
+    scale_y_continuous(limits = c(0.19,0.35), labels = percent_comma)
+
+
+
   ################# Aluetyyppien nettopendelöinti #######################################
 
   library(ggplot2)
