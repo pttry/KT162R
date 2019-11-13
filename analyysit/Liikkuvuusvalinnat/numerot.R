@@ -160,3 +160,75 @@ ggsave("analyysit/Liikkuvuusvalinnat/numerot_kuva.png", plot = p,
        width = 8, height = 6)
 
 
+################### Muuttajien osuudet eri ryhmissä ###################################
+
+library(ggptt)
+library(RColorBrewer)
+library(ggpubr)
+
+data <- readRDS("data/nov12/muuttoliikkuvuusaikasarja_ulos.rds") %>%
+        spread(tiedot, value) %>%
+        group_by(vuosi) %>%
+        summarize(palkansaajien_lahtomuutto = sum(palkansaajien_lahtomuutto, na.rm= TRUE),
+                  yrittajien_lahtomuutto = sum(yrittajien_lahtomuutto, na.rm = TRUE),
+                  tyottomien_lahtomuutto = sum(tyottomien_lahtomuutto, na.rm = TRUE),
+                  ulkopuolelta_lahtomuutto = sum(ulkopuolelta_lahtomuutto, na.rm = TRUE)) %>%
+        gather(tiedot, value, -vuosi)
+
+source("R/set.R")
+set_proj()
+
+title_size = 10
+axis_title_size = 10
+axis_text_size = 10
+colors = RColorBrewer::brewer.pal(5, "Blues")[2:5]
+y_upper_limit = 0.15
+
+# Tuodaan nimittäjiä käsin koska unohtu
+
+nimittajat <- data.frame(vuosi = 2006:2015, palkansaajat = c(2021612, 2068095, 2121443, 2130602, 2047320, 2079337, 2098246, 2084311, 2049463, 2026677),
+                         yrittajat = c(236694, 238511, 240124, 239457, 235824, 239111, 248742, 248116, 244572, 239175),
+                         tyottomat = c(281539, 246878, 217121, 231938, 298061, 266528, 255124, 279665, 326346, 360293),
+                         ulkopuoliset = c(2657178, 2663588, 2660942, 2664144, 2708896, 2728571, 2734922, 2750500, 2764256, 2778343))
+nimittajat <- nimittajat %>% gather(tiedot, value, -vuosi)
+
+data <- rbind(data, nimittajat)
+
+data <- data %>% spread(tiedot, value) %>%
+            mutate(tyottomat_muuttoosuus = tyottomien_lahtomuutto / tyottomat,
+                   palkansaajien_muuttoosuus = palkansaajien_lahtomuutto / palkansaajat,
+                   yrittajien_muuttoosuus = yrittajien_lahtomuutto / yrittajat,
+                   ulkopuolisten_muuttoosuus = ulkopuolelta_lahtomuutto / ulkopuoliset) %>%
+            gather(tiedot, value, -vuosi)
+
+data %>% filter(tiedot %in% c("tyottomat_muuttoosuus",
+                              "palkansaajien_muuttoosuus",
+                              "yrittajien_muuttoosuus",
+                              "ulkopuolisten_muuttoosuus")) %>%
+        ggplot(aes(x = vuosi, y = value, col = tiedot)) +
+             geom_line() +
+  geom_hline(yintercept = 0, color = "black", linetype = 2) +
+scale_y_continuous(labels = percent_comma,
+                   breaks = scales::pretty_breaks(n = 6)) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+  scale_color_manual(labels = c("Palkansaajat",
+                                "Työttömät",
+                                "Työvoiman ulkopuoliset",
+                                "Yrittäjät"),
+                     values = brewer.pal(8, "Blues")[c(2,4,6,8)]) +
+              labs(x = NULL, y = "Seutukuntien välisten muuttajien osuus", col = NULL) +
+  theme(legend.text = element_text(size = 15, family = "sans" ),
+        text = element_text(size = 15, family = "sans"))
+
+ggsave("analyysit/Muutto/osuudet_ptoim1.png", width = 8, height = 5)
+
+  theme(legend.position = "bottom", legend.justification = "left") +
+  scale_y_continuous(labels = deci_comma,
+                     breaks = scales::pretty_breaks(n = 6)) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+  scale_color_manual(labels = c("Maakuntien väliset muutot",
+                                "Seutukuntien väliset muutot",
+                                "Kuntien väliset muutot",
+                                "Kuntien sisäiset muutot"),
+
+

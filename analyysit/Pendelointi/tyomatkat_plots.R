@@ -1,7 +1,7 @@
 library(tidyverse)
 
 toimialanames = c("A" = "Maa-, metsä-, ja kalatalous (A)",
-                  "B" = "Kaivostoiminta louhinta (B)",
+                  "B" = "Kaivostoiminta ja louhinta (B)",
                   "C" = "Teollisuus (C)",
                   "D" = "Sähkö-, kaasu- ja lämpöhuolto, jäähdytys (D)",
                   "E" = "Vesi-, viemäri-, jätevesi- ja jätehuolto; puhtaanapito (E)",

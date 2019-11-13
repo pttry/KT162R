@@ -18,22 +18,25 @@ marginal_effects_selection_personal_employed$group <- "Työlliset"
 marginal_effects_selection_personal <- rbind(marginal_effects_selection_personal_unemployed,
                                              marginal_effects_selection_personal_employed)
 
-personal_labels = c("Sukupuoli (ref: mies)",
+personal_labels = c("Nainen",
                     "Ikä, kymmeniä vuosia",
-                    "Opiskelija, ptoim2, (ref: ei opiskelija)",
-                    "Syntynyt ulkomailla (ref: ei syntynyt ulkomailla)",
-                    "Keskiasteen koulutus (ref: peruskoulu)",
-                    "Korkea-asteen koulutus (ref: peruskoulu)",
-                    "Tutkija-asteen koulutus (ref: peruskoulu)",
+                    "Opiskelija",
+                    "Syntynyt ulkomailla",
+                    "Koulutusaste, ref: perusaste",
+                    "   Keskiasteen koulutus",
+                    "   Korkea-asteen koulutus",
+                    "   Tutkija-asteen koulutus",
+                    "Perhetyyppi, ref: asuu yksin",
+                    "   Pari, ei lapsia",
+                    "   Pari, lapsia",
+                    "   Yksinhuoltaja",
                     "Puoliso töissä",
-                    "Pari, ei lapsia (ref: asuu yksin)",
-                    "Pari, lapsia (ref: asuu yksin)",
-                    "Yksinhuoltaja (ref: asuu yksin)",
-                    "Asuu vuokralla (ref: omistuasuja)",
-                    "Asumisoikeusasunto (ref: omistusasuja)",
-                    "Muu asumismuoto (ref: omistusasuja)",
+                    "Hallintaperuste, ref: omistusasunto",
+                    "   Asuu vuokralla",
+                    "   Asumisoikeusasunto",
+                    "   Muu asumismuoto",
                     "Muuttokokemus",
-                    "Pendelöintikokemus")[16:1]
+                    "Pendelöintikokemus")[19:1]
 
 
 marginal_effects_selection_personal %>%
@@ -52,7 +55,8 @@ marginal_effects_selection_personal %>%
   facet_wrap(~group) +
   coord_flip() +
   theme_light() +
-  theme(text = element_text(size = 10, family = "sans")) +
+  theme(text = element_text(size = 10, family = "sans"),
+        axis.text.y = element_text(hjust=0)) +
   labs(x = NULL,
        y = "Keskimääräinen marginaalivaikutus, %-yksikköä") +
   scale_x_discrete(labels = personal_labels)
@@ -94,7 +98,8 @@ marginal_effects_selection_aluetyyppi %>%
   coord_flip() +
   facet_wrap(~group) +
   theme_light() +
-  theme(text = element_text(size = 10, family = "sans")) +
+  theme(text = element_text(size = 10, family = "sans"),
+        axis.text.y = element_text(hjust = 0)) +
   labs(x = NULL,
        y = "Keskimääräinen marginaalivaikutus verrattuna muihin kaupunkeihin, %-yksikköä") +
   scale_x_discrete(labels = aluetyyppi_labels)
@@ -109,32 +114,33 @@ ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_selection_aluetyy
 marginal_effects_outcome_personal_unemployed <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_personal_unemployed.rds")
 marginal_effects_outcome_personal_employed <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_personal_employed.rds")
 
-marginal_effects_outcome_personal_employed <- mutate(marginal_effects_outcome_personal_employed,
-                                                       var = as.character(var),
-                                                       var = ifelse(var == "ika_decade_t1", "ika_t1_decade", var))
-
 marginal_effects_outcome_personal_unemployed$group <- "Työttömät"
 marginal_effects_outcome_personal_employed$group <- "Työlliset"
 
 marginal_effects_outcome_personal <- rbind(marginal_effects_outcome_personal_unemployed,
                                              marginal_effects_outcome_personal_employed)
 
-personal_labels = c("Sukupuoli (ref: mies)",
+
+
+personal_labels = c("Nainen",
                     "Ikä, kymmeniä vuosia",
-                    "Opiskelija, ptoim2, (ref: ei opiskelija)",
-                    "Syntynyt ulkomailla (ref: ei syntynyt ulkomailla)",
-                    "Keskiasteen koulutus (ref: peruskoulu)",
-                    "Korkea-asteen koulutus (ref: peruskoulu)",
-                    "Tutkija-asteen koulutus (ref: peruskoulu)",
+                    "Opiskelija",
+                    "Syntynyt ulkomailla",
+                    "Koulutusaste, ref: perusaste",
+                    "   Keskiasteen koulutus",
+                    "   Korkea-asteen koulutus",
+                    "   Tutkija-asteen koulutus",
+                    "Perhetyyppi, ref: asuu yksin",
+                    "   Pari, ei lapsia",
+                    "   Pari, lapsia",
+                    "   Yksinhuoltaja",
                     "Puoliso töissä",
-                    "Pari, ei lapsia (ref: asuu yksin)",
-                    "Pari, lapsia (ref: asuu yksin)",
-                    "Yksinhuoltaja (ref: asuu yksin)",
-                    "Asuu vuokralla (ref: omistuasuja)",
-                    "Asumisoikeusasunto (ref: omistusasuja)",
-                    "Muu asumismuoto (ref: omistusasuja)",
+                    "Hallintaperuste, ref: omistusasunto",
+                    "   Asuu vuokralla",
+                    "   Asumisoikeusasunto",
+                    "   Muu asumismuoto",
                     "Muuttokokemus",
-                    "Pendelöintikokemus")[16:1]
+                    "Pendelöintikokemus")[19:1]
 
 
 marginal_effects_outcome_personal %>%
@@ -153,7 +159,8 @@ marginal_effects_outcome_personal %>%
   facet_wrap(~group) +
   coord_flip() +
   theme_light() +
-  theme(text = element_text(size = 10, family = "sans")) +
+  theme(text = element_text(size = 10, family = "sans"),
+        axis.text.y = element_text(hjust=0)) +
   labs(x = NULL,
        y = "Keskimääräinen marginaalivaikutus, %-yksikköä") +
   scale_x_discrete(labels = personal_labels)
@@ -171,12 +178,13 @@ marginal_effects_outcome_alueet_employed$group <- "Työlliset"
 marginal_effects_outcome_alueet <- rbind(marginal_effects_outcome_alueet_unemployed,
                                          marginal_effects_outcome_alueet_employed)
 
-alueet_labels = c("Asuntohintaero",
+alueet_labels = c("Palkkaero",
+                  "Asuntohintaero",
                   "Etäisyys",
                   "Työn saavutettavuusero",
                   "Työmarkkinoiden kokoero",
                   "Työttömyysaste-ero",
-                  "Kohteen vuokra-asujien osuus")
+                  "Kohteen vuokra-asumisen osuus")
 
 marginal_effects_outcome_alueet %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +
@@ -194,7 +202,8 @@ marginal_effects_outcome_alueet %>%
   facet_wrap(~group) +
   coord_flip() +
   theme_light() +
-  theme(text = element_text(size = 10, family = "sans")) +
+  theme(text = element_text(size = 10, family = "sans"),
+        axis.text.y = element_text(hjust =0)) +
   labs(x = NULL,
        y = "Keskimääräinen marginaalivaikutus, %-yksikköä") +
   scale_x_discrete(labels = alueet_labels)
@@ -242,3 +251,48 @@ marginal_effects_outcome_aluetyyppi %>%
 ggsave("analyysit/Liikkuvuusvalinnat/Kuvaajat/marginal_effects_outcome_aluetyyppi_unemployed.png",
        width = 10, height = 4)
 
+############# Työpaikan ominaisuudet ##############################
+
+marginal_effects_outcome_job_unemployed <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_job_unemployed.rds")
+marginal_effects_outcome_job_employed <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_outcome_job_employed.rds")
+
+marginal_effects_outcome_job_unemployed$group <- "Työttömät"
+marginal_effects_outcome_job_employed$group <- "Työlliset"
+
+marginal_effects_outcome_job <- rbind(marginal_effects_outcome_job_unemployed,
+                                         marginal_effects_outcome_job_employed)
+
+job_labels = c("Toimipaikan henkilömäärä, ref: pieni yritys",
+               "   Keskisuuri yritys",
+               "   Suuri yritys",
+               "Toimipaikan liikevaihto, ref: - 10 000 000",
+               "   10 000 000 - 40 000 000",
+               "   40 000 000 - ",
+               "Omistajatyyppi, ref: yksityinen",
+               "   Valtio",
+               "   Kunta")[9:1]
+
+marginal_effects_outcome_job %>%
+  ggplot(aes(y = coefficient, x = var, label = coefficient)) +
+  geom_hline(yintercept = 0, linetype = 2, color = "black", size = 1) +
+  geom_segment(aes(y = 0,
+                   x = var,
+                   yend = coefficient,
+                   xend = var),
+               color = "#0ABBEC",
+               size = 3) +
+  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+  #   color = "red", size = 1.2, linetype = 2) +
+  geom_point(stat = "identity", color = "#006FB9", size = 10) +
+  geom_text(color = "white", size = 3) +
+  facet_wrap(~group) +
+  coord_flip() +
+  theme_light() +
+  theme(text = element_text(size = 10, family = "sans"),
+        axis.text.y = element_text(hjust =0)) +
+  labs(x = NULL,
+       y = "Keskimääräinen marginaalivaikutus, %-yksikköä") +
+  scale_x_discrete(labels = job_labels)
+
+ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_outcome_job_unemployed.png",
+       width = 8, height = 4)

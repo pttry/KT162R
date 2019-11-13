@@ -231,4 +231,4 @@ marginal_effects_outcome_aluetyyppi %>%
   scale_x_discrete(labels = aluetyyppi_labels)
 
 ggsave("analyysit/Liikkuvuusvalinnat/Kuvaajat/marginal_effects_outcome_aluetyyppi_unemployed.png",
-       width = 10, height = 4)
+       width = 8, height = 5)
