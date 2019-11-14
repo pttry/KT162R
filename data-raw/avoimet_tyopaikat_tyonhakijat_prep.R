@@ -54,7 +54,7 @@ dat_tyot_vakanssi_atyyppi <- data %>%
             tyottomat = sum(Tyottomat, na.rm = TRUE),
             tyovoima = sum(Tyovoima, na.rm = TRUE)) %>%
   mutate(tyottomyysaste = tyottomat / tyovoima,
-         vakanssiaste = avoimet_tyopaikat / (avoimet_tyopaikat + tyovoima + tyottomat)) %>%
+         vakanssiaste = avoimet_tyopaikat / (avoimet_tyopaikat + tyovoima - tyottomat)) %>%
   mutate(tyottomyysaste_sa = sa_series(tyottomyysaste, time),
          tyottomyysaste_trend = trend_series(tyottomyysaste, time),
          vakanssiaste_sa = sa_series(vakanssiaste, time),
