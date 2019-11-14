@@ -19,7 +19,7 @@ df <- data %>% mutate(kuukausi = paste(substring(Kuukausi, 6,7), "01", sep = "-"
                    tyottomat = sum(Tyottomat, na.rm = TRUE),
                    tyovoima = sum(Tyovoima, na.rm = TRUE)) %>%
          mutate(tyottomyysaste = tyottomat / tyovoima,
-                vakanssiaste = avoimet_tyopaikat / (avoimet_tyopaikat + tyovoima + tyottomat)) %>%
+                vakanssiaste = avoimet_tyopaikat / (avoimet_tyopaikat + tyovoima - tyottomat)) %>%
          mutate(tyottomyysaste_sa = sa_series(tyottomyysaste, time),
                 tyottomyysaste_trend = trend_series(tyottomyysaste, time),
                 vakanssiaste_sa = sa_series(vakanssiaste, time),
@@ -147,7 +147,7 @@ df %>% filter(grepl("2018", time)) %>%
   summarize(avoimet_tyopaikat_vka = mean(avoimet_tyopaikat),
             tyottomat_vka = mean(tyottomat),
             tyovoima_vka = mean(tyovoima)) %>%
-  mutate(vakanssiaste_vka = round(avoimet_tyopaikat_vka / (avoimet_tyopaikat_vka + tyovoima_vka), digits = 2),
+  mutate(vakanssiaste_vka = round(avoimet_tyopaikat_vka / (avoimet_tyopaikat_vka + tyovoima_vka - tyottomat_vka), digits = 2),
          tyottomyysaste_vka = round(tyottomat_vka / tyovoima_vka, digits = 2)) %>%
   select(aluetyyppi, vakanssiaste_vka, tyottomyysaste_vka) %>%
   mutate(aluetyyppi = aluetyyppi_labels) %>%
