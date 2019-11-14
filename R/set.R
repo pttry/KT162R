@@ -5,8 +5,8 @@ set_proj <- function(){
   knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
-    fig.width = 6,
-    fig.height = 5.2
+    fig.width = 8,
+    fig.height = 6
   )
 
   ggptt::set_ptt(15, "sans")

@@ -16,6 +16,7 @@ library(RColorBrewer)
 library(ggpubr)
 library(here)
 library(glue)
+library(statfitools)
 
 devtools::load_all()
 set_proj()
@@ -24,8 +25,13 @@ knitr::opts_chunk$set(fig.path = "Raportin_kuviot/")
 data(dat_kokonaismuutto, dat_muutto_aikasarja_km, dat_muuttotiedot_kunnittain, tyo_muutto_atyyppi, dat_tulopendelointi)
 
 muutto_ptoim1_dat <- readRDS(here("data/paa-asiallinen_toiminta_ja_muutto/muuttoaikasarjat_kokomaa_ptoim1_ulos.rds"))
+tyot_vakanssi_dat <- readRDS(here("data/avoimet_tyopaikat_tyonhakijat_atyyppi.rds"))
 
 atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
+
+aluetyyppit <- setNames(c("pk", "yo-kaup", "kaup", "tk_keskus", "kaupms", "ydinms", "ms"),
+                        c("Pääkaupunkiseutu", "Yliopistokaupungit", "Kaupungit", "Muut työssäkäyntikeskukset",
+                      "Kaupunkien läheinen maaseutu", "Ydinmaaseutu", "Harvaan asuttu maaseutu"))
   
 ```
 
@@ -304,6 +310,59 @@ dat_tulopendelointi_tyyppi %>%
 
 ```
 
+# Kohtaanto
+
+```{r tyot_aste_vakanssit}
+
+
+tyot_vakanssi_dat %>% 
+  select(time, aluetyyppi, 
+         "Työttömyysaste" =  tyottomyysaste_trend, 
+         "Vakanssiaste" = vakanssiaste_trend) %>% 
+  gather(vars, values, - time, -aluetyyppi) %>% 
+  mutate(aluetyyppi = fct_relevel(aluetyyppi, aluetyyppit),
+       aluetyyppi = fct_recode(aluetyyppi, !!!aluetyyppit)) %>% 
+  ggplot(aes(x = time, y = 100 * values, col = aluetyyppi)) +
+    facet_wrap(~ vars, scales = "free") +
+  geom_line() +
+  geom_h0() +
+  labs(y = "%, trendi",
+       x = NULL,
+       color = NULL) +
+  scale_color_manual(values = atyyppi_colour) +
+  theme(legend.position = "bottom",
+        legend.justification = "left") +
+  guides(col = guide_legend(nrow = 3))
+
+
+```
+
+```{r tyot_vakanssit}
+
+
+tyot_vakanssi_dat %>% 
+  select(time, aluetyyppi, 
+         "Työttömät" =  tyottomat_trend, 
+         "Avoimet työpaikat" = avoimet_tyopaikat_trend) %>% 
+  gather(vars, values, - time, -aluetyyppi) %>% 
+  mutate(aluetyyppi = fct_relevel(aluetyyppi, aluetyyppit),
+       aluetyyppi = fct_recode(aluetyyppi, !!!aluetyyppit),
+       vars = fct_rev(vars)) %>% 
+  ggplot(aes(x = time, y = values, col = aluetyyppi)) +
+    facet_wrap(~ vars, scales = "free") +
+  geom_line() +
+  geom_h0() +
+  labs(y = "henkeä/paikkaa, trendi",
+       x = NULL,
+       color = NULL) +
+  scale_color_manual(values = atyyppi_colour) +
+  theme(legend.position = "bottom",
+        legend.justification = "left",
+        legend.text = element_text(size = 12)) +
+  guides(col = guide_legend(nrow = 3))
+
+
+```
 
 # Liikkuvuustulemat ja liikkuvuusmuotovalinnat, työttömät
 ## Liikkuvuustulemat
