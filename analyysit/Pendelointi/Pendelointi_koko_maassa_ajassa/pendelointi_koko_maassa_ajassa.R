@@ -6,6 +6,8 @@
   library(gridExtra)
   library(RColorBrewer)
 
+  devtools::load_all()
+
   set_gg(theme_ptt(), "ptt")
   set_proj()
 
@@ -60,7 +62,7 @@
 
   ################## Pendelöinti kuntien, seutukuntien ja maakuntien välillä ##################
 
-  load("~/git_clones/KT162R/data/dat_muutto_aikasarja_km.rda")
+  # load("~/git_clones/KT162R/data/dat_muutto_aikasarja_km.rda")
 
   dat_pendelointi <- dat_muutto_aikasarja_km %>%
                      filter(tiedot %in% c("kuntien_valinen_pendelointi",
@@ -68,8 +70,24 @@
                                           "maakuntien_valinen_pendelointi",
                                           "tyolliset"))
 
-  p1 <- dat_pendelointi %>%
-        filter(tiedot != "tyolliset") %>%
+dat_pendelointi %>%
+    group_by(time) %>%
+    mutate(osuus = 100 * value / value[tiedot == "tyolliset"]) %>%
+    ungroup() %>%
+    filter(tiedot != "tyolliset") %>%
+    filter(tiedot != "kuntien_valinen_pendelointi") %>%
+    gather(vars, value, value, osuus) %>%
+    ggplot(aes(y = value, x = time, col = tiedot)) +
+    facet_wrap(vars(vars), scales = "free")+
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+    geom_line() +
+    #ggtitle("Pendelöijien määrä Suomessa 1987 - 2015") + #Kuntien välinen pendelöinti
+    ylab("Pendelöijien määrä") +
+    xlab(NULL) +
+    scale_y_continuous( labels = deci_comma)
+
+p1 <- dat_pendelointi %>%
+    filter(tiedot != "tyolliset") %>%
     group_by(tiedot) %>%
     ggplot(aes(y = value, x = time, col = tiedot)) +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
@@ -78,6 +96,7 @@
     ylab("Pendelöijien määrä") +
     xlab(NULL) +
     scale_y_continuous( labels = deci_comma)
+
 
   ggsave("analyysit/Pendelointi/Pendelointi_koko_maassa_ajassa/absoluuttinen_maara.png", p1)
 
