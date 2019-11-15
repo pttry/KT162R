@@ -179,12 +179,13 @@ marginal_effects_outcome_alueet <- rbind(marginal_effects_outcome_alueet_unemplo
                                          marginal_effects_outcome_alueet_employed)
 
 alueet_labels = c("Palkkaero",
-                  "Asuntohintaero",
-                  "Etäisyys",
                   "Työn saavutettavuusero",
-                  "Työmarkkinoiden kokoero",
                   "Työttömyysaste-ero",
-                  "Kohteen vuokra-asumisen osuus")
+                  "Työmarkkinoiden kokoero",
+                  "Kohteen vuokra-asumisen osuus",
+                  "Asuntohintaero",
+                  "Etäisyys, 10 km")
+
 
 marginal_effects_outcome_alueet %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +
