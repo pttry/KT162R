@@ -33,7 +33,39 @@ marginal_effects_selection_personal <- marginal_effects_selection %>%
 dummy_titles <- data.frame(var = c("pety",
                                    "ututku_aste",
                                    "hape"),
-                           coefficient = rep(NA, 3))
+                           coefficient = rep(NA, 3),
+                           se = rep(NA, 3))
+
+vars <- c("ika_t1_decade",
+          "sukup_t1Female",
+          "pety_t0Couple without children",
+          "pety_t0Couple with children",
+          "pety_t0Single parent",
+          "syntyp2Born abroad",
+          "opiskelija_t1Student",
+          "ututku_aste_t1Secondary education",
+          "ututku_aste_t1Tertiary education",
+          "ututku_aste_t1Doctoral or equivalent level",
+          "hape_t0Rents the dwelling",
+          "hape_t0Right of occupancy dwelling",
+          "hape_t0Other tenure status",
+          "comm_exp_t0TRUE",
+          "migr_exp_t0TRUE",
+          "spouse_working_t1TRUE")
+
+marginal_effects_selection_personal <- data.frame(var = c(vars, "ln_disp_inc_t0"),
+                                                  coefficient = c(-1.877662e-02, -1.40253e-03, 3.504731e-03,
+                                                                  2.490890e-03, -2.007966e-03, -3.602751e-03,
+                                                                  -3.184202e-03, 1.12161e-02, 3.807244e-02,
+                                                                  7.064802e-02, -5.487572e-03, -5.546047e-03,
+                                                                  3.298334e-03, 3.831141e-02, 1.788559e-2,
+                                                                  2.378705e-03, 2.049013e-02),
+                                                  se = c(6.627779e-04, 1.211526e-03, 1.930851e-03,
+                                                       1.394305e-03, 1.989112e-03, 3.314224e-03,
+                                                       1.169685e-03, 1.031573e-03, 2.153423e-03,
+                                                       9.277252e-03, 1.386705e-03, 2.618073e-03,
+                                                       3.016382e-03, 2.903143e-03, 1.562585e-03,
+                                                       1.589220e-03, 1.928470e-03))
 
 marginal_effects_selection_personal <- rbind(marginal_effects_selection_personal, dummy_titles)
 marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
@@ -49,6 +81,7 @@ marginal_effects_selection_personal$var <- factor(marginal_effects_selection_per
                                                            "pety_t0Couple with children",
                                                            "pety_t0Couple without children",
                                                            "pety",
+                                                           "ln_disp_inc_t0",
                                                            "ututku_aste_t1Doctoral or equivalent level",
                                                            "ututku_aste_t1Tertiary education",
                                                            "ututku_aste_t1Secondary education",
@@ -57,6 +90,9 @@ marginal_effects_selection_personal$var <- factor(marginal_effects_selection_per
                                                            "opiskelija_t1Student",
                                                            "ika_t1_decade",
                                                            "sukup_t1Female"))
+marginal_effects_selection_personal$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_personal$coefficient)), digits = 3)
+marginal_effects_selection_personal$se <- 100*marginal_effects_selection_personal$se
+marginal_effects_selection_personal$var <- as.factor(marginal_effects_selection_personal$var)
 saveRDS(marginal_effects_selection_personal,
         "data/liikkuvuusvalintamallitulokset/marginal_effects_selection_personal_unemployed.rds")
 
@@ -75,7 +111,18 @@ saveRDS(marginal_effects_selection_demand,
 
 marginal_effects_selection_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/unemployed/marginal_effects_selection_equation_at_unemployed.rds")
 namesmarginal_effects_selection_aluetyyppi <- c("coefficient", "var")
+
+vars <- marginal_effects_selection_aluetyyppi$var
+
+marginal_effects_selection_aluetyyppi <- data.frame(var = vars,
+                                                    coefficient = c(1.1234e-02, 3.0495e-02, -2.6491e-02, 1.7552e-02,
+                                                                    3.5075e-02, 6.2339e-03),
+                                                    se = c(6.4918e-03, 9.0640e-03, 4.0467e-03, 7.6186e-03,
+                                                           8.6280e-03, 5.7693e-03))
+
+
 marginal_effects_selection_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_selection_aluetyyppi$se <- 100*marginal_effects_selection_aluetyyppi$se
 marginal_effects_selection_aluetyyppi$var <- as.factor(marginal_effects_selection_aluetyyppi$var)
 marginal_effects_selection_aluetyyppi$var <- gdata::drop.levels(marginal_effects_selection_aluetyyppi$var)
 
@@ -178,10 +225,11 @@ namesmarginal_effects_outcome_aluetyyppi <- c("coefficient", "var")
 
 vars <- marginal_effects_outcome_aluetyyppi$var
 
+
 marginal_effects_outcome_aluetyyppi <- data.frame(var = vars,
-                                                  coefficient = c(0.02074, -0., -0.0348, 0.02044,
-                                                                  0.04300, 0.00552, 0.01078, 0.00855,
-                                                                  -0.01205, -0.00904, 0.0034, -0.1532))
+                                                  coefficient = c(-0.00370, -0.00464, -0.02753, 0.01700,
+                                                                  0.01170, 0.02139, -0.006689, -0.0203,
+                                                                  0.04291, 0.0235, -0.01506, 0.02350))
 
 
 marginal_effects_outcome_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_aluetyyppi$coefficient)), digits = 3)
@@ -257,30 +305,66 @@ marginal_effects_selection_personal <- marginal_effects_selection %>%
 dummy_titles <- data.frame(var = c("pety",
                                    "ututku_aste",
                                    "hape"),
-                           coefficient = rep(NA, 3))
+                           coefficient = rep(NA, 3),
+                           se = rep(NA, 3))
 
+vars <- c("ika_t1_decade",
+          "sukup_t1Female",
+          "pety_t0Couple without children",
+          "pety_t0Couple with children",
+          "pety_t0Single parent",
+          "syntyp2Born abroad",
+          "opiskelija_t1Student",
+          "ututku_aste_t1Secondary education",
+          "ututku_aste_t1Tertiary education",
+          "ututku_aste_t1Doctoral or equivalent level",
+          "hape_t0Rents the dwelling",
+          "hape_t0Right of occupancy dwelling",
+          "hape_t0Other tenure status",
+          "comm_exp_t0TRUE",
+          "migr_exp_t0TRUE",
+          "spouse_working_t1TRUE")
+
+marginal_effects_selection_personal <- data.frame(var = c(vars, "ln_disp_inc_t0"),
+                                                  coefficient = c(-7.789592e-03, -4.417617e-03, 1.071647e-03,
+                                                                  -1.870655e-03, -1.788252e-03, -1.477874e-03,
+                                                                  -8.188476e-03, 2.492631e-03, 1.144903e-02,
+                                                                  2.950937e-02, 5.981112e-03, -6.023947e-03,
+                                                                  4.548861e-03, 1.374653e-02, 1.202741e-02,
+                                                                  -6.793911e-03, -3.330617e-03),
+                                                  se = c(4.293237e-04, 8.204167e-04, 7.489223e-04,
+                                                         1.142525e-03, 1.598644e-03, 1.849166e-03,
+                                                         2.448991e-03, 1.337287e-03, 1.817620e-03,
+                                                         4.226891e-03, 8.617529e-04, 1.812357e-03,
+                                                         2.214230e-03, 1.895907e-03, 1.279828e-03,
+                                                         1.031760e-03, 1.003903e-03))
+marginal_effects_selection_personal$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_personal$coefficient)), digits = 3)
+marginal_effects_selection_personal$se <- 100*marginal_effects_selection_personal$se
+marginal_effects_selection_personal$var <- as.factor(marginal_effects_selection_personal$var)
 marginal_effects_selection_personal <- rbind(marginal_effects_selection_personal, dummy_titles)
 marginal_effects_selection_personal$var <- gdata::drop.levels(marginal_effects_selection_personal$var)
 marginal_effects_selection_personal$var <- factor(marginal_effects_selection_personal$var,
-                                                levels = c("comm_exp_t0TRUE",
-                                                           "migr_exp_t0TRUE",
-                                                           "hape_t0Other tenure status",
-                                                           "hape_t0Right of occupancy dwelling",
-                                                           "hape_t0Rents the dwelling",
-                                                           "hape",
-                                                           "spouse_working_t1TRUE",
-                                                           "pety_t0Single parent",
-                                                           "pety_t0Couple with children",
-                                                           "pety_t0Couple without children",
-                                                           "pety",
-                                                           "ututku_aste_t1Doctoral or equivalent level",
-                                                           "ututku_aste_t1Tertiary education",
-                                                           "ututku_aste_t1Secondary education",
-                                                           "ututku_aste",
-                                                           "syntyp2Born abroad",
-                                                           "opiskelija_t1Student",
-                                                           "ika_t1_decade",
-                                                           "sukup_t1Female"))
+                                                  levels = c("comm_exp_t0TRUE",
+                                                             "migr_exp_t0TRUE",
+                                                             "hape_t0Other tenure status",
+                                                             "hape_t0Right of occupancy dwelling",
+                                                             "hape_t0Rents the dwelling",
+                                                             "hape",
+                                                             "spouse_working_t1TRUE",
+                                                             "pety_t0Single parent",
+                                                             "pety_t0Couple with children",
+                                                             "pety_t0Couple without children",
+                                                             "pety",
+                                                             "ln_disp_inc_t0",
+                                                             "ututku_aste_t1Doctoral or equivalent level",
+                                                             "ututku_aste_t1Tertiary education",
+                                                             "ututku_aste_t1Secondary education",
+                                                             "ututku_aste",
+                                                             "syntyp2Born abroad",
+                                                             "opiskelija_t1Student",
+                                                             "ika_t1_decade",
+                                                             "sukup_t1Female"))
+
 
 
 saveRDS(marginal_effects_selection_personal,
@@ -301,7 +385,17 @@ saveRDS(marginal_effects_selection_demand,
 
 marginal_effects_selection_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/employed/marginal_effects_selection_equation_at_employed.rds")
 namesmarginal_effects_selection_aluetyyppi <- c("coefficient", "var")
+
+vars <- marginal_effects_selection_aluetyyppi$var
+
+marginal_effects_selection_aluetyyppi <- data.frame(var = vars,
+                                                    coefficient = c(0.00369556, 0.02146480, -0.01589441, 0.01577655,
+                                                                    0.01951223, 0.01004649),
+                                                    se = c(0.00317665, 0.00742544, 0.00406368, 0.00711684,
+                                                           0.00734849, 0.00567277))
+
 marginal_effects_selection_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_selection_aluetyyppi$se <- 100*marginal_effects_selection_aluetyyppi$se
 marginal_effects_selection_aluetyyppi$var <- as.factor(marginal_effects_selection_aluetyyppi$var)
 marginal_effects_selection_aluetyyppi$var <- gdata::drop.levels(marginal_effects_selection_aluetyyppi$var)
 
@@ -313,6 +407,9 @@ saveRDS(marginal_effects_selection_aluetyyppi,
 marginal_effects_outcome <- readRDS("data/nov12/liikkuvuusmalli/employed/marginal_effects_outcome_equation_employed.rds") %>%
   filter(var != "model")
 names(marginal_effects_outcome) <- c("coefficient", "var")
+
+
+
 marginal_effects_outcome$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome$coefficient)), digits = 3)
 marginal_effects_outcome$var <- as.factor(marginal_effects_outcome$var)
 
@@ -343,6 +440,37 @@ dummy_titles <- data.frame(var = c("pety",
                                    "ututku_aste",
                                    "hape"),
                            coefficient = rep(NA, 3))
+
+"sukup_t1Female",
+"pety_t0Couple without children",
+"pety_t0Couple with children",
+"pety_t0Single parent",
+"syntyp2Born abroad",
+"opiskelija_t1Student",
+"ututku_aste_t1Secondary education",
+"ututku_aste_t1Tertiary education",
+"ututku_aste_t1Doctoral or equivalent level",
+"hape_t0Rents the dwelling",
+"hape_t0Right of occupancy dwelling",
+"hape_t0Other tenure status",
+"comm_exp_t0TRUE",
+"migr_exp_t0TRUE",
+"spouse_working_t1TRUE")
+
+marginal_effects_selection_personal <- data.frame(var = c(vars, "ln_disp_inc_t0"),
+                                                  coefficient = c(-1.877662e-02, -1.40253e-03, 3.504731e-03,
+                                                                  2.490890e-03, -2.007966e-03, -3.602751e-03,
+                                                                  -3.184202e-03, 1.12161e-02, 3.807244e-02,
+                                                                  7.064802e-02, -5.487572e-03, -5.546047e-03,
+                                                                  3.298334e-03, 3.831141e-02, 1.788559e-2,
+                                                                  2.378705e-03, 2.049013e-02),
+                                                  se = c(6.627779e-04, 1.211526e-03, 1.930851e-03,
+                                                         1.394305e-03, 1.989112e-03, 3.314224e-03,
+                                                         1.169685e-03, 1.031573e-03, 2.153423e-03,
+                                                         9.277252e-03, 1.386705e-03, 2.618073e-03,
+                                                         3.016382e-03, 2.903143e-03, 1.562585e-03,
+                                                         1.589220e-03, 1.928470e-03))
+
 
 marginal_effects_outcome_personal <- rbind(marginal_effects_outcome_personal, dummy_titles)
 marginal_effects_outcome_personal$var <- gdata::drop.levels(marginal_effects_outcome_personal$var)
@@ -405,9 +533,9 @@ namesmarginal_effects_outcome_aluetyyppi <- c("coefficient", "var")
 vars <- marginal_effects_outcome_aluetyyppi$var
 
 marginal_effects_outcome_aluetyyppi <- data.frame(var = vars,
-                                                  coefficient = c(-0.03524, -0.03265, 0.0175, 0.02169,
-                                                                  -0.01342, 0.06688, -0.0203, -0.0218,
-                                                                  0.04258, 0.0181, -0.0256, 0.02661))
+                                                  coefficient = c(-0.01657, -0.02403, 0.01780,-0.01173,
+                                                                  -0.02577, -0.003077, -0.00667, -0.005264,
+                                                                  0.007137, 0.00538, -0.002124, 0.00902))
 
 marginal_effects_outcome_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_aluetyyppi$coefficient)), digits = 3)
 marginal_effects_outcome_aluetyyppi$var <- as.factor(marginal_effects_outcome_aluetyyppi$var)
