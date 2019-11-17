@@ -26,7 +26,11 @@ personal_labels = c("Nainen ***/***",
                     "   Keskiasteen koulutus */***",
                     "   Korkea-asteen koulutus ***/***",
                     "   Tutkija-asteen koulutus ***/***",
+<<<<<<< HEAD
                     "Käytettävissä olevat tulot ***/***",
+=======
+                    "Käyettävissä olevat tulot ******",
+>>>>>>> 9c7598de7c4f4886a48d2bcd3b7c7fa948f83cc4
                     "Perhetyyppi, ref: asuu yksin",
                     "   Pari, ei lapsia /**",
                     "   Pari, lapsia */*",
@@ -39,6 +43,7 @@ personal_labels = c("Nainen ***/***",
                     "Muuttokokemus ***/***",
                     "Pendelöintikokemus ***/***")[20:1]
 
+# ***p<0.01, **p<0.05, *p<0.1
 
 marginal_effects_selection_personal %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +
@@ -49,8 +54,9 @@ marginal_effects_selection_personal %>%
                    xend = var),
                color = "#0ABBEC",
                size = 3) +
-  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
-  #   color = "red", size = 1.2, linetype = 2) +
+  #geom_errorbar(aes(x = var, ymin = coefficient - 2*marginal_effects_selection_personal$se,
+  #                           ymax = coefficient + 2*marginal_effects_selection_personal$se),
+     color = "red", size = 1.2, linetype = 2) +
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
   facet_wrap(~group) +
@@ -67,12 +73,12 @@ ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/henkilökohtaiset_muuttujat_select
 
 ######## Aluetyyppi
 
-aluetyyppi_labels = c("Kaupunkien läheinen maaseutu",
-                      "Harvaan asuttu maaseutu",
-                      "Pääkaupunkiseutu",
-                      "Työssäkäyntikeskus",
-                      "Ydinmaaseutu",
-                      "Yliopistokaupunki")
+aluetyyppi_labels = c("Kaupunkien läheinen maaseutu",       # /*
+                      "Harvaan asuttu maaseutu",            # ***/***
+                      "Pääkaupunkiseutu",                   # ***/***
+                      "Työssäkäyntikeskus",                 # **/**
+                      "Ydinmaaseutu",                       # ***/***
+                      "Yliopistokaupunki")                  # */
 
 marginal_effects_selection_aluetyyppi_unemployed <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyyppi_unemployed.rds")
 marginal_effects_selection_aluetyyppi_employed <- readRDS("data/liikkuvuusvalintamallitulokset/marginal_effects_selection_aluetyyppi_employed.rds")
@@ -94,7 +100,11 @@ marginal_effects_selection_aluetyyppi %>%
                size = 3) +
   geom_errorbar(aes(x = var, ymin = coefficient - 2*marginal_effects_selection_aluetyyppi$se,
                              ymax = coefficient + 2*marginal_effects_selection_aluetyyppi$se),
+<<<<<<< HEAD
      color = "red", size = 0.7, linetype = 1, width = 0.3) +
+=======
+     color = "red", size = 0.7, linetype = 1) +
+>>>>>>> 9c7598de7c4f4886a48d2bcd3b7c7fa948f83cc4
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
   coord_flip() +
@@ -103,7 +113,7 @@ marginal_effects_selection_aluetyyppi %>%
   theme(text = element_text(size = 10, family = "sans"),
         axis.text.y = element_text(hjust = 0)) +
   labs(x = NULL,
-       y = "Keskimääräinen marginaalivaikutus verrattuna muihin kaupunkeihin, %-yksikköä") +
+       y = "Keskimääräinen marginaalivaikutus verrattuna aluetyyppiin muut kaupungit, %-yksikköä") +
   scale_x_discrete(labels = aluetyyppi_labels)
 
 ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_selection_aluetyyppi.png",

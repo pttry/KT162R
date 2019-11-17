@@ -54,7 +54,7 @@ data %>%
                    xend = var),
                color = "#0ABBEC",
                size = 3) +
-  geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+  geom_errorbar(aes(x = var, ymin = coefficient - 200*data$se, ymax = coefficient + 200*data$se),
                 color = "red", size = 1.2, linetype = 2) +
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
