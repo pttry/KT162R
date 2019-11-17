@@ -18,25 +18,26 @@ marginal_effects_selection_personal_employed$group <- "Työlliset"
 marginal_effects_selection_personal <- rbind(marginal_effects_selection_personal_unemployed,
                                              marginal_effects_selection_personal_employed)
 
-personal_labels = c("Nainen",
-                    "Ikä, kymmeniä vuosia",
-                    "Opiskelija",
-                    "Syntynyt ulkomailla",
+personal_labels = c("Nainen ***/***",
+                    "Ikä, kymmeniä vuosia ***/***",
+                    "Opiskelija ***/***",
+                    "Syntynyt ulkomailla /***",
                     "Koulutusaste, ref: perusaste",
-                    "   Keskiasteen koulutus",
-                    "   Korkea-asteen koulutus",
-                    "   Tutkija-asteen koulutus",
+                    "   Keskiasteen koulutus */***",
+                    "   Korkea-asteen koulutus ***/***",
+                    "   Tutkija-asteen koulutus ***/***",
+                    "Käytettävissä olevat tulot ***/***",
                     "Perhetyyppi, ref: asuu yksin",
-                    "   Pari, ei lapsia",
-                    "   Pari, lapsia",
-                    "   Yksinhuoltaja",
-                    "Puoliso töissä",
+                    "   Pari, ei lapsia /**",
+                    "   Pari, lapsia */*",
+                    "   Yksinhuoltaja /",
+                    "Puoliso töissä ***/*",
                     "Hallintaperuste, ref: omistusasunto",
-                    "   Asuu vuokralla",
-                    "   Asumisoikeusasunto",
-                    "   Muu asumismuoto",
-                    "Muuttokokemus",
-                    "Pendelöintikokemus")[19:1]
+                    "   Asuu vuokralla ***/***",
+                    "   Asumisoikeusasunto */",
+                    "   Muu asumismuoto /",
+                    "Muuttokokemus ***/***",
+                    "Pendelöintikokemus ***/***")[20:1]
 
 
 marginal_effects_selection_personal %>%
@@ -91,8 +92,9 @@ marginal_effects_selection_aluetyyppi %>%
                    xend = var),
                color = "#0ABBEC",
                size = 3) +
-  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
-  #   color = "red", size = 1.2, linetype = 2) +
+  geom_errorbar(aes(x = var, ymin = coefficient - 2*marginal_effects_selection_aluetyyppi$se,
+                             ymax = coefficient + 2*marginal_effects_selection_aluetyyppi$se),
+     color = "red", size = 0.7, linetype = 1, width = 0.3) +
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
   coord_flip() +
@@ -120,27 +122,26 @@ marginal_effects_outcome_personal_employed$group <- "Työlliset"
 marginal_effects_outcome_personal <- rbind(marginal_effects_outcome_personal_unemployed,
                                              marginal_effects_outcome_personal_employed)
 
-
-
-personal_labels = c("Nainen",
-                    "Ikä, kymmeniä vuosia",
-                    "Opiskelija",
-                    "Syntynyt ulkomailla",
+personal_labels = c("Nainen ***/***",
+                    "Ikä, kymmeniä vuosia ***/***",
+                    "Opiskelija ***/**",
+                    "Syntynyt ulkomailla /",
                     "Koulutusaste, ref: perusaste",
-                    "   Keskiasteen koulutus",
-                    "   Korkea-asteen koulutus",
-                    "   Tutkija-asteen koulutus",
+                    "   Keskiasteen koulutus /",
+                    "   Korkea-asteen koulutus ***/***",
+                    "   Tutkija-asteen koulutus /*",
+                    "Käytettävissä olevat tulot /***",
                     "Perhetyyppi, ref: asuu yksin",
-                    "   Pari, ei lapsia",
-                    "   Pari, lapsia",
-                    "   Yksinhuoltaja",
-                    "Puoliso töissä",
+                    "   Pari, ei lapsia /*",
+                    "   Pari, lapsia /",
+                    "   Yksinhuoltaja /",
+                    "Puoliso töissä ***/***",
                     "Hallintaperuste, ref: omistusasunto",
-                    "   Asuu vuokralla",
-                    "   Asumisoikeusasunto",
-                    "   Muu asumismuoto",
-                    "Muuttokokemus",
-                    "Pendelöintikokemus")[19:1]
+                    "   Asuu vuokralla ***/",
+                    "   Asumisoikeusasunto **/",
+                    "   Muu asumismuoto */",
+                    "Muuttokokemus ***/***",
+                    "Pendelöintikokemus /")[20:1]
 
 
 marginal_effects_outcome_personal %>%
@@ -196,12 +197,13 @@ marginal_effects_outcome_alueet %>%
                    xend = var),
                color = "#0ABBEC",
                size = 3) +
-  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
-  #   color = "red", size = 1.2, linetype = 2) +
+  geom_errorbar(aes(x = var, ymin = coefficient - 2*marginal_effects_outcome_alueet$se,
+                             ymax = coefficient + 2*marginal_effects_outcome_alueet$se),
+     color = "red", size = 0.7, linetype = 1, width = 0.6) +
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
   facet_wrap(~group) +
-  coord_flip() +
+  coord_flip(ylim = c(-1,1)) +
   theme_light() +
   theme(text = element_text(size = 10, family = "sans"),
         axis.text.y = element_text(hjust =0)) +
@@ -209,8 +211,9 @@ marginal_effects_outcome_alueet %>%
        y = "Keskimääräinen marginaalivaikutus, %-yksikköä") +
   scale_x_discrete(labels = alueet_labels)
 
+
 ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/marginal_effects_outcome_alueet_unemployed.png",
-       width = 6, height = 3)
+       width = 8, height = 4)
 
 
 ############ Aluetyyppi
@@ -226,7 +229,12 @@ marginal_effects_outcome_aluetyyppi_employed$group <- "Työlliset"
 
 marginal_effects_outcome_aluetyyppi <- rbind(marginal_effects_outcome_aluetyyppi_unemployed,
                                              marginal_effects_outcome_aluetyyppi_employed)
-
+aluetyyppi_labels = c("Kaupunkien läheinen maaseutu",
+                      "Harvaan asuttu maaseutu",
+                      "Pääkaupunkiseutu",
+                      "Työssäkäyntikeskus",
+                      "Ydinmaaseutu",
+                      "Yliopistokaupunki")
 marginal_effects_outcome_aluetyyppi$var <- rep(aluetyyppi_labels, 4)
 
 marginal_effects_outcome_aluetyyppi %>%
@@ -238,19 +246,20 @@ marginal_effects_outcome_aluetyyppi %>%
                    xend = var),
                color = "#0ABBEC",
                size = 3) +
-  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
-  #   color = "red", size = 1.2, linetype = 2) +
+  geom_errorbar(aes(x = var, ymin = coefficient - 2*marginal_effects_outcome_aluetyyppi$se,
+                             ymax = coefficient + 2*marginal_effects_outcome_aluetyyppi$se),
+     color = "red", size = 0.7, width = 0.3, linetype = 1) +
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
   coord_flip() +
   facet_grid(lahde_kohde~group) +
   theme_light() +
   labs(x = NULL,
-       y = "Kontrolloitu ero muihin kaupunkeihin, %-yksikköä") +
+       y = "Kontrolloitu ero aluetyyppiin kaupungit, %-yksikköä") +
   scale_x_discrete(labels = aluetyyppi_labels)
 
 ggsave("analyysit/Liikkuvuusvalinnat/Kuvaajat/marginal_effects_outcome_aluetyyppi_unemployed.png",
-       width = 10, height = 4)
+       width = 10, height = 6)
 
 ############# Työpaikan ominaisuudet ##############################
 

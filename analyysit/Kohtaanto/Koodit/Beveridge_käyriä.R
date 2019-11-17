@@ -505,7 +505,7 @@ balance <- pendelointi_kunnittain %>%
 
 data <- left_join(data, balance, by = "Knro")
 
-levels(data$commuting_balance_discrete) <- c("Low", "Medium", "High")
+levels(data$commuting_balance_discrete) <- c("Matala", "Keskiverto", "Korkea")
 
 data_balance <- data %>% group_by(Kuukausi, commuting_balance_discrete) %>%
   summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
@@ -526,13 +526,28 @@ data_balance <- data %>% group_by(Kuukausi, commuting_balance_discrete) %>%
          avoimet_tyopaikat_sa = sa_series(Avoimet_tyopaikat, time),
          avoimet_tyopaikat_trend = trend_series(Avoimet_tyopaikat, time))
 
-p1 <- data_balance %>% ggplot(aes(x = tyottomyysaste_sa, y = vakanssiaste_sa)) +
-  geom_point(size = 1) +
-  geom_path(size = 1) +
+data_balance <- data_balance %>%
+  mutate(vuosi_label = ifelse(grepl("M01", Kuukausi), vuosi, ""),
+         vuosi_label2 = ifelse(grepl("2006M01", Kuukausi) | grepl("2019M01", Kuukausi), vuosi, ""))
+
+p1 <- data_balance %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend, label = vuosi_label2)) +
+  geom_point(size = 1, color = ggptt_palettes$vnk[2]) +
+  geom_path(size = 1, color = ggptt_palettes$vnk[1]) +
+  geom_text(color = "black") +
   facet_wrap(~commuting_balance_discrete) +
-  labs(y = "Vacancy rate",
-       x = "Unemployment rate",
-       title = "Commuting balance")
+  labs(y = "Vakanssiaste",
+       x = "Työttömyysaste",
+       title = "Pendelöintitasapaino") +
+  theme(legend.position = "bottom",
+        legend.justification = "left",
+        legend.text = element_text(size = 15),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12),
+        plot.title = element_text(hjust = 0.5, size = 15)) +
+  scale_y_continuous(labels = percent_comma) +
+  scale_x_continuous(labels = percent_comma)
+
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/commuting_balance_beveridge.png", width = 8, height = 3.5)
 
 levels(data$Kuntaryhma) <- c("Rural municipalities", "Semi-urban municipalities", "Urban municipalities")
 
@@ -569,3 +584,113 @@ ggsave("C:/Users/juhoa/Google Drive/Labor market search, report/beverigde_curves
 
 stargazer(aluetyypit, type = "text", summary = FALSE,
           out = "aluetyypit.html")
+
+############################################################
+# Pehkonen et al. 2018 replica w. rakennemuutosseutukunnast
+
+suuret_seutukunnat <- c("Helsinki", "Tampere", "Turku", "Oulu", "Jyväskylä", "Kuopio", "Seinäjoki")
+rakennemuutos_seutukunnat <- c("Kouvola", "Kokkola", "Salo", "Forssa", "Jakobstadsregionen", "Imatra", "Kotka-Hamina", "Etelä-Pirkanmaa")
+
+data <- data %>% mutate(stkluokka = ifelse(Seutukunta %in% suuret_seutukunnat,
+                                           "suuret_seutukunnat",
+                                           ifelse(Seutukunta %in% rakennemuutos_seutukunnat, "rakennemuutosseutukunnat", "muut_seutukunnat")))
+
+data_stkluokat <- data %>% group_by(Kuukausi, stkluokka) %>%
+  summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
+            Tyovoima = sum(Tyovoima, na.rm = TRUE),
+            Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
+  mutate(tyottomyysaste = Tyottomat / Tyovoima,
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
+  mutate(kuukausi = paste(substring(Kuukausi, 6,7), "01", sep = "-"),
+         vuosi = substring(Kuukausi, 1,4),
+         time = as.Date(paste(vuosi, kuukausi, sep = "-"))) %>%
+  group_by(stkluokka) %>%
+  mutate(tyottomyysaste_sa = sa_series(tyottomyysaste, time),
+         tyottomyysaste_trend = trend_series(tyottomyysaste, time),
+         vakanssiaste_sa = sa_series(vakanssiaste, time),
+         vakanssiaste_trend = trend_series(vakanssiaste, time),
+         tyottomat_sa = sa_series(Tyottomat, time),
+         tyottomat_trend = trend_series(Tyottomat, time),
+         avoimet_tyopaikat_sa = sa_series(Avoimet_tyopaikat, time),
+         avoimet_tyopaikat_trend = trend_series(Avoimet_tyopaikat, time))
+
+data_stkluokat <- data_stkluokat %>%
+  mutate(vuosi_label = ifelse(grepl("M01", Kuukausi), vuosi, ""),
+         vuosi_label2 = ifelse(grepl("2006M01", Kuukausi) | grepl("2019M01", Kuukausi), vuosi, ""))
+
+p1 <- data_stkluokat %>%  ggplot(aes(x = tyottomat_trend, y = avoimet_tyopaikat_trend,
+                                     color = stkluokka, label = vuosi_label2)) +
+  geom_point(size = 1) +
+  geom_path(size = 1) +
+  geom_text(color = "black") +
+  labs(y = "Avoimet tyopaikat",
+       x = "Tyottomat",
+       color = NULL) +
+  theme(legend.position = "bottom",
+        legend.justification = "left",
+        legend.text = element_text(size = 15),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12)) +
+  scale_color_manual(labels = c("Muut seutukunnat",
+                                "Suuret seutukunnat",
+                                "Rakennemuutoksen seutukunnat"),
+                     values = brewer.pal(4, "Blues")[2:4])
+
+p2 <- data_stkluokat %>%  ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend,
+                                     color = stkluokka, label = vuosi_label)) +
+  geom_point(size = 1) +
+  geom_path(size = 1) +
+  geom_text(color = "black") +
+  labs(y = "Vakanssiaste",
+       x = "Työttömyys",
+       color = NULL) +
+  theme(legend.position = "bottom",
+        legend.justification = "left",
+        legend.text = element_text(size = 15),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12)) +
+  scale_color_manual(labels = c("Muut seutukunnat",
+                                "Rakennemuutoksen seutukunnat",
+                                "Suuret seutukunnat" ),
+                     values = ggptt_palettes$ptt[1:3])
+  scale_y_continuous(labels = percent_comma) +
+  scale_x_continuous(labels = percent_comma)
+
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/suuret_pienet_rakennemuutos_seutukunnat.png")
+
+p <- ggarrange(p1, p2, ncol = 2, common.legend = TRUE, legend = "bottom")
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/suuret_pienet_rakennemuutos_seutukunnat.png", plot = p,
+       width = 12,
+       height = 6)
+
+
+# Vuosikeskiarvot
+
+data_stkluokat2 <- data %>% group_by(Kuukausi, stkluokka) %>%
+  summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
+            Tyovoima = sum(Tyovoima, na.rm = TRUE),
+            Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
+  mutate(tyottomyysaste = Tyottomat / Tyovoima,
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
+  mutate(vuosi = substring(Kuukausi, 1,4)) %>%
+  group_by(vuosi, stkluokka) %>%
+  summarize(tyottomyysaste = mean(tyottomyysaste, na.rm = TRUE),
+            Tyovoima = mean(Tyovoima, na.rm = TRUE),
+            Tyottomat = mean(Tyottomat, na.rm = TRUE),
+            Avoimet_tyopaikat = mean(Avoimet_tyopaikat, na.rm = TRUE),
+            vakanssiaste = mean(vakanssiaste, na.rm = TRUE))%>%
+  filter(vuosi < 2019)
+
+
+data_stkluokat2 %>% ggplot(aes(x = tyottomyysaste, y = vakanssiaste,
+                               col = stkluokka, label = vuosi)) +
+  geom_point(size = 1) +
+  geom_path(size = 1) +
+  geom_text() +
+  labs(y = "Vakanssiaste",
+       x = "Tyottomyysaste",
+       caption = "Lähde: Tilastokeskus, Työnvälitystilasto (TEM), PTT") +
+  scale_y_continuous(labels = percent_comma) +
+  scale_x_continuous(labels = percent_comma)
+
+############################################################################################################

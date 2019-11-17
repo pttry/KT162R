@@ -29,7 +29,8 @@ map <- sf::st_read(httr::build_url(url2))
 muuttotapahtuma_map <- left_join(map, map_data, by = "kunta")  %>%
   ggplot(aes(fill = muuttotapahtumaaste)) +
   geom_sf() +
-  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
+  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1],
+                      guide = guide_colorbar(barwidth = 10)) +
   theme_light() +
   theme(
     legend.position = "top",
@@ -72,14 +73,16 @@ data <- readRDS("data/asuinalueellaansyntyneidenosuus2018.rds")
 
 
 asuinalueellasyntyneet_map <- left_join(map, data, by = "kunta")  %>%
-  ggplot(aes(fill = Asuinalueellaan_syntyneiden_osuus)) +
+  ggplot(aes(fill = Asuinalueellaan_syntyneiden_osuus/100)) +
   geom_sf() +
-  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
+  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1],
+                      labels = percent_comma,
+                      guide = guide_colorbar(barwidth = 10)) +
   theme_light() +
   theme(
     legend.position = "top",
     legend.justification = "left") +
-  labs(fill = "Asuinalueellaan syntyneiden osuus")
+  labs(fill = "Asuinalueellaan \n syntyneiden osuus")
 
 ggsave("analyysit/Muutto/muuttovilkkauskartat/asuinalueellasyntyneet_map.png")
 

@@ -72,24 +72,30 @@ map_data <- filter(data, vuosi == 2018) %>%
 vakanssiaste_map <- left_join(map, map_data, by = "kunta")  %>%
   ggplot(aes(fill = vakanssiaste)) +
   geom_sf() +
-  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
+  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1],
+                      labels = percent_comma,
+                      guide = guide_colorbar(barwidth = 10),
+                      breaks = c(0.02,0.04,0.06)) +
   theme_light() +
   theme(
     legend.position = "top",
-    legend.justification = "left",
-    legend.text = element_blank()) +
+    legend.justification = "left") +
   labs(fill = "Vakanssiaste")
 
 tyottomyysaste_map <- left_join(map, map_data, by = "kunta")  %>%
   ggplot(aes(fill = tyottomyysaste)) +
   geom_sf() +
-  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1]) +
+  scale_fill_gradient(low = "white", high = ggptt_palettes$vnk[1],
+                      labels = percent_comma,
+                      guide = guide_colorbar(barwidth = 10),
+                      breaks = c(0.05,0.10,0.15)) +
   theme_light() +
   theme(
     legend.position = "top",
-    legend.justification = "left",
-    legend.text = element_blank()) +
-  labs(fill = "Tyottomyysaste")
+    legend.justification = "left") +
+  labs(fill = "Työttömyysaste")
+
+kartat <- grid.arrange(vakanssiaste_map,  tyottomyysaste_map, nrow = 1)
 
 kireys_map <- left_join(map, map_data, by = "kunta")  %>%
   mutate(kireys2 = ifelse(kireys == 0, 0.01, kireys)) %>%
@@ -103,7 +109,7 @@ kireys_map <- left_join(map, map_data, by = "kunta")  %>%
     legend.text = element_blank()) +
   labs(fill = "Kireys")
 
-kartat <- grid.arrange(vakanssiaste_map,  tyottomyysaste_map, kireys_map, nrow = 1)
+kartat <- grid.arrange(vakanssiaste_map,  tyottomyysaste_map, nrow = 1)
 
 ggsave("analyysit/Kohtaanto/Kuviot/Kartat/vakanssi_aste_tyottomyys_2018_kuukausika.png", plot = kartat)
 

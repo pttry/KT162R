@@ -125,55 +125,113 @@ data <- readRDS("data/oct2/coefficient_plot_data_salaried_ols_ln.rds") %>%
   mutate(coefficient = 100*round(coefficient, digits = 3),
          se = 100*se)
 
-data$var <- gdata::drop.levels(data$var)
-data$var <- factor(data$var,
-levels = c("auto_k0",
+
+data_salaried <- data.frame(var = c("sukupNainen",
+                           "ika",
+                           "syntyp2Syntynyt ulkomailla",
+                           "ututku_asteToinen aste",
+                           "ututku_asteKorkea-aste",
+                           "ututku_asteTutkijakoulutusaste",
+                           "migr_exp",
+                           "petyPari, ei lapsia",
+                           "petyPari, lapsia",
+                           "petyYksinhuoltaja",
+                           "hapeVuokralainen",
+                           "hapeAsumisoikeusasunnot",
+                           "hapeMuu hallintaperuste",
+                           "tatyRivi- tai ketjutalo",
+                           "tatyAsuinkerrostalo",
+                           "tatyMuu rakennus",
+                           "spouse_working",
+                           "tyosuhteen_kesto_kk",
+                           "oty1Valtio",
+                           "oty1Kunta"),
+                   coefficient = c(-0.128,
+                                   0.015,
+                                   -0.023,
+                                   0.049,
+                                   0.058,
+                                   -0.023,
+                                   0.378,
+                                   0.077,
+                                   0.058,
+                                   0.047,
+                                   -0.116,
+                                   0.065,
+                                   -0.045,
+                                   -0.270,
+                                   -0.507,
+                                   -0.449,
+                                   -0.023,
+                                   -0.001,
+                                   -0.080,
+                                   -0.197))
+
+dummy_titles = data.frame(var = c("ututku_aste",
+                                  "pety",
+                                  "hape",
+                                  "taty",
+                                  "oty1"),
+                          coefficient = rep(NA, 5))
+
+data_salaried <- rbind(data_salaried, dummy_titles)
+
+data_salaried$var <- gdata::drop.levels(data_salaried$var)
+data_salaried$var <- factor(data_salaried$var,
+levels = c("tyosuhteen_kesto",
            "oty1Valtio",
            "oty1Kunta",
+           "oty1",
            "comm_expTRUE",
            "migr_expTRUE",
-           "tyosuhteen_kesto",
-           "taajama_k21",
+           "tatyMuu rakennus",
+           "tatyAsuinkerrostalo",
+           "tatyRivi- tai ketjutalo",
+           "taty",
            "hapeMuu hallintaperuste",
            "hapeAsumisoikeusasunnot",
            "hapeVuokralainen",
+           "hape",
+           "spouse_workingTRUE",
            "petyYksinhuoltaja",
            "petyYksin asuvat",
            "petyPari, lapsia",
-           "spouse_workingTRUE",
+           "pety",
            "kturaha_k",
            "ututku_asteTutkijakoulutusaste",
            "ututku_asteKorkea-aste",
            "ututku_asteToinen aste",
+           "ututku_aste",
            "syntyp2Syntynyt ulkomailla",
            "opiskelijaOpiskelija",
            "ika",
            "sukupNainen"))
 
-personal_labels <- c("Nainen (referenssi: mies)",
-                     "Ikä, vuosia",
-                     "Opiskelija",
-                     "Syntynyt ulkomailla (referenssi: syntynyt Suomessa)",
-                     "Toinen aste (referenssi: perusaste)",
-                     "Korkea-aste (referenssi: perusaste)",
-                     "Tutkijakoulutusaste (referenssi: perusaste)",
-                     "Käytettävissä olevat tulot",
-                     "Puoliso töissä",
-                     "Pari, lapsia (referenssi: pari, ei lapsia)",
-                     "Yksin asuvat (referenssi: pari, ei lapsia)",
-                     "Yksinhuoltaja (referenssi: pari, ei lapsia)",
-                     "Vuokralainen (referenssi: omistusasuja)",
-                     "Asumisoikeusasunto (referenssi: omistusasuja)",
-                     "Muu hallintaperuste (referenssi: omistusasuja)",
-                     "Asuinpaikka taajamassa",
-                     "Työsuhteen kesto, päiviä",
-                     "Muuttamiskokemus",
-                     "Pendelöintikokemus",
-                     "Kunta (referenssi: yksityinen)",
-                     "Valtio (referenssi: yksityinen)",
-                     "Auto käytössä")[22:1]
+#all significant
 
+personal_labels <- c("Nainen ***/",
+                     "Ikä, vuosia ***/",
+                     "Syntynyt ulkomailla ***/",
+                     "Koulutusaste, ref: perusaste",
+                     "   Toinen aste ***/",
+                     "   Korkea-aste ***/",
+                     "   Tutkijakoulutusaste ***/",
+                     "Perhetyyppi, ref: asuu yksin",
+                     "   Pari, lapsia ***/",
+                     "   Yksin asuvat ***/",
+                     "   Yksinhuoltaja ***/",
+                     "Puoliso töissä ***/",
+                     "Hallintaperuste, ref: Omistusasuja",
+                     "   Vuokralainen ***/",
+                     "   Asumisoikeusasunto ***/",
+                     "   Muu hallintaperuste ***/",
+                     "Muuttanut ***/",
+                     "Työnantajan omistajatyyppi: ref: yksityinen",
+                     "   Kunta ***/",
+                     "   Valtio ***/",
+                     "Työsuhteen kesto, kuukausia")[21:1]
 
+data_salaried$group <- "Palkansaajat"
 
 data %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +
@@ -191,7 +249,8 @@ data %>%
                 color = "red", size = 1.2, linetype = 2)+
   coord_flip() +
   theme_light() +
-  theme(text = element_text(size = 10, family = "sans")) +
+  theme(text = element_text(size = 10, family = "sans"),
+        axis.text.y = element_text(hjust = 0)) +
   labs(x = NULL,
        y = "Marginaalivaikutus, %") +
   scale_x_discrete(labels = personal_labels)# deci_comma

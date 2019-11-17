@@ -74,8 +74,27 @@ saveRDS(marginal_effects_selection_demand,
 # Aluetyyppi
 
 marginal_effects_selection_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/unemployed/marginal_effects_selection_equation_at_unemployed.rds")
-namesmarginal_effects_selection_aluetyyppi <- c("coefficient", "var")
+names(marginal_effects_selection_aluetyyppi) <- c("coefficient", "var")
+
+vars <- marginal_effects_selection_aluetyyppi$var
+
+marginal_effects_selection_aluetyyppi <- data.frame(var = vars,
+                                                    coefficient = c(1.1243e-02, 3.0495e-02,
+                                                                    -2.6491e-02, 1.7552e-02,
+                                                                    3.5075e-02, 6.2339e-03),
+                                                    se = c(6.4918e-03, 9.0640e-03, 4.0467e-03,
+                                                           7.6186e-03, 8.6280e-03, 5.7693e-03))
+
+# labor demand controlled
+marginal_effects_selection_aluetyyppi <- data.frame(var = vars,
+                                                    coefficient = c(1.4686e-02, 5.0140e-02,
+                                                                    -9.0932e-02, 2.7875e-02,
+                                                                    4.2716e-02, 2.5024e-02),
+                                                    se = c(6.3541e-03, 8.0784e-03, 6.0275e-03,
+                                                           6.8487e-03, 7.0194e-03, 3.6271e-03))
+
 marginal_effects_selection_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_selection_aluetyyppi$se <- 100*marginal_effects_selection_aluetyyppi$se
 marginal_effects_selection_aluetyyppi$var <- as.factor(marginal_effects_selection_aluetyyppi$var)
 marginal_effects_selection_aluetyyppi$var <- gdata::drop.levels(marginal_effects_selection_aluetyyppi$var)
 
@@ -114,8 +133,25 @@ dummy_titles <- data.frame(var = c("pety",
                                    "hape"),
                            coefficient = rep(NA, 3))
 
+vars <- c("ika_decade_t1", "sukup_t1Female", "pety_t0Couple without children",
+          "pety_t0Couple with children", "pety_t0Single parent", "hape_t0Rents the dwelling",
+          "hape_t0Right of occupancy dwelling", "hape_t0Other tenure status", "syntyp2Born abroad",
+          "opiskelija_t1Student", "ututku_aste_t1Secondary education", "ututku_aste_t1Tertiary education",
+          "ututku_aste_t1Doctoral or equivalent level", "comm_exp_t0TRUE", "migr_exp_t0TRUE",
+          "spouse_working_t1TRUE", "ln_disp_inc_t0")
+
+marginal_effects_outcome_personal <- data.frame(var = vars,
+                                                coefficient = c(-4.741109e-02, 3.943048e-02, 1.603586e-02,
+                                                                -1.243194e-03, -2.003363e-03, 7.270708e-02,
+                                                                6.777052e-02, 1.653111e-03, 1.103401e-02,
+                                                                -4.706316e-02, 3.738514e-03, 3.894036e-02,
+                                                                6.167791e-02, -1.66941e-02, 9.698819e-02,
+                                                                -6.77333e-02, -2.707670e-02))
+
 marginal_effects_outcome_personal <- rbind(marginal_effects_outcome_personal, dummy_titles)
 marginal_effects_outcome_personal$var <- gdata::drop.levels(marginal_effects_outcome_personal$var)
+marginal_effects_outcome_personal$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_personal$coefficient)), digits = 3)
+
 marginal_effects_outcome_personal$var <- factor(marginal_effects_outcome_personal$var,
                                                 levels = c("comm_exp_t0TRUE",
                                                            "migr_exp_t0TRUE",
@@ -128,13 +164,14 @@ marginal_effects_outcome_personal$var <- factor(marginal_effects_outcome_persona
                                                            "pety_t0Couple with children",
                                                            "pety_t0Couple without children",
                                                            "pety",
+                                                           "ln_disp_inc_t0",
                                                            "ututku_aste_t1Doctoral or equivalent level",
                                                            "ututku_aste_t1Tertiary education",
                                                            "ututku_aste_t1Secondary education",
                                                            "ututku_aste",
                                                            "syntyp2Born abroad",
                                                            "opiskelija_t1Student",
-                                                           "ika_t1_decade",
+                                                           "ika_decade_t1",
                                                            "sukup_t1Female"))
 
 
@@ -153,11 +190,18 @@ marginal_effects_outcome_regions <- marginal_effects_outcome %>%
                     "vuokra_osuus_destin_t1"))
 marginal_effects_outcome_regions$var <- gdata::drop.levels(marginal_effects_outcome_alueet$var)
 
-marginal_effects_outcome_regions <- data.frame(coefficient = c(4.132900e-03, -7.665683e-03, -2.473948e-03, -2.967569e-03, 6.916565e-07, 2.147464e-03, -1.895493e-02),
-                                               var = c("etaisyys_10", "asuntohintaero", "tyomarkkinankokoero",
+marginal_effects_outcome_regions <- data.frame(var = c("etaisyys_10", "asuntohintaero", "tyomarkkinankokoero",
                                                        "tyottomyysasteero", "saavutettavuusero", "vuokra_osuus_destin_t1",
-                                                       "palkkaero"))
+                                                       "palkkaero"),
+                                               coefficient = c(3.916020e-03, -7.096974e-03, 9.210507e-03,
+                                                               -2.359477e-03, 1.658272e-06, 1.305567e-03,
+                                                               5.206028e-03),
+                                               se = c(7.610359e-04, 1.284528e-02, 3.788506e-03,
+                                                      1.307371e-03, 3.263578e-06, 6.309096e-04,
+                                                      4.466116e-02))
+
 marginal_effects_outcome_regions$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_regions$coefficient)), digits = 3)
+marginal_effects_outcome_regions$se <- 100*marginal_effects_outcome_regions$se
 marginal_effects_outcome_regions$var <- factor(marginal_effects_outcome_regions$var,
                                                levels = c("palkkaero",
                                                           "saavutettavuusero",
@@ -179,12 +223,16 @@ namesmarginal_effects_outcome_aluetyyppi <- c("coefficient", "var")
 vars <- marginal_effects_outcome_aluetyyppi$var
 
 marginal_effects_outcome_aluetyyppi <- data.frame(var = vars,
-                                                  coefficient = c(0.02074, -0., -0.0348, 0.02044,
-                                                                  0.04300, 0.00552, 0.01078, 0.00855,
-                                                                  -0.01205, -0.00904, 0.0034, -0.1532))
+                                                  coefficient = c(0.00370, -0.00046, -0.02752, 0.01697,
+                                                                  0.0116989, 0.0213929, -0.00688, -0.020255,
+                                                                  0.042912, 0.023541730, -0.0150572, 0.0235080),
+                                                  se = c(0.0134142546, 0.0162713122, 0.0164253163, 0.0116022675,
+                                                         0.0143172467, 0.0114241347, 0.0126134210, 0.0147720711,
+                                                         0.0142250196, 0.0124274273, 0.0116446262, 0.0123219621))
 
 
 marginal_effects_outcome_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_outcome_aluetyyppi$se <- 100 * marginal_effects_outcome_aluetyyppi$se
 marginal_effects_outcome_aluetyyppi$var <- as.factor(marginal_effects_outcome_aluetyyppi$var)
 marginal_effects_outcome_aluetyyppi$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi$var)
 
@@ -197,14 +245,20 @@ saveRDS(marginal_effects_outcome_aluetyyppi,
 marginal_effects_outcome_job <- data.frame(var = c("tp1_hl_t1Medium size enterprise", "tp1_hl_t1_Large enterprise",
                                                    "tp1_lvl_t110,000,000 - 40,000,000", "tp1_lvl_t140,000,000 - ",
                                                    "oty1_t1State", "oty1_t1Municipality"),
-                                           coefficient = c(0.0281, 0.10944, -0.02308, -0.03905, 0.00342, 0.0067))
-marginal_effects_outcome_job$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_job$coefficient)), digits = 3)
+                                           coefficient = c(0.012225070, 0.097857, -0.0121780,
+                                                           -0.017783, 0.1030, 0.01205),
+                                           se = c(0.0111665, 0.0296358, 0.0116386, 0.016853,
+                                                  0.0329451, 0.034378))
 
+
+marginal_effects_outcome_job$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_job$coefficient)), digits = 3)
+marginal_effects_outcome_job$se <- 100*marginal_effects_outcome_job$se
 
 dummy_titles <- data.frame(var = c("lvl",
                                    "hl",
                                    "oty1"),
-                           coefficient = rep(NA, 3))
+                           coefficient = rep(NA, 3),
+                           se = rep(NA, 3))
 marginal_effects_outcome_job <- rbind(marginal_effects_outcome_job, dummy_titles)
 marginal_effects_outcome_job$var <- gdata::drop.levels(marginal_effects_outcome_job$var)
 marginal_effects_outcome_job$var <- factor(marginal_effects_outcome_job$var,
@@ -301,7 +355,26 @@ saveRDS(marginal_effects_selection_demand,
 
 marginal_effects_selection_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/employed/marginal_effects_selection_equation_at_employed.rds")
 namesmarginal_effects_selection_aluetyyppi <- c("coefficient", "var")
+
+vars <- marginal_effects_selection_aluetyyppi$var
+
+marginal_effects_selection_aluetyyppi <- data.frame(var = vars,
+                                                    coefficient = c(0.00369556, 0.02146480,
+                                                                    -0.01589441, 0.01577655,
+                                                                    0.01951223, 0.01004649),
+                                                    se = c(0.00317665, 0.00742544, 0.00406368,
+                                                           0.00711684, 0.00734849, 0.00567277))
+
+# labor demand controlled
+marginal_effects_selection_aluetyyppi <- data.frame(var = vars,
+                                                    coefficient = c(3.8479e-03, 2.7777e-02,
+                                                                    -1.0086e-02, 1.7321e-02,
+                                                                    1.8959e-02, 1.4563e-02),
+                                                    se = c(2.7989e-03, 6.5170e-03, 1.8772e-03,
+                                                           5.9606e-03, 6.8532e-03, 3.3957e-03))
+
 marginal_effects_selection_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_selection_aluetyyppi$se <- 100*marginal_effects_selection_aluetyyppi$se
 marginal_effects_selection_aluetyyppi$var <- as.factor(marginal_effects_selection_aluetyyppi$var)
 marginal_effects_selection_aluetyyppi$var <- gdata::drop.levels(marginal_effects_selection_aluetyyppi$var)
 
@@ -344,6 +417,22 @@ dummy_titles <- data.frame(var = c("pety",
                                    "hape"),
                            coefficient = rep(NA, 3))
 
+vars <- c("ika_decade_t1", "sukup_t1Female", "pety_t0Couple without children",
+          "pety_t0Couple with children", "pety_t0Single parent", "hape_t0Rents the dwelling",
+          "hape_t0Right of occupancy dwelling", "hape_t0Other tenure status", "syntyp2Born abroad",
+          "opiskelija_t1Student", "ututku_aste_t1Secondary education", "ututku_aste_t1Tertiary education",
+          "ututku_aste_t1Doctoral or equivalent level", "comm_exp_t0TRUE", "migr_exp_t0TRUE",
+          "spouse_working_t1TRUE", "ln_disp_inc_t0")
+
+marginal_effects_outcome_personal <- data.frame(var = vars,
+                                                coefficient = c(-4.100149e-02, 2.470145e-02, -3.685216e-03,
+                                                                -1.122665e-02, -2.267835e-03, 7.665948e-02,
+                                                                9.477768e-02, 3.767058e-02, -2.127147e-03,
+                                                                -5.241075e-02, -5.805070e-03, 3.902501e-02,
+                                                                -5.488882e-02, -1.285532e-02, 5.623183e-02,
+                                                                -4.867441e-02, -6.984539e-02))
+
+marginal_effects_outcome_personal$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_personal$coefficient)), digits = 3)
 marginal_effects_outcome_personal <- rbind(marginal_effects_outcome_personal, dummy_titles)
 marginal_effects_outcome_personal$var <- gdata::drop.levels(marginal_effects_outcome_personal$var)
 marginal_effects_outcome_personal$var <- factor(marginal_effects_outcome_personal$var,
@@ -358,13 +447,14 @@ marginal_effects_outcome_personal$var <- factor(marginal_effects_outcome_persona
                                                            "pety_t0Couple with children",
                                                            "pety_t0Couple without children",
                                                            "pety",
+                                                           "ln_disp_inc_t0",
                                                            "ututku_aste_t1Doctoral or equivalent level",
                                                            "ututku_aste_t1Tertiary education",
                                                            "ututku_aste_t1Secondary education",
                                                            "ututku_aste",
                                                            "syntyp2Born abroad",
                                                            "opiskelija_t1Student",
-                                                           "ika_t1_decade",
+                                                           "ika_decade_t1",
                                                            "sukup_t1Female"))
 
 saveRDS(marginal_effects_outcome_personal,
@@ -381,11 +471,15 @@ marginal_effects_outcome_regions <- marginal_effects_outcome %>%
                     "vuokra_osuus_destin_t1"))
 marginal_effects_outcome_regions$var <- gdata::drop.levels(marginal_effects_outcome_alueet$var)
 
-marginal_effects_outcome_regions <- data.frame(coefficient = c(2.526088e-03, 1.263218e-04, 2.362518e-04, -1.711733e-03, 2.0123113e-06, 1.353638e-03, -2.186669e-02),
-                                               var = c("etaisyys_10", "asuntohintaero", "tyomarkkinankokoero",
-                                                       "tyottomyysasteero", "saavutettavuusero", "vuokra_osuus_destin_t1",
-                                                       "palkkaero"))
+marginal_effects_outcome_regions <- data.frame(var = c("etaisyys_10", "asuntohintaero", "tyomarkkinankokoero",
+                                                        "tyottomyysasteero", "saavutettavuusero", "vuokra_osuus_destin_t1",
+                                                        "palkkaero"),
+                                              coefficient = c(2.786075e-03, 4.070015e-03, 9.105661e-04,
+                                                               -1.110924e-03, 3.113347e-06, 9.14273e-04, 2.451218e-03),
+                                              se = c(9.525973e-04, 1.006485e-02, 4.687139e-04, 1.196962e-03,
+                                                     3.263318e-06, 5.690279e-04, 3.089978e-02))
 marginal_effects_outcome_regions$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_regions$coefficient)), digits = 3)
+marginal_effects_outcome_regions$se <- 100*marginal_effects_outcome_regions$se
 marginal_effects_outcome_regions$var <- factor(marginal_effects_outcome_regions$var,
                                                levels = c("palkkaero",
                                                           "saavutettavuusero",
@@ -405,11 +499,15 @@ namesmarginal_effects_outcome_aluetyyppi <- c("coefficient", "var")
 vars <- marginal_effects_outcome_aluetyyppi$var
 
 marginal_effects_outcome_aluetyyppi <- data.frame(var = vars,
-                                                  coefficient = c(-0.03524, -0.03265, 0.0175, 0.02169,
-                                                                  -0.01342, 0.06688, -0.0203, -0.0218,
-                                                                  0.04258, 0.0181, -0.0256, 0.02661))
+                                                  coefficient = c(-0.0342278, -0.0107271, -0.046906, -0.00320261,
+                                                                  -0.014398, -0.005586, -0.020032210, -0.031785,
+                                                                  0.047389, 0.03202660, -0.011231070, 0.048708210),
+                                                  se = c(0.0196233146, 0.0298412521, 0.0209791823, 0.0198373699,
+                                                         0.0238645421, 0.0178547932, 0.0207942811, 0.0221438553,
+                                                         0.0214776968, 0.0190089276, 0.0181920082, 0.0219203491))
 
 marginal_effects_outcome_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_aluetyyppi$coefficient)), digits = 3)
+marginal_effects_outcome_aluetyyppi$se <- 100*marginal_effects_outcome_aluetyyppi$se
 marginal_effects_outcome_aluetyyppi$var <- as.factor(marginal_effects_outcome_aluetyyppi$var)
 marginal_effects_outcome_aluetyyppi$var <- gdata::drop.levels(marginal_effects_outcome_aluetyyppi$var)
 
@@ -422,7 +520,7 @@ saveRDS(marginal_effects_outcome_aluetyyppi,
 marginal_effects_outcome_job <- data.frame(var = c("tp1_hl_t1Medium size enterprise", "tp1_hl_t1_Large enterprise",
                                                    "tp1_lvl_t110,000,000 - 40,000,000", "tp1_lvl_t140,000,000 - ",
                                                    "oty1_t1State", "oty1_t1Municipality"),
-                                           coefficient = c(0.0109, 0.0341, -0.00874, -0.01401, 0.00400, 0.00630))
+                                           coefficient = c()
 marginal_effects_outcome_job$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_job$coefficient)), digits = 3)
 
 dummy_titles <- data.frame(var = c("lvl",
