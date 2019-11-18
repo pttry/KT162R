@@ -22,6 +22,8 @@ devtools::load_all()
 set_proj()
 knitr::opts_chunk$set(fig.path = "Raportin_kuviot/")
 
+tyot_vakanssi_ku_dat <- readRDS(here("data/avoimet_tyopaikat_tyonhakijat.rds"))
+
 data(dat_kokonaismuutto, dat_muutto_aikasarja_km, dat_muuttotiedot_kunnittain, tyo_muutto_atyyppi, dat_tulopendelointi)
 
 muutto_ptoim1_dat <- readRDS(here("data/paa-asiallinen_toiminta_ja_muutto/muuttoaikasarjat_kokomaa_ptoim1_ulos.rds"))
@@ -363,6 +365,27 @@ tyot_vakanssi_dat %>%
 
 
 ```
+
+```{r tyot_vakanssi_sk}
+
+tyot_vakanssi_ku_dat %>%
+  filter(Maakunta != "Ahvenanmaa - Åland") %>%
+  filter(vuosi == 2018) %>%
+  group_by(Seutukunta) %>%
+  summarise(tyottomyysaste = 100 * sum(Tyottomat, na.rm = TRUE) / sum(Tyovoima, na.rm = TRUE),
+            vakanssiaste = 100 * sum(Avoimet_tyopaikat, na.rm = TRUE) / sum(Avoimet_tyopaikat + Tyovoima - Tyottomat, na.rm = TRUE),
+            Tyottomat = sum(Tyottomat, na.rm = TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(tyottomyysaste, vakanssiaste, size = Tyottomat)) +
+  geom_point(alpha = 0.5) +
+  stat_smooth(method = "lm") +
+  geom_h0() +
+  scale_size(guide = "none") +
+  labs(x = "Työttömyysaste, %", 
+       y = "Vakanssiaste, %")
+
+```
+
 
 # Liikkuvuustulemat ja liikkuvuusmuotovalinnat, työttömät
 ## Liikkuvuustulemat
