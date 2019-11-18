@@ -110,16 +110,16 @@ saveRDS(marginal_effects_selection_demand,
 # Aluetyyppi
 
 marginal_effects_selection_aluetyyppi <- readRDS("data/nov12/liikkuvuusmalli/unemployed/marginal_effects_selection_equation_at_unemployed.rds")
-<<<<<<< HEAD
+
 names(marginal_effects_selection_aluetyyppi) <- c("coefficient", "var")
-=======
+
 namesmarginal_effects_selection_aluetyyppi <- c("coefficient", "var")
->>>>>>> 9c7598de7c4f4886a48d2bcd3b7c7fa948f83cc4
+
 
 vars <- marginal_effects_selection_aluetyyppi$var
 
 marginal_effects_selection_aluetyyppi <- data.frame(var = vars,
-<<<<<<< HEAD
+
                                                     coefficient = c(1.1243e-02, 3.0495e-02,
                                                                     -2.6491e-02, 1.7552e-02,
                                                                     3.5075e-02, 6.2339e-03),
@@ -133,13 +133,13 @@ marginal_effects_selection_aluetyyppi <- data.frame(var = vars,
                                                                     4.2716e-02, 2.5024e-02),
                                                     se = c(6.3541e-03, 8.0784e-03, 6.0275e-03,
                                                            6.8487e-03, 7.0194e-03, 3.6271e-03))
-=======
+
                                                     coefficient = c(1.1234e-02, 3.0495e-02, -2.6491e-02, 1.7552e-02,
                                                                     3.5075e-02, 6.2339e-03),
                                                     se = c(6.4918e-03, 9.0640e-03, 4.0467e-03, 7.6186e-03,
                                                            8.6280e-03, 5.7693e-03))
 
->>>>>>> 9c7598de7c4f4886a48d2bcd3b7c7fa948f83cc4
+
 
 marginal_effects_selection_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_selection_aluetyyppi$coefficient)), digits = 3)
 marginal_effects_selection_aluetyyppi$se <- 100*marginal_effects_selection_aluetyyppi$se
@@ -272,18 +272,16 @@ vars <- marginal_effects_outcome_aluetyyppi$var
 
 
 marginal_effects_outcome_aluetyyppi <- data.frame(var = vars,
-<<<<<<< HEAD
                                                   coefficient = c(0.00370, -0.00046, -0.02752, 0.01697,
                                                                   0.0116989, 0.0213929, -0.00688, -0.020255,
                                                                   0.042912, 0.023541730, -0.0150572, 0.0235080),
                                                   se = c(0.0134142546, 0.0162713122, 0.0164253163, 0.0116022675,
                                                          0.0143172467, 0.0114241347, 0.0126134210, 0.0147720711,
-                                                         0.0142250196, 0.0124274273, 0.0116446262, 0.0123219621))
-=======
+                                                         0.0142250196, 0.0124274273, 0.0116446262, 0.0123219621),
                                                   coefficient = c(-0.00370, -0.00464, -0.02753, 0.01700,
                                                                   0.01170, 0.02139, -0.006689, -0.0203,
                                                                   0.04291, 0.0235, -0.01506, 0.02350))
->>>>>>> 9c7598de7c4f4886a48d2bcd3b7c7fa948f83cc4
+
 
 
 marginal_effects_outcome_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_aluetyyppi$coefficient)), digits = 3)
@@ -301,7 +299,7 @@ marginal_effects_outcome_job <- data.frame(var = c("tp1_hl_t1Medium size enterpr
                                                    "tp1_lvl_t110,000,000 - 40,000,000", "tp1_lvl_t140,000,000 - ",
                                                    "oty1_t1State", "oty1_t1Municipality"),
                                            coefficient = c(0.012225070, 0.097857, -0.0121780,
-                                                           -0.017783, 0.1030, 0.01205),
+                                                           -0.017783, 0.1030199, 0.0120578),
                                            se = c(0.0111665, 0.0296358, 0.0116386, 0.016853,
                                                   0.0329451, 0.034378))
 
@@ -661,13 +659,18 @@ saveRDS(marginal_effects_outcome_aluetyyppi,
 marginal_effects_outcome_job <- data.frame(var = c("tp1_hl_t1Medium size enterprise", "tp1_hl_t1_Large enterprise",
                                                    "tp1_lvl_t110,000,000 - 40,000,000", "tp1_lvl_t140,000,000 - ",
                                                    "oty1_t1State", "oty1_t1Municipality"),
-                                           coefficient = c()
+                                           coefficient = c(-0.01163784, 0.008563990, 0.00011566,
+                                                           0.029313, 0.0518936, 0.068102255),
+                                           se = c(0.0103822, 0.02722, 0.00811, 0.012671,
+                                                  0.007939, 0.015111660))
 marginal_effects_outcome_job$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_job$coefficient)), digits = 3)
+marginal_effects_outcome_job$se <- 100* marginal_effects_outcome_job$se
 
 dummy_titles <- data.frame(var = c("lvl",
                                    "hl",
                                    "oty1"),
-                           coefficient = rep(NA, 3))
+                           coefficient = rep(NA, 3),
+                           se = rep(NA, 3))
 marginal_effects_outcome_job <- rbind(marginal_effects_outcome_job, dummy_titles)
 marginal_effects_outcome_job$var <- gdata::drop.levels(marginal_effects_outcome_job$var)
 marginal_effects_outcome_job$var <- factor(marginal_effects_outcome_job$var,

@@ -423,9 +423,19 @@ data_palkansaajat <- readRDS("data/oct2/coefficient_plot_data_salaried_ols_ln.rd
   filter(!grepl("ika2", var)) %>%
   filter(var != "kturaha_k") %>%
   filter(var != "taajama_k21") %>%
+  filter(var != "comm_expTRUE") %>%
+  filter(var != "auto_k0") %>%
   mutate(coefficient = 100*round(coefficient, digits = 3),
          se = 100*se)
+dummy_titles <- data.frame(var = c("ututku_aste",
+                                   "pety",
+                                   "hape",
+                                   "oty1"),
+                           coefficient = rep(NA, 4),
+                           se = rep(NA, 4))
+data_palkansaajat <- rbind(data_palkansaajat, dummy_titles)
 data_palkansaajat$amas <- "Palkansaajat"
+
 
 data_yrittajat <- readRDS("data/oct2/coefficient_plot_data_self_employed_tobit.rds") %>%
   filter(!grepl("ammattikoodi_k", var)) %>%
@@ -435,55 +445,68 @@ data_yrittajat <- readRDS("data/oct2/coefficient_plot_data_self_employed_tobit.r
   filter(!grepl("Intercept", var)) %>%
   filter(!grepl("ika2", var)) %>%
   filter(var != "taajama_k21") %>%
+  filter(var != "comm_expTRUE") %>%
+  filter(var != "auto_k0") %>%
   mutate(coefficient = round(coefficient, digits = 1),
          se = 100*se)
+dummy_titles <- data.frame(var = c("ututku_aste",
+                                   "pety",
+                                   "hape",
+                                   "oty1"),
+                           coefficient = rep(NA, 4),
+                           se = rep(NA, 4))
+data_yrittajat <- rbind(data_yrittajat, dummy_titles)
 data_yrittajat$amas <- "Yrittäjät"
 
 data <- rbind(data_palkansaajat, data_yrittajat)
 
 data$var <- gdata::drop.levels(data$var)
 data$var <- factor(data$var,
-                   levels = c("auto_k0",
-                              "oty1Valtio",
+                   levels = c("oty1Valtio",
                               "oty1Kunta",
-                              "comm_expTRUE",
+                              "oty1",
                               "migr_expTRUE",
                               "tyosuhteen_kesto",
                               "hapeMuu hallintaperuste",
                               "hapeAsumisoikeusasunnot",
                               "hapeVuokralainen",
+                              "hape",
+                              "spouse_workingTRUE",
                               "petyYksinhuoltaja",
                               "petyYksin asuvat",
                               "petyPari, lapsia",
-                              "spouse_workingTRUE",
+                              "pety",
                               "ututku_asteTutkijakoulutusaste",
                               "ututku_asteKorkea-aste",
                               "ututku_asteToinen aste",
+                              "ututku_aste",
                               "syntyp2Syntynyt ulkomailla",
                               "opiskelijaOpiskelija",
                               "ika",
                               "sukupNainen"))
 
-personal_labels <- c("Nainen (referenssi: mies)",
+personal_labels <- c("Nainen",
                      "Ikä, vuosia",
                      "Opiskelija",
-                     "Syntynyt ulkomailla (referenssi: syntynyt Suomessa)",
-                     "Toinen aste (referenssi: perusaste)",
-                     "Korkea-aste (referenssi: perusaste)",
-                     "Tutkijakoulutusaste (referenssi: perusaste)",
+                     "Syntynyt ulkomailla",
+                     "Koulutusaste, ref: perusaste",
+                     "   Toinen aste",
+                     "   Korkea-aste",
+                     "   Tutkijakoulutusaste",
+                     "Perhetyyppi, ref: asuu yksin",
+                     "   Pari, lapsia",
+                     "   Yksin asuvat",
+                     "   Yksinhuoltaja",
                      "Puoliso töissä",
-                     "Pari, lapsia (referenssi: pari, ei lapsia)",
-                     "Yksin asuvat (referenssi: pari, ei lapsia)",
-                     "Yksinhuoltaja (referenssi: pari, ei lapsia)",
-                     "Vuokralainen (referenssi: omistusasuja)",
-                     "Asumisoikeusasunto (referenssi: omistusasuja)",
-                     "Muu hallintaperuste (referenssi: omistusasuja)",
+                     "Hallintaperuste, ref: omistaa asunnon",
+                     "   Vuokralainen",
+                     "   Asumisoikeusasunto",
+                     "   Muu hallintaperuste",
                      "Työsuhteen kesto, päiviä",
                      "Muuttamiskokemus",
-                     "Pendelöintikokemus",
-                     "Kunta (referenssi: yksityinen)",
-                     "Valtio (referenssi: yksityinen)",
-                     "Auto käytössä")[20:1]
+                     "Omistajatyyppi, ref: yksityinen",
+                     "   Kunta",
+                     "   Valtio")[22:1]
 
 data %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +
@@ -494,14 +517,15 @@ data %>%
                    xend = var),
                color = "#0ABBEC",
                size = 3) +
-  geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
-                color = "red", size = 1, linetype = 3) +
- # geom_point(stat = "identity", color = "#006FB9", size = 10) +
-#  geom_text(color = "white", size = 3) +
+  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
+  #              color = "red", size = 1, linetype = 3) +
+  geom_point(stat = "identity", color = "#006FB9", size = 10) +
+  geom_text(color = "white", size = 3) +
   coord_flip() +
   facet_wrap(~amas, ncol = 2) +
   theme_light() +
-  theme(text = element_text(size = 10, family = "sans")) +
+  theme(text = element_text(size = 10, family = "sans"),
+        axis.text.y = element_text(hjust = 0)) +
   labs(x = NULL,
        y = "Kontrolloitu ero referenssikategorioihin tai marginaalivaikutus, %") +
   scale_x_discrete(labels = personal_labels)

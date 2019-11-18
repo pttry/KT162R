@@ -26,11 +26,8 @@ personal_labels = c("Nainen ***/***",
                     "   Keskiasteen koulutus */***",
                     "   Korkea-asteen koulutus ***/***",
                     "   Tutkija-asteen koulutus ***/***",
-<<<<<<< HEAD
                     "Käytettävissä olevat tulot ***/***",
-=======
                     "Käyettävissä olevat tulot ******",
->>>>>>> 9c7598de7c4f4886a48d2bcd3b7c7fa948f83cc4
                     "Perhetyyppi, ref: asuu yksin",
                     "   Pari, ei lapsia /**",
                     "   Pari, lapsia */*",
@@ -176,7 +173,7 @@ marginal_effects_outcome_personal %>%
        y = "Keskimääräinen marginaalivaikutus, %-yksikköä") +
   scale_x_discrete(labels = personal_labels)
 
-ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/henkilökohtaiset_muuttujat_outcome.png")
+ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/henkilökohtaiset_muuttujat_outcome.png", width  = 8, height = 6)
 
 ############# Alueiden ominaisuudet ##############################
 
@@ -301,8 +298,9 @@ marginal_effects_outcome_job %>%
                    xend = var),
                color = "#0ABBEC",
                size = 3) +
-  #geom_errorbar(aes(x = var, ymin = coefficient - 2*data$se, ymax = coefficient + 2*data$se),
-  #   color = "red", size = 1.2, linetype = 2) +
+  geom_errorbar(aes(x = var, ymin = coefficient - 2*marginal_effects_outcome_job$se,
+                             ymax = coefficient + 2*marginal_effects_outcome_job$se),
+     color = "red", size = 1, linetype = 1) +
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
   facet_wrap(~group) +
