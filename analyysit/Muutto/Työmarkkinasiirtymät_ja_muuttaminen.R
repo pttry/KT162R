@@ -139,4 +139,4 @@ p4 <- data %>% filter(tiedot %in% c("seutukuntien_valinen_tyovoiman_ulkopuolelta
 
 p <- ggpubr::ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2, common.legend = TRUE, legend = "bottom")
 ggsave("analyysit/Muutto/tyomarkkinasiirtymat_ja_muuttaminen.png", plot = p,
-       width = 8, height = 8)
+       width = 8, height = 6)

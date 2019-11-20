@@ -153,7 +153,7 @@ personal_labels = c("Nainen ***/***",
 
 marginal_effects_outcome_personal %>%
   ggplot(aes(y = coefficient, x = var, label = coefficient)) +
-  geom_hline(yintercept = 0, linetype = 4, color = "black", size = 1.2) +
+  geom_hline(yintercept = 0, linetype = 2, color = "black", size = 1.2) +
   geom_segment(aes(y = 0,
                    x = var,
                    yend = coefficient,
@@ -186,13 +186,13 @@ marginal_effects_outcome_alueet_employed$group <- "Työlliset"
 marginal_effects_outcome_alueet <- rbind(marginal_effects_outcome_alueet_unemployed,
                                          marginal_effects_outcome_alueet_employed)
 
-alueet_labels = c("Palkkaero",
+alueet_labels = c("Palkkaero \n logaritmien erotus",
                   "Työn saavutettavuusero",
-                  "Työttömyysaste-ero",
-                  "Työmarkkinoiden kokoero",
-                  "Kohteen vuokra-asumisen osuus",
-                  "Asuntohintaero",
-                  "Etäisyys, 10 km")
+                  "Työttömyysaste-ero, \n %-yksikköä",
+                  "Työmarkkinoiden kokoero, \n 10 000 henkeä ",
+                  "Kohteen vuokra-asumisen osuus, \n %-yksikköä",
+                  "Asuntohintaero, \n logaritmien erotus",
+                  "Etäisyys, \n 10 km")
 
 
 marginal_effects_outcome_alueet %>%
@@ -206,11 +206,11 @@ marginal_effects_outcome_alueet %>%
                size = 3) +
   geom_errorbar(aes(x = var, ymin = coefficient - 2*marginal_effects_outcome_alueet$se,
                              ymax = coefficient + 2*marginal_effects_outcome_alueet$se),
-     color = "red", size = 0.7, linetype = 1, width = 0.6) +
+     color = "red", size = 0.7, linetype = 1, width = 0.5) +
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
   facet_wrap(~group) +
-  coord_flip(ylim = c(-1,1)) +
+  coord_flip(ylim = c(-1.5,1.5)) +
   theme_light() +
   theme(text = element_text(size = 10, family = "sans"),
         axis.text.y = element_text(hjust =0)) +
@@ -300,7 +300,7 @@ marginal_effects_outcome_job %>%
                size = 3) +
   geom_errorbar(aes(x = var, ymin = coefficient - 2*marginal_effects_outcome_job$se,
                              ymax = coefficient + 2*marginal_effects_outcome_job$se),
-     color = "red", size = 1, linetype = 1) +
+     color = "red", size = 0.7, linetype = 1, width = 0.5) +
   geom_point(stat = "identity", color = "#006FB9", size = 10) +
   geom_text(color = "white", size = 3) +
   facet_wrap(~group) +

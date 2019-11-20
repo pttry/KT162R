@@ -516,7 +516,7 @@ dummy_titles <- data.frame(var = c("pety",
                                    "hape"),
                            coefficient = rep(NA, 3))
 
-<<<<<<< HEAD
+
 vars <- c("ika_decade_t1", "sukup_t1Female", "pety_t0Couple without children",
           "pety_t0Couple with children", "pety_t0Single parent", "hape_t0Rents the dwelling",
           "hape_t0Right of occupancy dwelling", "hape_t0Other tenure status", "syntyp2Born abroad",
@@ -533,8 +533,7 @@ marginal_effects_outcome_personal <- data.frame(var = vars,
                                                                 -4.867441e-02, -6.984539e-02))
 
 marginal_effects_outcome_personal$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_personal$coefficient)), digits = 3)
-=======
-"sukup_t1Female",
+vars <- c("sukup_t1Female",
 "pety_t0Couple without children",
 "pety_t0Couple with children",
 "pety_t0Single parent",
@@ -632,18 +631,18 @@ namesmarginal_effects_outcome_aluetyyppi <- c("coefficient", "var")
 vars <- marginal_effects_outcome_aluetyyppi$var
 
 marginal_effects_outcome_aluetyyppi <- data.frame(var = vars,
-<<<<<<< HEAD
+
                                                   coefficient = c(-0.0342278, -0.0107271, -0.046906, -0.00320261,
                                                                   -0.014398, -0.005586, -0.020032210, -0.031785,
                                                                   0.047389, 0.03202660, -0.011231070, 0.048708210),
                                                   se = c(0.0196233146, 0.0298412521, 0.0209791823, 0.0198373699,
                                                          0.0238645421, 0.0178547932, 0.0207942811, 0.0221438553,
                                                          0.0214776968, 0.0190089276, 0.0181920082, 0.0219203491))
-=======
+
                                                   coefficient = c(-0.01657, -0.02403, 0.01780,-0.01173,
                                                                   -0.02577, -0.003077, -0.00667, -0.005264,
                                                                   0.007137, 0.00538, -0.002124, 0.00902))
->>>>>>> 9c7598de7c4f4886a48d2bcd3b7c7fa948f83cc4
+
 
 marginal_effects_outcome_aluetyyppi$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_aluetyyppi$coefficient)), digits = 3)
 marginal_effects_outcome_aluetyyppi$se <- 100*marginal_effects_outcome_aluetyyppi$se
@@ -661,8 +660,8 @@ marginal_effects_outcome_job <- data.frame(var = c("tp1_hl_t1Medium size enterpr
                                                    "oty1_t1State", "oty1_t1Municipality"),
                                            coefficient = c(-0.01163784, 0.008563990, 0.00011566,
                                                            0.029313, 0.0518936, 0.068102255),
-                                           se = c(0.0103822, 0.02722, 0.00811, 0.012671,
-                                                  0.007939, 0.015111660))
+                                           se = c(0.0174555, 0.02616, 0.018959, 0.02686,
+                                                  0.034935, 0.0556221))
 marginal_effects_outcome_job$coefficient <- 100*round(as.numeric(as.character(marginal_effects_outcome_job$coefficient)), digits = 3)
 marginal_effects_outcome_job$se <- 100* marginal_effects_outcome_job$se
 
