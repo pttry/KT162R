@@ -585,6 +585,152 @@ ggsave("C:/Users/juhoa/Google Drive/Labor market search, report/beverigde_curves
 stargazer(aluetyypit, type = "text", summary = FALSE,
           out = "aluetyypit.html")
 
+######################################################################################################
+
+# by nettomuutto
+
+data <- readRDS("data/avoimet_tyopaikat_tyonhakijat.rds")
+
+load("~/git_clones/KT162R/data/dat_muuttotiedot_kunnittain.rda")
+
+data_nettomuutto <- dat_muuttotiedot_kunnittain %>%
+        spread(Tiedot, values) %>%
+        mutate(nettomuutto = tulomuutto - lahtomuutto,
+               nettomuuttoaste = nettomuutto / vakiluku) %>%
+        filter(Vuosi == 2018) %>%
+        select(alue, kunta_no, nettomuuttoaste)
+
+breaks <- seq(from = min(data_nettomuutto$nettomuuttoaste)-0.00001,
+              to = max(data_nettomuutto$nettomuuttoaste)+0.000001,
+              length.out = 4)
+
+breaks2 <- quantile(data_nettomuutto$nettomuuttoaste, c(1/3, 2/3))
+breaks <- c(-Inf, breaks2, Inf)
+
+data_nettomuutto$nettomuuttoaste_discrete <- cut(data_nettomuutto$nettomuutto, breaks)
+
+nettomuutto <- data_nettomuutto %>%
+  select(nettomuuttoaste, nettomuuttoaste_discrete, kunta_no) %>%
+  rename(Knro = kunta_no)
+
+data <- left_join(data, nettomuutto, by = "Knro")
+
+levels(data$nettomuuttoaste_discrete) <- c("Matala", "Keskiverto", "Korkea")
+
+data <- mutate(data, Avoimet_tyopaikat = ifelse(is.na(Avoimet_tyopaikat), 1.5,Avoimet_tyopaikat))
+
+data_nettomuutto <- data %>% group_by(Kuukausi, nettomuuttoaste_discrete) %>%
+  summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
+            Tyovoima = sum(Tyovoima, na.rm = TRUE),
+            Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
+  mutate(tyottomyysaste = Tyottomat / Tyovoima,
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
+  mutate(kuukausi = paste(substring(Kuukausi, 6,7), "01", sep = "-"),
+         vuosi = substring(Kuukausi, 1,4),
+         time = as.Date(paste(vuosi, kuukausi, sep = "-"))) %>%
+  group_by(nettomuuttoaste_discrete) %>%
+  mutate(tyottomyysaste_sa = sa_series(tyottomyysaste, time),
+         tyottomyysaste_trend = trend_series(tyottomyysaste, time),
+         vakanssiaste_sa = sa_series(vakanssiaste, time),
+         vakanssiaste_trend = trend_series(vakanssiaste, time),
+         tyottomat_sa = sa_series(Tyottomat, time),
+         tyottomat_trend = trend_series(Tyottomat, time),
+         avoimet_tyopaikat_sa = sa_series(Avoimet_tyopaikat, time),
+         avoimet_tyopaikat_trend = trend_series(Avoimet_tyopaikat, time))
+
+data_nettomuutto <- data_nettomuutto %>%
+  mutate(vuosi_label = ifelse(grepl("M01", Kuukausi), vuosi, ""),
+         vuosi_label2 = ifelse(grepl("2006M01", Kuukausi) | grepl("2019M01", Kuukausi), vuosi, ""))
+
+p1 <- data_nettomuutto %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend, label = vuosi_label2)) +
+  geom_point(size = 1, color = ggptt_palettes$vnk[2]) +
+  geom_path(size = 1, color = ggptt_palettes$vnk[1]) +
+  geom_text(color = "black") +
+  facet_wrap(~nettomuuttoaste_discrete) +
+  labs(y = "Vakanssiaste",
+       x = "Työttömyysaste",
+       title = "Nettomuuttoaste") +
+  theme(legend.position = "bottom",
+        legend.justification = "left",
+        legend.text = element_text(size = 15),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12),
+        plot.title = element_text(hjust = 0.5, size = 15)) +
+  scale_y_continuous(labels = percent_comma) +
+  scale_x_continuous(labels = percent_comma)
+
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/nettomuuttoaste_beveridge.png", width = 8, height = 3.5)
+
+##############################################################################
+
+data <- readRDS("data/avoimet_tyopaikat_tyonhakijat.rds")
+
+load("~/git_clones/KT162R/data/dat_muuttotiedot_kunnittain.rda")
+
+data_nettomuutto <- dat_muuttotiedot_kunnittain %>%
+  spread(Tiedot, values) %>%
+  mutate(nettomuutto = tulomuutto - lahtomuutto) %>%
+  filter(Vuosi == 2018) %>%
+  select(alue, kunta_no, nettomuutto)
+
+breaks <- seq(from = min(data_nettomuutto$nettomuutto)-0.00001,
+              to = max(data_nettomuutto$nettomuutto)+0.000001,
+              length.out = 4)
+
+data_nettomuutto$nettomuutto_discrete <- cut(data_nettomuutto$nettomuutto, breaks)
+
+nettomuutto <- data_nettomuutto %>%
+  select(nettomuutto, nettomuutto_discrete, kunta_no) %>%
+  rename(Knro = kunta_no)
+
+data <- left_join(data, nettomuutto, by = "Knro")
+
+levels(data$nettomuutto_discrete) <- c("Matala", "Keskiverto", "Korkea")
+
+data <- mutate(data, Avoimet_tyopaikat = ifelse(is.na(Avoimet_tyopaikat), 1.5,Avoimet_tyopaikat))
+
+data_nettomuutto <- data %>% group_by(Kuukausi, nettomuutto_discrete) %>%
+  summarize(Tyottomat = sum(Tyottomat, na.rm = TRUE),
+            Tyovoima = sum(Tyovoima, na.rm = TRUE),
+            Avoimet_tyopaikat = sum(Avoimet_tyopaikat, na.rm = TRUE)) %>%
+  mutate(tyottomyysaste = Tyottomat / Tyovoima,
+         vakanssiaste = Avoimet_tyopaikat / (Avoimet_tyopaikat + Tyovoima)) %>%
+  mutate(kuukausi = paste(substring(Kuukausi, 6,7), "01", sep = "-"),
+         vuosi = substring(Kuukausi, 1,4),
+         time = as.Date(paste(vuosi, kuukausi, sep = "-"))) %>%
+  group_by(nettomuutto_discrete) %>%
+  mutate(tyottomyysaste_sa = sa_series(tyottomyysaste, time),
+         tyottomyysaste_trend = trend_series(tyottomyysaste, time),
+         vakanssiaste_sa = sa_series(vakanssiaste, time),
+         vakanssiaste_trend = trend_series(vakanssiaste, time),
+         tyottomat_sa = sa_series(Tyottomat, time),
+         tyottomat_trend = trend_series(Tyottomat, time),
+         avoimet_tyopaikat_sa = sa_series(Avoimet_tyopaikat, time),
+         avoimet_tyopaikat_trend = trend_series(Avoimet_tyopaikat, time))
+
+data_nettomuutto <- data_nettomuutto %>%
+  mutate(vuosi_label = ifelse(grepl("M01", Kuukausi), vuosi, ""),
+         vuosi_label2 = ifelse(grepl("2006M01", Kuukausi) | grepl("2019M01", Kuukausi), vuosi, ""))
+
+p1 <- data_nettomuutto %>% ggplot(aes(x = tyottomyysaste_trend, y = vakanssiaste_trend, label = vuosi_label2)) +
+  geom_point(size = 1, color = ggptt_palettes$vnk[2]) +
+  geom_path(size = 1, color = ggptt_palettes$vnk[1]) +
+  geom_text(color = "black") +
+  facet_wrap(~nettomuutto_discrete) +
+  labs(y = "Vakanssiaste",
+       x = "Työttömyysaste",
+       title = "Nettomuutto") +
+  theme(legend.position = "bottom",
+        legend.justification = "left",
+        legend.text = element_text(size = 15),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12),
+        plot.title = element_text(hjust = 0.5, size = 15)) +
+  scale_y_continuous(labels = percent_comma) +
+  scale_x_continuous(labels = percent_comma)
+
+ggsave("analyysit/Kohtaanto/Kuviot/Beveridge/nettomuutto_beveridge.png", width = 8, height = 3.5)
+
 ############################################################
 # Pehkonen et al. 2018 replica w. rakennemuutosseutukunnast
 
