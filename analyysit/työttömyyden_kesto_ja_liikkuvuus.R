@@ -38,3 +38,32 @@ data %>% select(viim_tyott_kesto_t0_discrete,
 
 ggsave("analyysit/Liikkuvuusvalinnat/kuvaajat/liikkuvuus_ja_tyottomyyden_kesto.png",
        width = 8, height = 4)
+
+
+###################
+
+data <- readRDS("data/nov1/tyottomyyden_kesto_ja_muuttaminen2014.rds") %>%
+        dplyr::select(n, muuttanut_sk, muuttanut_ja_tyollistynyt_sk, tyollistynyt, liikkunut_sk, -viim_tyott_kesto_t0_discrete) %>%
+        summarize_all(list(sum)) %>%
+        mutate(tyollistynyt_kotiseutukuntaan = tyollistynyt - liikkunut_sk) %>%
+        mutate(tyollistyneiden_osuus_muuttaneista = muuttanut_ja_tyollistynyt_sk / muuttanut_sk,
+               tyollistyneiden_osuus = tyollistynyt / n,
+               tyollistyneiden_osuus_paikallaan_pysyvista = (tyollistynyt_kotiseutukuntaan + liikkunut_sk - muuttanut_ja_tyollistynyt_sk) / (n - muuttanut_sk),
+               toiseen_seutukuntaan_tyollistyneiden_osuus = liikkunut_sk / n,
+               kotiseutukuntaan_tyollistyneiden_osuus = tyollistynyt_kotiseutukuntaan / n) %>%
+  dplyr::select(tyollistyneiden_osuus_muuttaneista, tyollistyneiden_osuus, tyollistyneiden_osuus_paikallaan_pysyvista,
+                toiseen_seutukuntaan_tyollistyneiden_osuus, kotiseutukuntaan_tyollistyneiden_osuus)%>%
+       gather(tiedot, value)
+
+data <- readRDS("data/nov1/tyottomyyden_kesto_ja_muuttaminen2015.rds") %>%
+        group_by(viim_tyott_kesto_t0_discrete) %>%
+  dplyr::select(n, muuttanut_sk, muuttanut_ja_tyollistynyt_sk, tyollistynyt, liikkunut_sk, viim_tyott_kesto_t0_discrete) %>%
+  mutate(tyollistynyt_kotiseutukuntaan = tyollistynyt - liikkunut_sk) %>%
+  mutate(tyollistyneiden_osuus_muuttaneista = muuttanut_ja_tyollistynyt_sk / muuttanut_sk,
+         tyollistyneiden_osuus = tyollistynyt / n,
+         tyollistyneiden_osuus_ei_muuttaneista = (tyollistynyt_kotiseutukuntaan + liikkunut_sk - muuttanut_sk) / (n - muuttanut_sk),
+         toiseen_seutukuntaan_tyollistyneiden_osuus = liikkunut_sk / n,
+         kotiseutukuntaan_tyollistyneiden_osuus = tyollistynyt_kotiseutukuntaan / n) %>%
+  dplyr::select(tyollistyneiden_osuus_muuttaneista, tyollistyneiden_osuus, tyollistyneiden_osuus_ei_muuttaneista,
+                toiseen_seutukuntaan_tyollistyneiden_osuus, kotiseutukuntaan_tyollistyneiden_osuus, viim_tyott_kesto_t0_discrete)
+
