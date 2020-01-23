@@ -21,8 +21,10 @@
   # Huom. koko maan summia laskettaessa ei ole väliä summaileekko kohde- vai lähtöalueiden pendelöintejä.
   # Notes: pendelöinti määritelty kuntien välisenä pendelöintinä
 
-  p1 <- dat_pendelointi %>% group_by(vuosi) %>%
+  p1 <- dat_pendelointi %>%
+    group_by(vuosi) %>%
     summarize(commuters = sum(lahtopendelointi)) %>%
+    ungroup() %>%
     ggplot(aes(y = commuters, x = vuosi)) +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
     geom_line() +
@@ -36,11 +38,13 @@
   # Pendelöijien osuus työllisistä koko maassa
   # Notes: pendelöinti määritelty kuntien välisenä pendelöintinä
 
-  p2 <- dat_pendelointi %>% group_by(vuosi) %>%
+  p2 <- dat_pendelointi %>%
+    group_by(vuosi) %>%
     summarize(pendeloijat_yhteensa = sum(lahtopendelointi),
               ei_pendeloijat_yhteensa = sum(asuinkunnassaan_tyossakayvat)) %>%
     mutate(pendelointiosuus = pendeloijat_yhteensa /
              (pendeloijat_yhteensa + ei_pendeloijat_yhteensa)) %>%
+    ungroup() %>%
     ggplot(aes(y = pendelointiosuus, x = vuosi)) +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
     geom_line() +
@@ -64,18 +68,18 @@
 
   # load("~/git_clones/KT162R/data/dat_muutto_aikasarja_km.rda")
 
-  dat_pendelointi <- dat_muutto_aikasarja_km %>%
+  dat_pendelointi_alue <- dat_muutto_aikasarja_km %>%
                      filter(tiedot %in% c("kuntien_valinen_pendelointi",
                                           "seutukuntien_valinen_pendelointi",
                                           "maakuntien_valinen_pendelointi",
                                           "tyolliset"))
 
-dat_pendelointi %>%
+dat_pendelointi_alue %>%
     group_by(time) %>%
     mutate(osuus = 100 * value / value[tiedot == "tyolliset"]) %>%
     ungroup() %>%
     filter(tiedot != "tyolliset") %>%
-    filter(tiedot != "kuntien_valinen_pendelointi") %>%
+    # filter(tiedot != "kuntien_valinen_pendelointi") %>%
     gather(vars, value, value, osuus) %>%
     ggplot(aes(y = value, x = time, col = tiedot)) +
     facet_wrap(vars(vars), scales = "free")+
@@ -86,7 +90,7 @@ dat_pendelointi %>%
     xlab(NULL) +
     scale_y_continuous( labels = deci_comma)
 
-p1 <- dat_pendelointi %>%
+p1 <- dat_pendelointi_alue %>%
     filter(tiedot != "tyolliset") %>%
     group_by(tiedot) %>%
     ggplot(aes(y = value, x = time, col = tiedot)) +
@@ -100,7 +104,7 @@ p1 <- dat_pendelointi %>%
 
   ggsave("analyysit/Pendelointi/Pendelointi_koko_maassa_ajassa/absoluuttinen_maara.png", p1)
 
-  p2 <- dat_pendelointi %>%
+  p2 <- dat_pendelointi_alue %>%
     summarize(pendeloijat_yhteensa = sum(lahtopendelointi),
               ei_pendeloijat_yhteensa = sum(asuinkunnassaan_tyossakayvat)) %>%
     mutate(pendelointiosuus = pendeloijat_yhteensa /

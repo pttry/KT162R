@@ -24,7 +24,7 @@ knitr::opts_chunk$set(fig.path = "Raportin_kuviot/")
 
 tyot_vakanssi_ku_dat <- readRDS(here("data/avoimet_tyopaikat_tyonhakijat.rds"))
 
-data(dat_kokonaismuutto, dat_muutto_aikasarja_km, dat_muuttotiedot_kunnittain, tyo_muutto_atyyppi, dat_tulopendelointi)
+data(dat_kokonaismuutto, dat_muutto_aikasarja_km, dat_muuttotiedot_kunnittain, tyo_muutto_atyyppi, dat_tulopendelointi, dat_pendelointi)
 
 muutto_ptoim1_dat <- readRDS(here("data/paa-asiallinen_toiminta_ja_muutto/muuttoaikasarjat_kokomaa_ptoim1_ulos.rds"))
 tyot_vakanssi_dat <- readRDS(here("data/avoimet_tyopaikat_tyonhakijat_atyyppi.rds"))
@@ -48,7 +48,7 @@ p1 <- dat_kokonaismuutto %>%
   theme(legend.title = element_blank()) +
   ylab("Muuttoja") +
   xlab(NULL) +
-  #ggtitle("Muuttojen määrä Suomessa 1990 - 2016") +
+  #ggtitle("Muuttojen määrä Suomessa 1990 - 2018") +
   geom_hline(yintercept = 0,
              color = "black",
              linetype = 2) +
@@ -109,6 +109,34 @@ dat_kokonaismuutto %>%
  # ggsave("analyysit/Raportin_kuviot/muuttoasteet90_17.png", p2)
 
  p2
+ 
+```
+# muuttojen suhteellinen määrä (muuttojen absoluuttinen määrä jaettuna väkiluvulla)
+
+```{r muuttoasteet90_17_ei_sis}
+
+dat_kokonaismuutto %>%
+  filter(muuton_tyyppi != "kuntien sisaiset muutot") %>% 
+   ggplot(aes(x = vuosi, y = muuttoaste, col = muuton_tyyppi)) +
+    geom_line() +
+    theme(legend.title = element_blank()) +
+    ylab("Muuttoaste") + # Muuttojen määrä suhteessa väkilukuun
+    xlab(NULL) +
+    #ggtitle("Muuttoasteet Suomessa 1990 - 2016") +
+    geom_hline(yintercept = 0, color = "black", linetype = 2) +
+    theme(legend.position = "bottom", legend.justification = "left") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 6)) +
+    scale_y_continuous(labels = percent_comma) +
+    scale_color_manual(labels = c("Maakuntien väliset muutot",
+                                    "Seutukuntien väliset muutot",
+                                    "Kuntien väliset muutot",
+                                    "Kuntien sisäiset muutot"),
+                       values = brewer.pal(5, "Blues")[2:5]) +
+  guides(colour = guide_legend(nrow = 2))
+
+ # ggsave(here::here("analyysit/Raportin_kuviot/muuttoasteet90_17_ei_sis.png"))
+
+
  
 ```
 
@@ -272,6 +300,14 @@ tyo_muutto_atyyppi %>%
 # ggsave("tyo_muutto_atyyppi.png", height = 6, width = 12)  
 
 ```
+
+# Pendelöivien osuus työllisistä
+
+```{r pend_osuus}
+
+```
+
+
 
 # Pendelöivien osuus kunnassa työssäkäyvistä
 
