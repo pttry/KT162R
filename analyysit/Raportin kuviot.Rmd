@@ -660,3 +660,33 @@ me_emp %>%
 
 
 ```
+
+
+# Työmatkat kaupunki-maaseutuluokituksella
+
+Ruutuaineistosta laskettu
+
+```{r matkat_ruutu}
+
+dat_matkat_aluokka %>% 
+  gather(vars, values, tyomatka_asuin, tyomatka_tyo) %>% 
+  mutate(vars = fct_recode(vars,
+                           "Asuinpaikan mukaan" = "tyomatka_asuin", 
+                           "Työpaikan mukaan" = "tyomatka_tyo")) %>% 
+  ggplot(aes(time, values, colour = aluokka)) +
+  facet_wrap(~ vars) +
+  geom_line() +
+  geom_h0() +
+  scale_colour_manual(values = atyyppi_colour) +
+  scale_x_continuous(labels = no_century) +
+  labs(title = "Keskimääräiset työmatkat",
+       subtitle = "Ruutuaineistosta kaupunki-maaseutuluokituksella",
+       caption = "© YKR / SYKE ja TK 2018",
+       y = "km") +
+  the_title_blank(c("x", "l"))
+
+
+# ggsave("matkat.png", height = 8, width = 16)
+
+
+```
