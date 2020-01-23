@@ -13,7 +13,9 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "fig_tyomuutto/"
+  fig.path = "fig_tyomuutto/",
+  fig.width = 18,
+  fig.height = 10
 )
 
 library(tidyverse)
@@ -21,24 +23,30 @@ library(ggptt)
 library(RColorBrewer)
 library(glue)
 
-set_ptt()
-theme_update(plot.subtitle = element_text(colour = "grey50", size = 9), 
+devtools::load_all()
+
+set_ptt(28)
+theme_update(plot.subtitle = element_text(colour = "grey30", size = 18), 
+             plot.title = element_text(colour = "grey30", size = 40),
              plot.margin = margin(0.5, 0.5, 3, 0.5))
 
+update_geom_defaults("line", list(size = 3))
 
 atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
+
+
 
 ```
 
 ```{r data}
-data("tyo_muutto_atyyppi", "tyo_muutto_ku")
+data("tyo_muutto_atyyppi", "tyo_muutto_ku", "dat_muuttotiedot_kunnittain")
 
 
 ```
 
-# Pendelöivien osuus kunnassa työssäkäyvistä
+# Työperäinen muutto
 
-```{r pend_atyyppi}
+```{r tyomuutto}
 
 
 time_range <- range(tyo_muutto_atyyppi$time)
@@ -64,26 +72,75 @@ tyo_muutto_atyyppi %>%
        caption = "Lähde: PTT, Tilastokeskus",
        y = "henkeä")
 
-ggsave("tyo_muutto_atyyppi.png", height = 6, width = 12)  
+# ggsave("tyo_muutto_atyyppi.png", height = 6, width = 12)  
 
 ```
 
-```{r pend_atyyppi_maara}
 
-dat_tulopendelointi_tyyppi %>% 
-  filter(koulutusaste == "Yhteensä",
-         ika == "Kaikki ikäluokat") %>% 
-  mutate(pendelointi = fct_recode(pendelointi, 
-                                  kaikki = "Alueella työssäkäyvät yhteensä",
-                                  asuinkunnassa = "Asuinkunnassaan työssäkäyvät",
-                                  pendeloivat = "Pendelöivät")) %>% 
-  spread(pendelointi, values) %>% 
-  mutate(values = pendeloivat) %>% 
+```{r nettomuutto}
+
+time_range <- range(tyo_muutto_atyyppi$time)
+time_range2 <- range(dat_muuttotiedot_kunnittain$Vuosi)
+
+dat_muuttotiedot_kunnittain %>%
+  rename(time = "Vuosi") %>% 
+  filter(Tiedot == "nettomuutto",
+         time >= time_range[1]) %>% 
+  group_by(time, aluetyyppi) %>% 
+  summarise(nettomuutto = sum(values)) %>% 
+  left_join(select(tyo_muutto_atyyppi, time, aluetyyppi, tyo_muutto_netto), by = c("time", "aluetyyppi")) %>% 
+  rename('Työperäinen' = tyo_muutto_netto, 'Kaikki' = nettomuutto) %>% 
+  mutate(aluetyyppi = fct_recode(aluetyyppi, 
+                                 'Muu maaseutu' = "Ydinmaaseutu",
+                                 'Muu maaseutu' = "Harvaan asuttu maaseutu"),
+         aluetyyppi = ggptt::line_wrap(aluetyyppi, 25)) %>% 
+  group_by(time, aluetyyppi) %>% 
+  summarise_all(sum) %>% 
+  ungroup() %>% 
+  gather(vars, values, -time, -aluetyyppi) %>% 
+  ggplot(aes(time, values, colour = vars)) +
+  facet_wrap( ~ aluetyyppi) +
+  geom_line() +
+  geom_h0() +
+  # scale_colour_manual(values = atyyppi_colour) +
+  the_title_blank(c("x", "l")) +
+  labs(subtitle = glue("Työperäinen muutto on samana vuonna asuin- ja työpaikan kuntaan vaihtaneiden muutto."),
+       title = glue("Nettomuutto ja työperäinen nettomuutto {time_range[1]}-{time_range[2]}/{no_century(time_range2[2])}"),
+       caption = "Lähde: PTT, Tilastokeskus",
+       y = "henkeä")
+
+```
+
+
+```{r nettomuutto2}
+
+time_range <- range(tyo_muutto_atyyppi$time)
+
+dat_muuttotiedot_kunnittain %>%
+  rename(time = "Vuosi") %>% 
+  filter(Tiedot == "nettomuutto",
+         time >= time_range[1]) %>% 
+  group_by(time, aluetyyppi) %>% 
+  summarise(nettomuutto = sum(values)) %>% 
+  left_join(select(tyo_muutto_atyyppi, time, aluetyyppi, tyo_muutto_netto), by = c("time", "aluetyyppi")) %>% 
+  rename('Työperäinen' = tyo_muutto_netto, 'Kaikki' = nettomuutto) %>% 
+  mutate(aluetyyppi = fct_recode(aluetyyppi, 
+                                 'Muu maaseutu' = "Ydinmaaseutu",
+                                 'Muu maaseutu' = "Harvaan asuttu maaseutu"),
+         aluetyyppi = ggptt::line_wrap(aluetyyppi, 25)) %>% 
+  group_by(time, aluetyyppi) %>% 
+  summarise_all(sum) %>% 
+  ungroup() %>% 
+  gather(vars, values, -time, -aluetyyppi) %>% 
   ggplot(aes(time, values, colour = aluetyyppi)) +
-  geom_line()
-  
+  facet_wrap( ~ vars) +
+  geom_line() +
+  geom_h0() +
+  scale_colour_manual(values = atyyppi_colour) +
+  the_title_blank(c("x", "l")) +
+  labs(subtitle = glue("Työperäinen muutto on samana vuonna asuin- ja työpaikan kuntaan vaihtaneiden muutto."),
+       title = glue("Nettomuutto ja työperäinen nettomuutto {time_range[1]}-{time_range[2]}/{no_century(time_range2[2])}"),
+       caption = "Lähde: PTT, Tilastokeskus",
+       y = "henkeä")
 
 ```
-
-
-

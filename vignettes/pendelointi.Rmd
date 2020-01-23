@@ -14,8 +14,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "fig_pendelointi/",
-  fig.width = 10,
-  fig.height = 8
+  fig.width = 18,
+  fig.height = 10
 )
 
 library(tidyverse)
@@ -23,8 +23,15 @@ library(ggptt)
 library(RColorBrewer)
 library(glue)
 
-set_ptt(base_size = 18)
-theme_update(plot.subtitle = element_text(colour = "grey50", size = 12))
+devtools::load_all()
+
+set_ptt(28)
+theme_update(plot.subtitle = element_text(colour = "grey30", size = 18), 
+             plot.title = element_text(colour = "grey30", size = 40),
+             plot.margin = margin(0.5, 0.5, 3, 0.5),
+             legend.spacing = unit(24, "pt"))
+
+update_geom_defaults("line", list(size = 3))
 
 atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
 
@@ -192,7 +199,7 @@ dat_sum_amma3 %>%
   summarise(pend_osuus = 100 * sum(N[!(aluetyyppi == aluetyyppi_tp)], na.rm = TRUE) / sum(N, na.rm = TRUE)) %>% 
   group_by(aluetyyppi_tp, amma_val) %>% 
   summarise(pend_osuus_muutos = (pend_osuus[time == max(time)] - pend_osuus[time == 2000])) %>% 
-  ungroup() %>% 
+  ungroup() %>%
   ggplot(aes(aluetyyppi_tp, pend_osuus_muutos)) +
   facet_wrap(~ amma_val, nrow = 1) +
   geom_col() +
@@ -200,6 +207,43 @@ dat_sum_amma3 %>%
   coord_flip() +
   labs(y = "%-yksikköä", x = NULL, 
           title = "Muista kunnista työssäkäyvien osuuden muutos 2000-2015 ammateittain alueilla keskimäärin")
+    
+  
+  # ggsave("pend_amma_val.png", height = 6, width = 16) 
+
+```
+
+```{r osuus_alueen_tp_muutos_valitut_pl_muut, fig.width=24}
+
+dat_sum_amma3 %>% 
+  mutate(amma3 = replace_na(as.character(amma3), "Muut")) %>% 
+  mutate(amma_val = fct_recode(amma3, 
+                               'Erityisasiantuntijat' = "erityisasiantuntijat",
+                               'Asiantuntijat' = "asiantuntijat",
+                               'Valmistus ja prosessi' = "korj & valm tt",
+                               'Valmistus ja prosessi' = "pros tt",
+                               'Toimisto ja myynti' =  "tsto & aspal tt",
+                               'Toimisto ja myynti' =  "pal, myynti & hoito tt",
+                               'Rakennus' = "rakennus tt"),
+         amma_val = fct_other(amma_val, keep = c('Erityisasiantuntijat', 'Asiantuntijat', 
+                                                 'Valmistus ja prosessi', 'Toimisto ja myynti', 'Rakennus'), 
+                              other_level = "Muut"),
+         aluetyyppi_tp = fct_rev(aluetyyppi_tp)) %>% 
+  group_by(time, aluetyyppi, aluetyyppi_tp, amma_val) %>% 
+  summarise(N = sum(N)) %>% 
+  group_by(time, aluetyyppi_tp, amma_val) %>% 
+  summarise(pend_osuus = 100 * sum(N[!(aluetyyppi == aluetyyppi_tp)], na.rm = TRUE) / sum(N, na.rm = TRUE)) %>% 
+  group_by(aluetyyppi_tp, amma_val) %>% 
+  summarise(pend_osuus_muutos = (pend_osuus[time == max(time)] - pend_osuus[time == 2000])) %>% 
+  ungroup() %>%
+  filter(amma_val != "Muut") %>% 
+  ggplot(aes(aluetyyppi_tp, pend_osuus_muutos)) +
+  facet_wrap(~ amma_val, nrow = 1) +
+  geom_col() +
+  geom_hline(yintercept = 0) +
+  coord_flip() +
+  labs(y = "%-yksikköä", x = NULL, 
+          title = "Muista kunnista työssäkäyvien osuuden muutos 2000-2015 ammateittain")
     
   
   # ggsave("pend_amma_val.png", height = 6, width = 16) 
@@ -242,7 +286,7 @@ dat_matkat_aluokka %>%
   gather(vars, values, tyomatka_asuin, tyomatka_tyo) %>% 
   mutate(vars = fct_recode(vars,
                            "Asuinpaikan mukaan" = "tyomatka_asuin", 
-                           "Tyopaikan mukaan" = "tyomatka_tyo")) %>% 
+                           "Työpaikan mukaan" = "tyomatka_tyo")) %>% 
   ggplot(aes(time, values, colour = aluokka)) +
   facet_wrap(~ vars) +
   geom_line() +
@@ -256,7 +300,7 @@ dat_matkat_aluokka %>%
   the_title_blank(c("x", "l"))
 
 
-ggsave("matkat.png", height = 8, width = 16)
+# ggsave("matkat.png", height = 8, width = 16)
 
 
 ```
