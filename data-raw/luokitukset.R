@@ -17,7 +17,11 @@ aluetyyppi <- readxl::read_xls("data-raw/msindaluejaot10.xls") %>%
                                   "Kaupungit", "TKA", "YO", "PK seutu")))) %>%
   mutate(aluetyyppi = fct_recode(aluetyyppi,
                                  'Muut kaupungit' = "Kaupungit",
+<<<<<<< HEAD
                                  'Muut työssäkäyntialueiden keskukset' = "TKA",
+=======
+                                 'Muut keskukset' = "TKA",
+>>>>>>> b63e37969fe45f9433900acf631e3407fd42204a
                                  'Muut yliopistokaupungit' = "YO",
                                  'PK-seutu' = "PK seutu"))
 

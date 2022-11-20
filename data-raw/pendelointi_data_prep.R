@@ -3,22 +3,25 @@
 library(tidyverse)
 library(pxweb)
 
-# Lähtö pendelöinti
+# Lähtöpendelöinti (työlliset)
 
 dat_lahtopendelointi <-
-  get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_013.px",
-                 dims = list(Alue = c('*'),
+  pxweb_get_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_115n.px",
+                 query = list(Alue = c('*'),
                              Pendelöinti = c('*'),
                              Koulutusaste = c('*'),
                              Ikä = c('*'),
-                             Vuosi = c('*')),
-                 clean = TRUE) %>%
+                             Vuosi = c('*'),
+                             Tiedot =c('*'))) %>%
   statfitools::clean_times() %>%
-  statfitools::clean_names(to_lower = TRUE)
+  statfitools::clean_names(to_lower = TRUE) %>%
+  rename(values = tyolliset)
+
 
 dat_lahtopendelointi_tyyppi <-
   dat_lahtopendelointi %>%
-  filter(alue != "KOKO MAA") %>%
+  mutate(alue = fct_recode(alue, Maarianhamina = "Maarianhamina - Mariehamn")) %>%
+  # filter(alue != "KOKO MAA") %>%
   left_join(rename(aluetyyppi, alue = "kunta"), by = "alue") %>%
   group_by(aluetyyppi, time, pendelointi, koulutusaste, ika) %>%
   summarise(values = sum(values)) %>%
@@ -27,25 +30,33 @@ dat_lahtopendelointi_tyyppi <-
 
 
 
-# Tulopendelöinti
+# Tulopendelöinti (työpaikat)
 
 
-dat_tulopendelointi <-
-  get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_014.px",
+dat_tulopendelointi0 <-
+  get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/tyokay/statfin_tyokay_pxt_115p.px",
                  dims = list("Työpaikan alue" = c('*'),
                              Pendelöinti = c('*'),
                              Koulutusaste = c('*'),
                              Ikä = c('*'),
-                             Vuosi = c('*')),
-                 clean = TRUE) %>%
+                             Vuosi = c('*'),
+                             Tiedot = c('*') ),
+                 clean = TRUE)
+
+dat_tulopendelointi <- dat_tulopendelointi0 %>%
   statfitools::clean_times() %>%
-  statfitools::clean_names(to_lower = TRUE)
+  statfitools::clean_names(to_lower = TRUE) %>%
+  mutate(koulutusaste = fct_recode(koulutusaste,
+                                  "Ei perusasteen jälkeistä tutkintoa" = "Ei perusasteen jälkeistä tutkintoa tai koulutusaste tuntematon"),
+         ika = fct_relevel(ika, "Yhteensä", after = Inf))
+
 
 
 dat_tulopendelointi_tyyppi <-
   dat_tulopendelointi %>%
-  filter(tyopaikan_alue != "KOKO MAA") %>%
   rename(alue = tyopaikan_alue) %>%
+  mutate(alue = fct_recode(alue, Maarianhamina = "Maarianhamina - Mariehamn")) %>%
+  # filter(alue != "KOKO MAA") %>%
   left_join(rename(aluetyyppi, alue = "kunta"), by = "alue") %>%
   group_by(aluetyyppi, time, pendelointi, koulutusaste, ika) %>%
   summarise(values = sum(values)) %>%
@@ -143,8 +154,9 @@ names(tulopendelointi_data) <- c("alue", "koulutusaste", "vuosi", "ika", "seutuk
 tulopendelointi_data <- select(tulopendelointi_data, - tyolliset_yhteensa) %>%
   rename(tulopendelointi = pendeloivat)
 
-pendelointi_data <- left_join(tulopendelointi_data, lahtopendelointi_data)
+dat_pendelointi <- left_join(tulopendelointi_data, lahtopendelointi_data)
 
 # Save data
-  saveRDS(pendelointi_data, file = "R/data_clean/pendelointi_data.rds")
+  usethis::use_data(dat_pendelointi, overwrite = TRUE)
+
 

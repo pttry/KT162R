@@ -1,0 +1,236 @@
+---
+title: "Työssäkäynti koulutusasteittain"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "fig_pendelointi/",
+  fig.width = 8,
+  fig.height = 6
+)
+
+library(tidyverse)
+library(ggptt)
+library(RColorBrewer)
+library(glue)
+
+devtools::load_all() 
+
+set_ptt(base_size = 12)
+theme_update(plot.subtitle = element_text(colour = "grey50", size = 8))
+
+atyyppi_colour <- c(brewer.pal(6, "Oranges")[6:4], brewer.pal(6, "Blues")[6:5] , brewer.pal(6, "Greens")[6:5])
+
+
+```
+
+```{r data}
+
+data("dat_lahtopendelointi_tyyppi", "dat_tulopendelointi_tyyppi")
+
+dat_tyossak <- 
+  bind_rows(tyolliset = dat_lahtopendelointi_tyyppi, tyopaikat = dat_tulopendelointi_tyyppi, .id = "tieto") %>% 
+  mutate(koulutusaste = factor(koulutusaste, 
+                               levels = c("Ylempi korkeakouluaste tai tutkijakoulutusaste 7, 8", 
+                                          "Alin korkea-aste tai alempi korkeakouluaste 5, 6",
+                                          "Toinen aste tai erikoisammattikoulutusaste 3, 4",
+                                          "Ei perusasteen jälkeistä tutkintoa",
+                                          "Yhteensä"),
+                               labels = c("Ylempi korkea tai tutkija",
+                                          "Alin korkea tai alempi korkeakoulu",
+                                          "2. aste tai erikoisammattikoulu",
+                                          "Perusaste",
+                                          "Yhteensä")),
+         pendelointi = as_factor(pendelointi),
+         tieto = as_factor(tieto))
+
+time_range <- range(dat_tyossak$time)
+
+
+
+```
+
+# Työpaikat ja työlliset aluetyypeittäin
+
+```{r tyolliset_tyopaikat}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         ika == "Yhteensä",
+         aluetyyppi != "Koko maa",
+         koulutusaste == "Yhteensä") %>% 
+  ggplot(aes(time, values/1000, colour = tieto)) +
+  facet_wrap(~ aluetyyppi) +
+  geom_line()
+
+
+
+```
+
+# Työpaikat ja työlliset aluetyypeittäin ja koulutusasteittain
+
+```{r tyolliset_tyopaikat_koulu, fig.width=10, fig.height=8}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         ika == "Yhteensä",
+         aluetyyppi != "Koko maa",
+         koulutusaste != "Yhteensä") %>% 
+  ggplot(aes(time, values/1000, colour = tieto)) +
+  facet_grid(koulutusaste ~ aluetyyppi) +
+  geom_line()
+
+
+
+```
+
+# Työpaikat ja työlliset aluetyypeittäin osuus
+
+```{r tyolliset_tyopaikat_osuus}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         ika == "Yhteensä",
+         aluetyyppi != "Koko maa",
+         koulutusaste == "Yhteensä") %>% 
+  group_by(time, tieto) %>% 
+  mutate(share = 100 * values/ sum(values)) %>% 
+  ungroup() %>% 
+  ggplot(aes(time, share, colour = aluetyyppi)) +
+  facet_wrap( ~ tieto) +
+  geom_line()
+
+
+
+```
+
+# Työpaikat ja työlliset aluetyypeittäin ja koulutusasteittain osuus
+
+```{r tyolliset_tyopaikat_koulu_osuus, fig.width=10, fig.height=8}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         ika == "Yhteensä",
+         aluetyyppi != "Koko maa",
+         koulutusaste != "Yhteensä") %>% 
+  group_by(time, tieto, koulutusaste) %>% 
+  mutate(share = 100 * values/ sum(values)) %>% 
+  ungroup() %>% 
+  ggplot(aes(time, share, colour = aluetyyppi)) +
+  facet_grid(koulutusaste ~ tieto) +
+  geom_line() +
+  labs(title = "Alueiden osuudet työllisistä ja työpaikkoista koulutusasteittain",
+       y = "%", x = NULL)
+
+
+
+```
+
+# Työpaikkojen ja työllisten erotus
+ 
+```{r tyolliset_tyopaikat_ero}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         ika == "Yhteensä",
+         aluetyyppi != "Koko maa",
+         koulutusaste == "Yhteensä") %>% 
+  spread(tieto, values) %>% 
+  mutate(ero = tyopaikat - tyolliset) %>% 
+  ggplot(aes(time, ero, colour = aluetyyppi)) +
+  geom_line() +
+  geom_h0()
+
+```
+ 
+# Työpaikkojen ja työllisten erotus suhteessa koko maan työllisiin
+ 
+```{r tyolliset_tyopaikat_ero_suht}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         ika == "Yhteensä",
+         koulutusaste == "Yhteensä") %>% 
+  spread(tieto, values) %>% 
+  group_by(time) %>% 
+  mutate(tyoll_km = tyolliset[aluetyyppi == "Koko maa"]) %>% 
+  ungroup() %>% 
+  filter(aluetyyppi != "Koko maa") %>% 
+  mutate(ero_suht = 100* (tyopaikat - tyolliset)/ tyoll_km) %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, ero_suht)) %>% 
+  ggplot(aes(time, ero_suht, colour = aluetyyppi)) +
+  geom_line() +
+  geom_h0()
+
+```
+ 
+# Työpaikkojen ja työllisten erotus suhteessa koko maan työllisiin koulutusasteittain
+ 
+```{r tyolliset_tyopaikat_ero_suht_koulutus, fig.width=10}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         ika == "Yhteensä") %>% 
+  spread(tieto, values) %>% 
+  group_by(time, koulutusaste) %>% 
+  mutate(tyoll_km = tyolliset[aluetyyppi == "Koko maa"]) %>% 
+  ungroup() %>% 
+  filter(aluetyyppi != "Koko maa") %>% 
+  mutate(ero_suht = 100* (tyopaikat - tyolliset)/ tyoll_km) %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, ero_suht)) %>% 
+  ggplot(aes(time, ero_suht, colour = aluetyyppi)) +
+  facet_wrap(~ koulutusaste, nrow = 1) +
+  geom_line() +
+  geom_h0()
+
+```
+
+# Työpaikkojen ja työllisten erotus suhteessa koko maan työllisiin koulutusasteittain ja ikäluokittain
+
+```{r tyolliset_tyopaikat_ero_suht_koulutus_ika, fig.width=10, fig.height=8}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         (ika %in% c("25 - 34", "35 - 44", "45 - 54", "55 - 64"))) %>% 
+  spread(tieto, values) %>% 
+  group_by(time, koulutusaste, ika) %>% 
+  mutate(tyoll_km = tyolliset[aluetyyppi == "Koko maa"]) %>% 
+  ungroup() %>% 
+  filter(aluetyyppi != "Koko maa") %>% 
+  mutate(ero_suht = 100* (tyopaikat - tyolliset)/ tyoll_km) %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, ero_suht)) %>% 
+  ggplot(aes(time, ero_suht, colour = aluetyyppi)) +
+  facet_grid(ika ~ koulutusaste) +
+  geom_line() +
+  geom_h0()
+
+```
+# Työpaikkojen ja työllisten erotus suhteessa alueen työllisiin koulutusasteittain
+ 
+```{r tyolliset_tyopaikat_ero_asuht_koulutus, fig.width=10, fig.height=4}
+
+dat_tyossak %>% 
+  filter(pendelointi == "Yhteensä",
+         ika == "Yhteensä") %>% 
+  spread(tieto, values) %>% 
+  group_by(time, aluetyyppi) %>% 
+  mutate(tyoll_alue = tyolliset[koulutusaste == "Yhteensä"]) %>% 
+  ungroup() %>% 
+  filter(aluetyyppi != "Koko maa") %>% 
+  mutate(ero_suht = 100* (tyopaikat - tyolliset)/ tyoll_alue) %>% 
+  mutate(aluetyyppi = fct_reorder2(aluetyyppi, time, ero_suht)) %>% 
+  ggplot(aes(time, ero_suht, colour = aluetyyppi)) +
+  facet_wrap(~ koulutusaste, nrow = 1) +
+  geom_line() +
+  geom_h0()
+
+```

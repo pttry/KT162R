@@ -1,26 +1,17 @@
 # Suomen väkilukutiedot 1990-
 
-data0 <-
-  get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/vaerak/statfin_vaerak_pxt_001.px",
+dat_vakiluku0 <-
+  get_pxweb_data(url = "http://pxnet2.stat.fi/PXWeb/api/v1/fi/StatFin/vrm/vaerak/statfin_vaerak_pxt_11rd.px",
                  dims = list(Vuosi = c('*'),
-                             Sukupuoli = c('S'),
-                             Ikä = c('SSS'),
-                             Tiedot = c('lkm')),
+                             Sukupuoli = c('SSS'),
+                             "Ikä" = c('SSS'),
+                             Tiedot = c('vaesto')),
                  clean = TRUE)
 
-data <- data0
+dat_vakiluku <- dat_vakiluku0 %>%
+   select(Vuosi, vakiluku = values) %>%
+   mutate(Vuosi = as.integer(as.character(Vuosi)))
 
-# Remove redundant columns
-   data <- data %>% select(Vuosi, values)
-
-# Change the type of vuosi
-   data$Vuosi <- as.integer(as.character(data$Vuosi))
-
-# Change names, name values might conflict when joining to other data sets.
-   names(data) <- c("Vuosi", "vakiluku")
-
-# name data set
-   vakiluku <- data
 
 # Save data
-   saveRDS(vakiluku, file = "R/data_clean/vakiluku.rds")
+   usethis::use_data(dat_vakiluku, overwrite = TRUE)
